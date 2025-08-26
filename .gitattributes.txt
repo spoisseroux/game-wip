@@ -1,0 +1,53 @@
+# Default text auto-normalization
+* text=auto
+
+# Force LF for common text files
+*.cs      text eol=lf
+*.shader  text eol=lf
+*.cginc   text eol=lf
+*.compute text eol=lf
+*.hlsl    text eol=lf
+*.json    text eol=lf
+*.xml     text eol=lf
+*.txt     text eol=lf
+*.md      text eol=lf
+*.yaml    text eol=lf
+*.yml     text eol=lf
+
+# Unity YAML files (with fallback)
+*.unity   text merge=unityyaml eol=lf
+*.prefab  text merge=unityyaml eol=lf
+*.asset   text merge=unityyaml eol=lf
+*.meta    text merge=unityyaml eol=lf
+
+# Project settings
+ProjectSettings/** text eol=lf
+Packages/**       text eol=lf
+
+# Binary files
+*.png     binary
+*.jpg     binary
+*.jpeg    binary
+*.gif     binary
+*.tga     binary
+*.tif     binary
+*.tiff    binary
+*.psd     binary
+*.mp3     binary
+*.ogg     binary
+*.wav     binary
+*.aif     binary
+*.aiff    binary
+*.zip     binary
+*.dll     binary
+*.exe     binary
+*.pdb     binary
+*.so      binary
+*.dylib   binary
+*.bundle  binary
+*.mp4     binary
+*.mov     binary
+
+# FMOD specific (force LF for text-based parts)
+Assets/Plugins/FMOD/**/*.bundle text eol=lf
+Assets/Plugins/FMOD/**/Info.plist text eol=lf
