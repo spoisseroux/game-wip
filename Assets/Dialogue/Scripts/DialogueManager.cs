@@ -3,7 +3,8 @@ using TMPro;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 
-public class DialogueManager : MonoBehaviour {
+public class DialogueManager : MonoBehaviour
+{
     [Header("UI References")]
     public GameObject dialogueUI; //Parent UI for dialgue
     public TMP_Text speakerNameUI; //UI TMPro to hold Speaker Name
@@ -15,27 +16,66 @@ public class DialogueManager : MonoBehaviour {
     public DialogueConversation currentConversation;
 
     private DialogueNode currentNode;
-    
-    //TODO: Update this with actual game input and not just space eventually
-    void Update() {
-        // Only advance if there is exactly one next node (linear dialogue)
-        if (currentNode != null && currentNode.nextNodes != null && currentNode.nextNodes.Length == 1) {
-            // Check if space key was pressed using new Input System
-            if (Keyboard.current.spaceKey.wasPressedThisFrame) {
-                NextNode(); // Advances to the next node
+    public bool conversationStarted = false;
+    private bool waitingForRelease = false;
+
+
+    void Update()
+    {
+        if (currentNode == null) return;
+
+        //Wait for release before waiting for next press
+        if (waitingForRelease)
+        {
+            //TODO: hard coded e press
+            if (!Keyboard.current.eKey.isPressed)
+                waitingForRelease = false;
+            return;
+        }
+
+        // If this node has multiple choices (branching)
+        if (currentNode.nextNodes != null && currentNode.nextNodes.Length > 1)
+        {
+            //TODO: Better Y/N Input system
+            if (Keyboard.current.nKey.wasPressedThisFrame)
+            {
+                NextNode(0); // choose first branch
             }
+            else if (Keyboard.current.yKey.wasPressedThisFrame)
+            {
+                NextNode(1); // choose second branch
+            }
+        }
+        // If this node has exactly one choice; linear
+        else if (currentNode.nextNodes != null && currentNode.nextNodes.Length == 1)
+        {
+            //TODO: Advance dialog with input system not hardcoded
+            if (Keyboard.current.eKey.wasPressedThisFrame)
+            {
+                NextNode(); // default goes to 0
+            }
+        }
+        //If this is the last node
+        else if (currentNode.nextNodes == null || currentNode.nextNodes.Length == 0)
+        {
+            if (Keyboard.current.eKey.wasPressedThisFrame) EndConversation();
         }
     }
 
     public void StartConversation(DialogueConversation conversation)
     {
+        conversationStarted = true;
         currentConversation = conversation;
+        Debug.Log("Conversation Started: " + conversationStarted);
         currentNode = conversation.nodes[0];
         dialogueUI.SetActive(true);
         ShowNode(currentNode);
+
+        waitingForRelease = true;
     }
 
-    void ShowNode(DialogueNode node) {
+    void ShowNode(DialogueNode node)
+    {
         currentNode = node;
 
         //Set Speaker Name & Portrait
@@ -47,12 +87,17 @@ public class DialogueManager : MonoBehaviour {
         node.text.RefreshString();
 
         //If there is more than 1 next nodes, show choices panel
-        if (node.nextNodes != null && node.nextNodes.Length > 1) {
+        if (node.nextNodes != null && node.nextNodes.Length > 1)
+        {
             choicePanel.SetActive(true);
             //In the inspector, hook up Y&N buttons onClick events to choose Next Node 0 or 1 via NextNode method
-        } else {
+        }
+        else
+        {
             choicePanel.SetActive(false);
         }
+
+        waitingForRelease = true;
     }
 
     //Defaults to 0 if there is only 1 next nodes, ends if 0, 
@@ -79,6 +124,8 @@ public class DialogueManager : MonoBehaviour {
     void EndConversation()
     {
         Debug.Log("Dialogue finished");
+        conversationStarted = false;
+        Debug.Log("Conversation Started: " + conversationStarted);
         choicePanel.SetActive(false);
         dialogueUI.SetActive(false);
         //Hide dialogue ui & return control to player here
