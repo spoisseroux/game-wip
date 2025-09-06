@@ -33,12 +33,15 @@ public class DialogueTrigger : MonoBehaviour
 
     void Update()
     {
-        if (playerInside && !dialogueManager.conversationStarted)
+        if (playerInside &&
+            !dialogueManager.conversationStarted &&
+            !dialogueManager.waitingForRelease &&
+            !dialogueManager.isEndingConversation)
         {
             if (Keyboard.current.eKey.wasPressedThisFrame)
             {
                 Debug.Log("E pressed: starting conversation");
-                dialogueManager.StartConversation(conversation);
+                dialogueManager.StartConversation(conversation, this.transform);
             }
         }
     }
