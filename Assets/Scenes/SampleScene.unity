@@ -2308,6 +2308,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1415581064}
   - component: {fileID: 1415581065}
+  - component: {fileID: 1415581066}
   m_Layer: 0
   m_Name: DialogueManager
   m_TagString: Untagged
@@ -2351,6 +2352,21 @@ MonoBehaviour:
   currentConversation: {fileID: 0}
   conversationStarted: 0
   waitingForRelease: 0
+--- !u!114 &1415581066
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1415581063}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a0ad171e02d74547835d65b92ef32c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Typewriter
+  baseDelay: 0.05
+  punctuationDelay: 0.3
+  fastForwardKey: 1
 --- !u!1 &1469075508
 GameObject:
   m_ObjectHideFlags: 0

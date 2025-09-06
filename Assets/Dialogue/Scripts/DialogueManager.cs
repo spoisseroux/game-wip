@@ -24,9 +24,13 @@ public class DialogueManager : MonoBehaviour
     public bool conversationStarted = false;
     public bool waitingForRelease = false;
 
+    [Header("Dependencies")]
+    private Typewriter typewriter;
+
     void Start()
     {
         playerActionMap = playerInput.actions.FindActionMap("Player");
+        typewriter = GetComponent<Typewriter>();
     }
 
     void Update()
@@ -52,6 +56,18 @@ public class DialogueManager : MonoBehaviour
     void ChooseNextNode()
     {
         if (currentNode == null) return;
+
+
+        // prevent advancing if still typing & handle skipping
+        if (typewriter.IsTyping)
+        {
+            //TODO: Hardcoded skip dialogue key press
+            if (Keyboard.current.eKey.wasPressedThisFrame)
+            {
+                typewriter.Skip();
+            }
+            return;
+        }
 
         // if this node has multiple choices
         if (currentNode.nextNodes != null && currentNode.nextNodes.Length > 1)
@@ -101,8 +117,12 @@ public class DialogueManager : MonoBehaviour
         currentNode = node;
         speakerNameUI.text = node.speakerId;
         portraitUI.sprite = node.portrait;
-        node.text.StringChanged += (localized) => dialogueTextUI.text = localized;
-        node.text.RefreshString();
+
+        node.text.StringChanged += (localized) =>
+        {
+            typewriter.StartTyping(dialogueTextUI, localized);
+        };
+
         choicePanel.SetActive(node.nextNodes != null && node.nextNodes.Length > 1);
         waitingForRelease = true;
     }
