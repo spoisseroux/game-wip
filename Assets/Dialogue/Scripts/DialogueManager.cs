@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using Unity.Cinemachine;
+using System.Collections;
 
 public class DialogueManager : MonoBehaviour
 {
@@ -30,12 +31,12 @@ public class DialogueManager : MonoBehaviour
 
     void Update()
     {
-        // Only process dialogue if we're in a conversation
-        if (!conversationStarted) return;
+        if (!conversationStarted || currentNode == null) return;
 
-        // Wait for release of key before processing next input
+        // wait for release of advance key before processing next input
         if (waitingForRelease)
         {
+            //TODO: Hardcoded inputs
             if (!Keyboard.current.eKey.isPressed &&
                 !Keyboard.current.yKey.isPressed &&
                 !Keyboard.current.nKey.isPressed)
@@ -50,60 +51,59 @@ public class DialogueManager : MonoBehaviour
 
     void ChooseNextNode()
     {
-        // If this node has multiple choices (branching)
+        if (currentNode == null) return;
+
+        // if this node has multiple choices
         if (currentNode.nextNodes != null && currentNode.nextNodes.Length > 1)
         {
             if (Keyboard.current.nKey.wasPressedThisFrame)
             {
                 NextNode(0);
+                return;
             }
             else if (Keyboard.current.yKey.wasPressedThisFrame)
             {
                 NextNode(1);
+                return;
             }
         }
-        // If this node has exactly one choice; linear
+        // if this node haslinear choice
         else if (currentNode.nextNodes != null && currentNode.nextNodes.Length == 1)
         {
             if (Keyboard.current.eKey.wasPressedThisFrame)
             {
                 NextNode();
+                return;
             }
         }
-        // Only last node case
+        // last node case
         else if ((currentNode.nextNodes == null || currentNode.nextNodes.Length == 0) &&
                  Keyboard.current.eKey.wasPressedThisFrame)
         {
             EndConversation();
+            return;
         }
     }
 
     public void StartConversation(DialogueConversation conversation, Transform npc)
     {
         conversationStarted = true;
-
         playerActionMap?.Disable();
-
         currentConversation = conversation;
         currentNode = conversation.nodes[0];
         dialogueUI.SetActive(true);
         ShowNode(currentNode);
-
         waitingForRelease = true;
     }
 
     void ShowNode(DialogueNode node)
     {
         currentNode = node;
-
         speakerNameUI.text = node.speakerId;
         portraitUI.sprite = node.portrait;
-
         node.text.StringChanged += (localized) => dialogueTextUI.text = localized;
         node.text.RefreshString();
-
         choicePanel.SetActive(node.nextNodes != null && node.nextNodes.Length > 1);
-
         waitingForRelease = true;
     }
 
@@ -117,6 +117,7 @@ public class DialogueManager : MonoBehaviour
             {
                 currentNode = currentNode.nextNodes[choiceIndex];
                 ShowNode(currentNode);
+                waitingForRelease = true;
             }
             else
             {
@@ -131,16 +132,32 @@ public class DialogueManager : MonoBehaviour
 
     void EndConversation()
     {
-        Debug.Log("Dialogue finished - Starting end sequence");
+        conversationStarted = false;
 
-        // Hide UI immediately
+        // Hide UI
         choicePanel.SetActive(false);
         dialogueUI.SetActive(false);
 
-        conversationStarted = false;
+        // Reset states
         currentNode = null;
-        waitingForRelease = false;
+        currentConversation = null;
 
         playerActionMap?.Enable();
+
+        StartCoroutine(WaitForKeyRelease());
+    }
+
+    private IEnumerator WaitForKeyRelease()
+    {
+        waitingForRelease = true;
+
+        while (Keyboard.current.eKey.isPressed ||
+               Keyboard.current.yKey.isPressed ||
+               Keyboard.current.nKey.isPressed)
+        {
+            yield return null; //wait a frame
+        }
+
+        waitingForRelease = false;
     }
 }

@@ -37,6 +37,7 @@ public class DialogueTrigger : MonoBehaviour
             !dialogueManager.conversationStarted &&
             !dialogueManager.waitingForRelease)
         {
+            //TODO: hardcoded input
             if (Keyboard.current.eKey.wasPressedThisFrame)
             {
                 Debug.Log("E pressed: starting conversation");
