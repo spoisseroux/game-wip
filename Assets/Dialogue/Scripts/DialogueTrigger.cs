@@ -35,8 +35,7 @@ public class DialogueTrigger : MonoBehaviour
     {
         if (playerInside &&
             !dialogueManager.conversationStarted &&
-            !dialogueManager.waitingForRelease &&
-            !dialogueManager.isEndingConversation)
+            !dialogueManager.waitingForRelease)
         {
             if (Keyboard.current.eKey.wasPressedThisFrame)
             {
