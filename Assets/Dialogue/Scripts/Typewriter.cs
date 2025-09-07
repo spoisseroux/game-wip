@@ -37,6 +37,9 @@ public class Typewriter : MonoBehaviour
         {
             targetText.text += content[i];
 
+            //Play typing sound
+            AudioManager.instance.PlayOneShot(FMODEvents.instance.typeSound, this.transform.position);
+
             float delay = baseDelay;
 
             //handle punctuation delay
