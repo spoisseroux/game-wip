@@ -2352,6 +2352,9 @@ MonoBehaviour:
   currentConversation: {fileID: 0}
   conversationStarted: 0
   waitingForRelease: 0
+  zoomInRadius: 8
+  zoomOutRadius: 10
+  zoomSpeed: 8
 --- !u!114 &1415581066
 MonoBehaviour:
   m_ObjectHideFlags: 0

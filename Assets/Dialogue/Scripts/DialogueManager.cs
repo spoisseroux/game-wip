@@ -27,9 +27,19 @@ public class DialogueManager : MonoBehaviour
     [Header("Dependencies")]
     private Typewriter typewriter;
 
+    [Header("Camera Zoom Settings")]
+    private CinemachineOrbitalFollow orbitalCamera;
+    public float zoomInRadius = 8f;
+    private float zoomOutRadius;
+    public float zoomSpeed = 8f;
+
+    private Coroutine zoomCoroutine;
+
     void Start()
     {
         playerActionMap = playerInput.actions.FindActionMap("Player");
+        orbitalCamera = Object.FindFirstObjectByType<CinemachineOrbitalFollow>();
+        zoomOutRadius = orbitalCamera.Radius;
         typewriter = GetComponent<Typewriter>();
     }
 
@@ -105,6 +115,9 @@ public class DialogueManager : MonoBehaviour
     {
         conversationStarted = true;
         playerActionMap?.Disable();
+
+        DialogueZoomIn();
+
         currentConversation = conversation;
         currentNode = conversation.nodes[0];
         dialogueUI.SetActive(true);
@@ -162,6 +175,8 @@ public class DialogueManager : MonoBehaviour
         currentNode = null;
         currentConversation = null;
 
+        DialogueZoomOut();
+
         playerActionMap?.Enable();
 
         StartCoroutine(WaitForKeyRelease());
@@ -179,5 +194,43 @@ public class DialogueManager : MonoBehaviour
         }
 
         waitingForRelease = false;
+    }
+
+
+    //Zoom helper functions & coroutines
+    public void DialogueZoomIn()
+    {
+        StartZoom(zoomInRadius);
+    }
+
+    public void DialogueZoomOut()
+    {
+        StartZoom(zoomOutRadius);
+    }
+
+    private void StartZoom(float targetRadius)
+    {
+        if (zoomCoroutine != null)
+            StopCoroutine(zoomCoroutine);
+
+        zoomCoroutine = StartCoroutine(ZoomRoutine(targetRadius));
+    }
+
+    private IEnumerator ZoomRoutine(float targetRadius)
+    {
+        if (orbitalCamera == null) yield break;
+
+        float startRadius = orbitalCamera.Radius;
+        float t = 0f;
+
+        while (t < 1f)
+        {
+            t += Time.deltaTime * zoomSpeed;
+            orbitalCamera.Radius = Mathf.Lerp(startRadius, targetRadius, t);
+            yield return null;
+        }
+
+        orbitalCamera.Radius = targetRadius;
+        zoomCoroutine = null;
     }
 }
