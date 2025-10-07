@@ -14,7 +14,7 @@ public class InputReader : ScriptableObject, IPlayerActions
     // then pipes input to the player's corresponding system
     // have a thinky later
     // the above probably will have to do with "button" actions, rather than actions mapping to buttons...
-    
+
     // movement vars
     [SerializeField] Vector2 movementInput;
     public float horizontalInput; // x
@@ -28,7 +28,7 @@ public class InputReader : ScriptableObject, IPlayerActions
 
     // action request event
     public event Action<ActionRequest, bool> PollInputRequest = delegate { };
-    
+
 
     #region Monobehavior
     public void EnablePlayerActions()
