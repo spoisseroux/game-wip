@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{cecd6b1f-c191-4297-b704-921e256e7b0b}">
+		<property name="assetPath">
+			<value>Character/Footsteps/footsteps_player_grass_02.ogg</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>48</value>
+		</property>
+		<property name="channelCount">
+			<value>1</value>
+		</property>
+		<property name="length">
+			<value>0.49964583333333334</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{1b19455c-9950-476f-9512-657e174f25fe}</destination>
+		</relationship>
+	</object>
+</objects>
