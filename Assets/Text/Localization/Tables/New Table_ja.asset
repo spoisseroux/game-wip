@@ -19,23 +19,23 @@ MonoBehaviour:
     m_Items: []
   m_TableData:
   - m_Id: 1406453932032
-    m_Localized: 1 hello
+    m_Localized: 1 hello jp
     m_Metadata:
       m_Items: []
   - m_Id: 1412808302592
-    m_Localized: 2 testing dialogue
+    m_Localized: 2 testing dialogue jp
     m_Metadata:
       m_Items: []
   - m_Id: 1415865950208
-    m_Localized: 3 gonna test branching
+    m_Localized: 3 gonna test branching jp
     m_Metadata:
       m_Items: []
   - m_Id: 1418902626304
-    m_Localized: 4 no, did that work?
+    m_Localized: 4 no, did that work? jp
     m_Metadata:
       m_Items: []
   - m_Id: 1427433840640
-    m_Localized: 5 yes, did that work?
+    m_Localized: 5 yes, did that work? jp
     m_Metadata:
       m_Items: []
   references:

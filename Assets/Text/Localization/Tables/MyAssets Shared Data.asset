@@ -13,8 +13,12 @@ MonoBehaviour:
   m_Name: MyAssets Shared Data
   m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
   m_TableCollectionName: MyAssets
-  m_TableCollectionNameGuidString: 00000000000000000000000000000000
-  m_Entries: []
+  m_TableCollectionNameGuidString: e716c32629f05694ca12ee55a1575443
+  m_Entries:
+  - m_Id: 343873572864
+    m_Key: ID_FONT
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
