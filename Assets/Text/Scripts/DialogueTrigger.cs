@@ -35,7 +35,7 @@ public class DialogueTrigger : MonoBehaviour
 
             interactIconGO.SetActive(true);
 
-            //TODO: hardcoded vertical offset for interact icon
+            //TODO: hardcoded vertical offset for interact icon (place icon above char)
             interactIcon.transform.position = transform.position + Vector3.up * 1f;
             Debug.Log("Player entered trigger zone");
 
@@ -57,13 +57,17 @@ public class DialogueTrigger : MonoBehaviour
 
     void Update()
     {
+        //rotate interact icon while player inside
+        if (playerInside)
+        {
+            interactIcon.transform.rotation = camTransform.rotation * originalRotation;
+        }
+
+        //only check input to start conversation if not already started or waiting
         if (playerInside &&
             !dialogueManager.conversationStarted &&
             !dialogueManager.waitingForRelease)
         {
-            //billboard interacticon effect
-            interactIcon.transform.rotation = camTransform.rotation * originalRotation;
-            //TODO: hardcoded input
             if (Keyboard.current.eKey.wasPressedThisFrame)
             {
                 Debug.Log("E pressed: starting conversation");
@@ -71,4 +75,5 @@ public class DialogueTrigger : MonoBehaviour
             }
         }
     }
+
 }
