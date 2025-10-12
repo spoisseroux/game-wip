@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerCombatManager : MonoBehaviour
+public class PlayerCombatManager : MonoBehaviour, IDamageable
 {
     // player context
     PlayerManager player;
@@ -20,13 +20,11 @@ public class PlayerCombatManager : MonoBehaviour
     [SerializeField]
     private List<Hurtbox> playerHurtboxes = new List<Hurtbox>();
 
-    // Weapon equippedWeapon; 
+    // Weapon equippedWeapon; weapon having its own Update()
     // this can either be data that passes how to construct attacks to this object
     // or this can be it's own API for generating attacks and such --> this probably better for stacking effects and more complicated behavior
 
-    // Combat StateMachine??
-
-    // Timer object for tracking attacks
+    // Timer object for tracking attacks, check equipped Weapon for it's attackspeed in Attempt()
     public float timeSinceAttack = 0.0f;
 
     // Basic Attack
@@ -41,14 +39,6 @@ public class PlayerCombatManager : MonoBehaviour
     [SerializeField] float timeActive;
     [SerializeField] float cooldownTime;
 
-    // list of executable attacks
-    /*
-    List<CombatAction> executableActions = new List<CombatAction>
-    (
-        
-    );
-    */
-
     #region Monobehavior
     void Start()
     {
@@ -57,18 +47,26 @@ public class PlayerCombatManager : MonoBehaviour
 
     void Update()
     {
-        
+        foreach (Hitbox activeBox in activeHitboxes)
+        {
+            activeBox.Tick(Time.deltaTime, this.transform.position);
+        }
     }
     #endregion
 
-    #region Basic Attack
+    #region Attack
 
     public void AttemptBasicAttack()
     {
         
     }
-    
 
+    #endregion
 
+    #region Damage Interface
+    public void TakeDamage(int damage)
+    {
+        // blehhhhh i'm invincible for now!!!
+    }
     #endregion
 }

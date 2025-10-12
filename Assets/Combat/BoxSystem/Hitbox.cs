@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,42 +10,71 @@ public enum HitboxState
     Colliding // iffy
 }
 
-// could turn this into Box / Sphere, Shape component with overlap
+public interface IHitboxSource
+{
+    void CollisionedWith(Collider col);
+}
+
 // Monobehavior for Gizmos
 public class Hitbox : MonoBehaviour
 {
-    public LayerMask mask;
+    private IHitboxSource source;
     private HitboxState state = HitboxState.Closed; // default closed
 
-    public Vector3 pos = Vector3.one;
-    public float length = 0.5f, width = 0.5f, heigh = 0.5f;
-    public float activeTime = 1f; // this in frames or engine ticks??? same with timer!! has to be clarified at some point
+    // positioning information
+    public Box box;
 
+    // timing
+    public float activeTime; // this in frames or engine ticks??? same with timer!! has to be clarified at some point
     public CountdownTimer active;
 
-    public void Initialize()
+    // de-register from Hitbox list event
+    public event Action unload = delegate { };
+
+    // good for just registering data to a given weapon's attacks
+    public void Initialize(float time, Box b)
     {
+        // position info 
+        box = b;
+        activeTime = time;
+
         // create the timer
         active = new CountdownTimer(activeTime);
         active.OnStart = StartCheckingCollision;
         active.OnStop = StopCheckingCollision;
+    }
+
+    public void Execute(IHitboxSource s)
+    {
+        // set source weapon/player
+        source = s;
 
         // start --> open collider and begin countdown
         active.Start();
     }
 
-    public void Tick(float deltaTime)
+    public void Tick(float deltaTime, Vector3 sourcePos)
     {
         active.Tick(deltaTime);
+        if (state != HitboxState.Open) { return; }
+
+        // check for overlaps
+        Collider[] cols = Physics.OverlapBox(sourcePos + box.pos, new Vector3(box.length / 2, box.width / 2, box.height / 2));
+        for (int i = 0; i < cols.Length; i++)
+        {
+            source?.CollisionedWith(cols[i]);
+        }
     }
 
     public void StartCheckingCollision()
     {
-        state = HitboxState.Open; 
+        state = HitboxState.Open;
     }
 
     public void StopCheckingCollision()
     {
+        // cleanup function
+        source = null;
         state = HitboxState.Closed;
     }
 
@@ -63,16 +93,17 @@ public class Hitbox : MonoBehaviour
 
     private void CheckGizmoColor()
     {
-        switch(state) {
-        case HitboxState.Closed:
-            Gizmos.color = inactiveColor;
-            break;
-        case HitboxState.Open:
-            Gizmos.color = collisionOpenColor;
-            break;
-        case HitboxState.Colliding:
-            Gizmos.color = collidingColor;
-            break;
+        switch (state)
+        {
+            case HitboxState.Closed:
+                Gizmos.color = inactiveColor;
+                break;
+            case HitboxState.Open:
+                Gizmos.color = collisionOpenColor;
+                break;
+            case HitboxState.Colliding:
+                Gizmos.color = collidingColor;
+                break;
         }
     }
     #endregion

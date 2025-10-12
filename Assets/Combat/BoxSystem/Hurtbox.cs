@@ -1,7 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
 public enum HurtboxState
 {
     Active,
@@ -10,8 +6,9 @@ public enum HurtboxState
 
 public class Hurtbox
 {
+    // state
     private HurtboxState state = HurtboxState.Active;
 
-    public Vector3 pos;
-    public float length, width, height;
+    // positioning
+    public Box box;
 }
