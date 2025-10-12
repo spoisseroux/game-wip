@@ -4,6 +4,8 @@ using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using Unity.Cinemachine;
 using System.Collections;
+using System.Collections.Generic;
+using UnityEngine.Rendering;
 
 public class DialogueManager : MonoBehaviour
 {
@@ -17,6 +19,10 @@ public class DialogueManager : MonoBehaviour
     [Header("Player References")]
     public PlayerInput playerInput;
     private InputActionMap playerActionMap;
+    public PlayerMovementManager player;
+
+    // edits
+    [SerializeField] InputReader input;
 
     [Header("Data")]
     public DialogueConversation currentConversation;
@@ -35,12 +41,59 @@ public class DialogueManager : MonoBehaviour
 
     private Coroutine zoomCoroutine;
 
-    void Start()
+    protected class UIRequests
     {
-        playerActionMap = playerInput.actions.FindActionMap("Player");
+        Dictionary<UIRequest, bool> req;
+
+        public UIRequests()
+        {
+            req = new Dictionary<UIRequest, bool>
+            {
+                {UIRequest.Exit, false},
+                {UIRequest.Select, false},
+                // this might just be solved by reading horizontal and vertical movement values
+                {UIRequest.MoveDown, false},
+                {UIRequest.MoveUp, false},
+                {UIRequest.MoveLeft, false},
+                {UIRequest.MoveRight, false}
+            };
+        }
+
+        public void SetRequest(UIRequest u, bool val)
+        {
+            req[u] = val;
+        }
+
+        public bool Check(UIRequest u)
+        {
+            bool isRequesting = req[u];
+            SetRequest(u, false); // reset our input
+            return isRequesting;
+        }
+    }
+    UIRequests inputRequests;
+
+    #region Monobehaviors
+    void Awake()
+    {
+        // action requests holder
+        input.EnablePlayerActions();
+        inputRequests = new UIRequests();
+
+        // player, Serialize later
+        player = Object.FindFirstObjectByType<PlayerMovementManager>();
+
+        // typewriter
+        typewriter = GetComponent<Typewriter>();
+
+        // camera
         orbitalCamera = Object.FindFirstObjectByType<CinemachineOrbitalFollow>();
         zoomOutRadius = orbitalCamera.Radius;
-        typewriter = GetComponent<Typewriter>();
+    }
+
+    void Start()
+    {
+        
     }
 
     void Update()
@@ -63,10 +116,30 @@ public class DialogueManager : MonoBehaviour
         ChooseNextNode();
     }
 
+    void OnEnable()
+    {
+        input.PollUIRequest += OnInputRequest;
+    }
+
+    void OnDisable()
+    {
+        input.PollUIRequest += OnInputRequest;
+    }
+    #endregion
+
+    #region Misc. Helpers
+    private void OnInputRequest(UIRequest action, bool performed)
+    {
+        inputRequests.SetRequest(action, performed);
+
+        // could just do switch on action
+    } 
+
+    #endregion
+
     void ChooseNextNode()
     {
         if (currentNode == null) return;
-
 
         // prevent advancing if still typing & handle skipping
         if (typewriter.IsTyping)
@@ -114,6 +187,7 @@ public class DialogueManager : MonoBehaviour
     public void StartConversation(DialogueConversation conversation, Transform npc)
     {
         conversationStarted = true;
+        // change to inputReader
         playerActionMap?.Disable();
 
         DialogueZoomIn();
@@ -177,7 +251,10 @@ public class DialogueManager : MonoBehaviour
 
         DialogueZoomOut();
 
+        // change to inputReader
         playerActionMap?.Enable();
+        // free player
+        player.ResetInteract();
 
         StartCoroutine(WaitForKeyRelease());
     }
@@ -196,8 +273,7 @@ public class DialogueManager : MonoBehaviour
         waitingForRelease = false;
     }
 
-
-    //Zoom helper functions & coroutines
+    #region Zooming Helpers & Functions
     public void DialogueZoomIn()
     {
         StartZoom(zoomInRadius);
@@ -233,4 +309,5 @@ public class DialogueManager : MonoBehaviour
         orbitalCamera.Radius = targetRadius;
         zoomCoroutine = null;
     }
+    #endregion
 }

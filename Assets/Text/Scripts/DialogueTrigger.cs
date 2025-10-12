@@ -1,58 +1,27 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.UI;
 
-public class DialogueTrigger : MonoBehaviour
+// IDEA:
+// If the object inheriting from IInteractable has the word Trigger in its class name, 
+// then it triggers an Interaction that changes State in the PlayerFSM
+public class DialogueTrigger : MonoBehaviour, IInteractable
 {
     public DialogueConversation conversation;
-    private DialogueManager dialogueManager;
+    [SerializeField] private DialogueManager dialogueManager;
     private bool playerInside = false;
     private Canvas interactIcon;
     private Quaternion originalRotation;
-    private Transform camTransform;
+    [SerializeField] private Transform camTransform;
     private GameObject interactIconGO;
 
-    //TODO: Update to use raycast and not triggerbox
+    private bool playerInteracting = false;
+
+    #region Monobehavior
     void Start()
     {
-        dialogueManager = FindObjectOfType<DialogueManager>();
-
         //get interact icon
         interactIconGO = GameObject.FindGameObjectWithTag("InteractIcon");
         interactIconGO.SetActive(false);
         interactIcon = interactIconGO.GetComponent<Canvas>();
-
-        //set up camera for transforming interact icon
-        GameObject mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
-        camTransform = mainCamera.transform;
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            playerInside = true;
-
-            interactIconGO.SetActive(true);
-
-            //TODO: hardcoded vertical offset for interact icon (place icon above char)
-            interactIcon.transform.position = transform.position + Vector3.up * 1f;
-            Debug.Log("Player entered trigger zone");
-
-            originalRotation = transform.rotation;
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            playerInside = false;
-
-            interactIconGO.SetActive(false);
-
-            Debug.Log("Player left trigger zone");
-        }
     }
 
     void Update()
@@ -62,18 +31,54 @@ public class DialogueTrigger : MonoBehaviour
         {
             interactIcon.transform.rotation = camTransform.rotation * originalRotation;
         }
+    }
 
-        //only check input to start conversation if not already started or waiting
-        if (playerInside &&
-            !dialogueManager.conversationStarted &&
-            !dialogueManager.waitingForRelease)
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
         {
-            if (Keyboard.current.eKey.wasPressedThisFrame)
-            {
-                Debug.Log("E pressed: starting conversation");
-                dialogueManager.StartConversation(conversation, this.transform);
-            }
+            playerInside = true;
+            interactIconGO.SetActive(true);
+
+            //TODO: hardcoded vertical offset for interact icon (place icon above char)
+            interactIcon.transform.position = transform.position + Vector3.up * 1f;
+            originalRotation = transform.rotation;
         }
     }
 
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            playerInside = false;
+            interactIconGO.SetActive(false);
+        }
+    }
+    #endregion
+
+    #region IInteractable Interface Methods
+    public void Interact()
+    {
+        // set to busy
+        playerInteracting = true;
+        // start convo
+        if (!(dialogueManager.conversationStarted && dialogueManager.waitingForRelease))
+            dialogueManager.StartConversation(conversation, this.transform);
+        // enable UI action map from here?
+
+    }
+
+    public bool IsTrigger()
+    {
+        return true;
+    }
+
+    public void FreePlayer()
+    {
+        // end convo
+        // set to free
+        playerInteracting = false;
+        // enable player Action map from here?
+    }
+    #endregion
 }

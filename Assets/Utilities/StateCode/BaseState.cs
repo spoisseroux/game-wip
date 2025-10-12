@@ -12,16 +12,8 @@ public abstract class BaseState : IState
 
     public virtual void Enter() { }
     public virtual void Update() { }
-    // public virtual void FixedUpdate() { }
     public virtual void Exit() { }
-    public abstract void Interrupt(BaseState newState);
-
-    // seems like it scales VERY poorly, we'll see
-    public List<BaseState> validTransitions;
-    public bool CheckTransitions(BaseState state)
-    {
-        return validTransitions.Contains(state);
-    }
+    public virtual void Interrupt(BaseState newState) { }
 
     public override string ToString()
     {

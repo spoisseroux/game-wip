@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using NUnit.Framework.Constraints;
 using UnityEngine;
 
 // TODO: eventually abstract this out into generic entity logic, moving grounded/airborne/actionflags into a generic movement manager
@@ -21,6 +22,7 @@ public class PlayerMovementManager : MonoBehaviour
     public JumpingState jumpingState;
     public DashingState dashState;
     public WallJumpState walljumpState;
+    public InteractState interactState;
 
     // polling input vals
     [HideInInspector] public float horizontalMovement;
@@ -80,16 +82,22 @@ public class PlayerMovementManager : MonoBehaviour
     [SerializeField] LayerMask groundLayer;
     public bool isGrounded = true;
 
+    // probably a good idea to separate this out into a separate script, maybe even a monobehavior 
+    // then it could store the InteractTrigger it is involved with and reset itself
+    // other scripts read it for state changes and logic flows
+    [Header("Interaction Check")]
+    [SerializeField] float interactSphereRadius = 0.2f;
+    [SerializeField] Vector3 interactCheckTranslationOffset = new Vector3(0f, 0f, 0f);
+    [SerializeField] float interactDistance = 2f;
+    [SerializeField] IInteractable currentInteraction;
 
     [Header("Dash")]
     [SerializeField] public float dashSpeed = 30f;
-
 
     [Header("Jump")]
     // TODO: grace periods, coyote time (after leaving platform) && jump buffer (input buffering sorta deal)
     public bool bonusJumpTaken = false;
     [SerializeField] float jumpHeight = 4f;
-
 
     [Header("WallJump")]
     [SerializeField] LayerMask wallLayer;
@@ -100,7 +108,6 @@ public class PlayerMovementManager : MonoBehaviour
     [SerializeField] float detectionRange = 10f;
     [SerializeField] float wallJumpSphereRaycastRadius = 0.4f;
     [SerializeField] Vector3 castPosOffset = new Vector3(0.0f, -0.4f, 0.0f);
-
 
     #region Monobehavior
     private void Awake()
@@ -117,6 +124,7 @@ public class PlayerMovementManager : MonoBehaviour
         jumpingState = new JumpingState(this);
         dashState = new DashingState(this);
         walljumpState = new WallJumpState(this);
+        interactState = new InteractState(this);
 
         // neutral state transitions
         At(neutralState, jumpingState, new FuncPredicate(() =>
@@ -126,6 +134,8 @@ public class PlayerMovementManager : MonoBehaviour
         At(neutralState, walljumpState, new FuncPredicate(() =>
                                         inputRequests.Check(ActionRequest.WallJump)
                                         && !isGrounded));
+        At(neutralState, interactState, new FuncPredicate(() => currentInteraction != null && currentInteraction.IsTrigger()
+                                        && isGrounded));
         // jumping state transitions
         At(jumpingState, neutralState, new FuncPredicate(() => isGrounded || jumpingState.GetProgress() <= 0));
         // dashing state transitions
@@ -134,6 +144,8 @@ public class PlayerMovementManager : MonoBehaviour
         At(walljumpState, neutralState, new FuncPredicate(() =>
                                         isGrounded ||
                                         walljumpState.IsFinished()));
+        // interaction state transitions
+        At(interactState, neutralState, new FuncPredicate(() => currentInteraction == null)); // need to figure out how to do this!!!
 
         // set initial state
         fsm.SetState(neutralState);
@@ -156,11 +168,6 @@ public class PlayerMovementManager : MonoBehaviour
         HandleGravity();
         // state machine
         fsm.Update();
-    }
-
-    private void FixedUpdate()
-    {
-        //fsm.FixedUpdate();  
     }
 
     private void OnEnable()
@@ -216,6 +223,11 @@ public class PlayerMovementManager : MonoBehaviour
     private void OnInputRequest(ActionRequest action, bool performed)
     {
         inputRequests.SetRequest(action, performed);
+        // hard-coded for now to make it event-based, architecture fixes needed later probly
+        if (action == ActionRequest.Interact)
+        {
+            RequestInteract();
+        }
     } 
     #endregion
 
@@ -319,6 +331,19 @@ public class PlayerMovementManager : MonoBehaviour
                             wallLayer);
         return new Tuple<bool, RaycastHit>(hitVal, hitData);
     }
+
+    // probably makes sense to return an IInteractable 
+    private IInteractable GetClosestInteract()
+    {
+        RaycastHit hit;
+        // basic sphere cast for now
+        bool cast = Physics.SphereCast(transform.position + interactCheckTranslationOffset,
+                                       interactSphereRadius,
+                                       transform.forward, // could be camera forward too!
+                                       out hit,
+                                       interactDistance);
+        return hit.collider.GetComponent<IInteractable>();
+    }
     #endregion
 
     #region Actions
@@ -393,6 +418,29 @@ public class PlayerMovementManager : MonoBehaviour
     }
     #endregion
 
+    #region Interact
+    public void RequestInteract()
+    {
+        // check and interact
+        if (inputRequests.Check(ActionRequest.Interact))
+        {
+            currentInteraction = GetClosestInteract();
+            currentInteraction?.Interact();
+
+            // clear from object if we don't want to initiate a State change
+            if (!currentInteraction.IsTrigger())
+            {
+                currentInteraction = null;
+            }
+        }
+        return;
+    }
+
+    public void ResetInteract()
+    {
+        currentInteraction = null;
+    }
+    #endregion
     #endregion
 
     #region FSM
