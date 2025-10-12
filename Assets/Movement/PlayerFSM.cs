@@ -223,7 +223,35 @@ public class WallJumpState : BaseState
     }
 }
 
+public class InteractState : BaseState
+{
+    // maybe we make a hook here to the component we want to receive input?
 
+    public InteractState(PlayerMovementManager m) : base(m)
+    {
+        
+    }
+
+    public override void Enter()
+    {
+        
+    }
+
+    public override void Exit()
+    {
+        
+    }
+
+    public override void Update()
+    {
+        
+    }
+
+    public override void Interrupt(BaseState newState)
+    {
+        throw new NotImplementedException();
+    }
+}
 
 // COMBAT CODE
 public class PlayerCombatFSM : StateMachine

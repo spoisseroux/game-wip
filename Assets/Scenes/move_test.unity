@@ -1736,8 +1736,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 6.0985966, y: 4, z: 10.138397}
-  m_Center: {x: -1.0492983, y: 0, z: 3.0692034}
+  m_Size: {x: 4, y: 4, z: 4}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1433132053776597871
 GameObject:
   m_ObjectHideFlags: 0
@@ -2231,6 +2231,7 @@ MonoBehaviour:
   portraitUI: {fileID: 5053834865029909032}
   choicePanel: {fileID: 5596324969802202193}
   playerInput: {fileID: 0}
+  input: {fileID: 11400000, guid: 9e11a5ba4c4484a3c85199a6afe3bc90, type: 2}
   currentConversation: {fileID: 0}
   conversationStarted: 0
   waitingForRelease: 0
@@ -2361,7 +2362,7 @@ Transform:
   m_GameObject: {fileID: 36822748121642091}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 7.9323, y: -2, z: -8.57856}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2473,6 +2474,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DialogueTrigger
   conversation: {fileID: 11400000, guid: 5d28a86737f0748b38a5ac6f0afe08f0, type: 2}
+  dialogueManager: {fileID: 3978345474586948442}
+  camTransform: {fileID: 120112939}
 --- !u!224 &4814879159309385858
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2897,7 +2900,7 @@ Transform:
   m_GameObject: {fileID: 416166337857539098}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 653.4204, y: 0, z: -537.02057}
+  m_LocalPosition: {x: 0, y: 0, z: -7.09}
   m_LocalScale: {x: 0.54, y: 0.54, z: 0.54}
   m_ConstrainProportionsScale: 1
   m_Children: []

@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 using static PlayerControls;
 
 [CreateAssetMenu(fileName = "NewInputSO", menuName = "Custom/InputSO")]
-public class InputReader : ScriptableObject, IPlayerActions
+public class InputReader : ScriptableObject, IPlayerActions, IUIActions
 {
     // reference controls of the Player
     PlayerControls controls;
@@ -28,21 +28,36 @@ public class InputReader : ScriptableObject, IPlayerActions
 
     // action request event
     public event Action<ActionRequest, bool> PollInputRequest = delegate { };
+    // ui request event
+    public event Action<UIRequest, bool> PollUIRequest = delegate { };
 
-
-    #region Monobehavior
+    #region Enable Disable
     public void EnablePlayerActions()
     {
         if (controls == null)
         {
             controls = new PlayerControls();
             controls.Player.SetCallbacks(this);
+            controls.UI.SetCallbacks(this);
         }
         controls.Enable();
+        controls.UI.Disable();
+    }
+
+    public void EnableActionMap(string mapName)
+    {
+        var maps = controls.asset.actionMaps;
+        foreach (var aMap in maps)
+        {
+            if (aMap.name == mapName)
+                aMap.Enable();
+            else
+                aMap.Disable();
+        }
     }
     #endregion
 
-    #region Input Handling
+    #region Action Input Handling
     public void OnMovement(InputAction.CallbackContext context)
     {
         // read data
@@ -99,6 +114,80 @@ public class InputReader : ScriptableObject, IPlayerActions
         //pass.performed
     }
 
+    public void OnInteract(InputAction.CallbackContext context)
+    {
+        // no-op right now
+    }
+    #endregion
+
+    #region UI Input Handling
+    // MISSING:
+    // 1. All mouse inputs (move, click)
+    // 2. What buttons map to what logic
+    // 
+    // NEED TO THINKIES:
+    // 1. What the Move functions actually correspond to given different Input receivers (dialogue vs inventory vs store)
+    // 2. How to represent 'moving' along the UI, and how to store info such that it flows based on move logically
+
+    public void OnSelect(InputAction.CallbackContext context)
+    {
+        switch (context.phase)
+        {
+            case InputActionPhase.Started:
+                PollUIRequest?.Invoke(UIRequest.Select, true);
+                break;
+        }
+    }
+
+    public void OnExit(InputAction.CallbackContext context)
+    {
+        switch (context.phase)
+        {
+            case InputActionPhase.Started:
+                PollUIRequest?.Invoke(UIRequest.Exit, true);
+                break;
+        }
+    }
+
+    public void OnMoveUp(InputAction.CallbackContext context)
+    {
+        switch (context.phase)
+        {
+            case InputActionPhase.Started:
+                PollUIRequest?.Invoke(UIRequest.MoveUp, true);
+                break;
+        }
+    }
+
+    public void OnMoveDown(InputAction.CallbackContext context)
+    {
+        switch (context.phase)
+        {
+            case InputActionPhase.Started:
+                PollUIRequest?.Invoke(UIRequest.MoveDown, true);
+                break;
+        }
+    }
+    
+    public void OnMoveLeft(InputAction.CallbackContext context)
+    {
+        switch (context.phase)
+        {
+            case InputActionPhase.Started:
+                PollUIRequest?.Invoke(UIRequest.MoveLeft, true);
+                break;
+        }
+    }
+    
+    public void OnMoveRight(InputAction.CallbackContext context)
+    {
+        switch (context.phase)
+        {
+            case InputActionPhase.Started:
+                PollUIRequest?.Invoke(UIRequest.MoveRight, true);
+                break;
+        }
+    }
     #endregion
 }
 
@@ -106,11 +195,20 @@ public class InputReader : ScriptableObject, IPlayerActions
 // for schmoving
 public enum ActionRequest
 {
-    None,
     Jump,
     Dash,
     WallJump,
     Attack,
     Interact
+}
+
+public enum UIRequest
+{
+    Exit,
+    Select,
+    MoveLeft,
+    MoveRight,
+    MoveUp,
+    MoveDown
 }
 
