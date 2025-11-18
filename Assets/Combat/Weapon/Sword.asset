@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14dbbb77617734c63bbaf503d31b59a3, type: 3}
+  m_Name: Sword
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponDataSO
+  length: 1
+  hitboxData:
+    pos: {x: 0, y: 0, z: 1.5}
+    length: 1
+    width: 1
+    height: 1.5
+  damage: 5
+  controlPlayer: 0
+  velocityMultiplier: 0
+  animClipName: 
+  model: {fileID: 0}
