@@ -2,6 +2,6 @@ using UnityEngine;
 
 public interface IWeapon
 {
-    void BasicAttack();
-    void AerialAttack();
+    void Tick(float delta);
+    void Attack();
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 // TODO: eventually abstract this out into generic entity logic, moving grounded/airborne/actionflags into a generic movement manager
@@ -11,6 +12,7 @@ public class PlayerMovementManager : MonoBehaviour
     // components
     [SerializeField] public CharacterController characterController;
     [SerializeField] InputReader input;
+    [SerializeField] PlayerCombatManager combat;
 
     // fsm & states
     // TODO: consider the following
@@ -22,6 +24,7 @@ public class PlayerMovementManager : MonoBehaviour
     public DashingState dashState;
     public WallJumpState walljumpState;
     public InteractState interactState;
+    public AttackState attackState;
 
     // polling input vals
     [HideInInspector] public float horizontalMovement;
@@ -113,6 +116,7 @@ public class PlayerMovementManager : MonoBehaviour
     {
         // unity components
         player = GetComponent<PlayerManager>();
+        combat = GetComponent<PlayerCombatManager>();
         characterController = GetComponent<CharacterController>();
 
         // state machine
@@ -124,6 +128,8 @@ public class PlayerMovementManager : MonoBehaviour
         dashState = new DashingState(this);
         walljumpState = new WallJumpState(this);
         interactState = new InteractState(this);
+        attackState = new AttackState(this);
+        // maybe new attack controlled state? atlyss has some weapons that control movement too!! if not, just allow motor.Move()!
 
         // neutral state transitions
         At(neutralState, jumpingState, new FuncPredicate(() =>
@@ -135,6 +141,7 @@ public class PlayerMovementManager : MonoBehaviour
                                         && !isGrounded));
         At(neutralState, interactState, new FuncPredicate(() => currentInteraction != null && currentInteraction.IsTrigger()
                                         && isGrounded));
+        At(neutralState, attackState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Attack)));
         // jumping state transitions
         At(jumpingState, neutralState, new FuncPredicate(() => isGrounded || jumpingState.GetProgress() <= 0));
         // dashing state transitions
@@ -145,6 +152,8 @@ public class PlayerMovementManager : MonoBehaviour
                                         walljumpState.IsFinished()));
         // interaction state transitions
         At(interactState, neutralState, new FuncPredicate(() => currentInteraction == null)); // need to figure out how to do this!!!
+        // attack state transitions
+        At(attackState, neutralState, new FuncPredicate(() => true)); // yeah, rough but can fix up
 
         // set initial state
         fsm.SetState(neutralState);
@@ -156,7 +165,7 @@ public class PlayerMovementManager : MonoBehaviour
 
     private void Start()
     {
-        fsm.SetState(neutralState);
+        
     }
 
     private void Update()
@@ -226,6 +235,11 @@ public class PlayerMovementManager : MonoBehaviour
         if (action == ActionRequest.Interact)
         {
             RequestInteract();
+        }
+        // hard-coded
+        if (action == ActionRequest.Attack)
+        {
+            RequestAttack();
         }
     } 
     #endregion
@@ -438,6 +452,17 @@ public class PlayerMovementManager : MonoBehaviour
     public void ResetInteract()
     {
         currentInteraction = null;
+    }
+    #endregion
+
+    #region Attack
+    public void RequestAttack()
+    {
+        if (inputRequests.Check(ActionRequest.Attack))
+        {
+            Debug.Log("attempting attack");
+            combat.AttemptAttack();
+        }
     }
     #endregion
     #endregion

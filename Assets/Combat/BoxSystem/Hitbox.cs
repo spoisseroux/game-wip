@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Rendering;
 using UnityEngine;
 
 public enum HitboxState
@@ -16,27 +17,39 @@ public interface IHitboxSource
 }
 
 // Monobehavior for Gizmos
-public class Hitbox : MonoBehaviour
+[Serializable]
+public class Hitbox
 {
-    private IHitboxSource source;
-    private HitboxState state = HitboxState.Closed; // default closed
+    public IHitboxSource source { get; private set; } // weapon or player? have to pick an object to host this hitbox eventually. it can be tied back to player in any case
+    public HitboxState state { get; private set; }
 
     // positioning information
     public Box box;
+    public Vector3 position;
+    public Quaternion orientation;
 
     // timing
     public float activeTime; // this in frames or engine ticks??? same with timer!! has to be clarified at some point
     public CountdownTimer active;
 
     // de-register from Hitbox list event
-    public event Action unload = delegate { };
+    public event Action<Hitbox> unload = delegate { };
 
-    // good for just registering data to a given weapon's attacks
-    public void Initialize(float time, Box b)
+    public Hitbox(float time, Vector3 p, Box b, Quaternion q, IHitboxSource s)
     {
+        // parent
+        source = s;
+
         // position info 
+        position = p;
         box = b;
+        orientation = q;
+
+        // timing
         activeTime = time;
+
+        // state
+        state = HitboxState.Closed;
 
         // create the timer
         active = new CountdownTimer(activeTime);
@@ -44,22 +57,21 @@ public class Hitbox : MonoBehaviour
         active.OnStop = StopCheckingCollision;
     }
 
-    public void Execute(IHitboxSource s)
+    public void Execute()
     {
-        // set source weapon/player
-        source = s;
-
         // start --> open collider and begin countdown
         active.Start();
     }
 
-    public void Tick(float deltaTime, Vector3 sourcePos)
+    public void Tick(float deltaTime)
     {
         active.Tick(deltaTime);
         if (state != HitboxState.Open) { return; }
 
-        // check for overlaps
-        Collider[] cols = Physics.OverlapBox(sourcePos + box.pos, new Vector3(box.length / 2, box.width / 2, box.height / 2));
+        Debug.Log("ticking active");
+
+        // check for overlaps, function calls for half-extents, eventually add in orientation of Player
+        Collider[] cols = Physics.OverlapBox(position + box.pos, new Vector3(box.length / 2, box.width / 2, box.height / 2));
         for (int i = 0; i < cols.Length; i++)
         {
             source?.CollisionedWith(cols[i]);
@@ -73,38 +85,10 @@ public class Hitbox : MonoBehaviour
 
     public void StopCheckingCollision()
     {
+        Debug.Log("hitbox ending");
         // cleanup function
+        unload?.Invoke(this);
         source = null;
         state = HitboxState.Closed;
     }
-
-    #region Gizmos
-    public Color inactiveColor = Color.green;
-    public Color collisionOpenColor = Color.red;
-    public Color collidingColor = Color.blue;
-
-    private void OnDrawGizmos()
-    {
-        CheckGizmoColor();
-        Gizmos.color = Color.red;
-        //Gizmos.matrix = Matrix4x4.TRS(transform.position, transform.rotation, transform.localScale);
-        //Gizmos.DrawCube(Vector3.zero, new Vector3(boxSize.x * 2, boxSize.y * 2, boxSize.z * 2)); // Because size is halfExtents
-    }
-
-    private void CheckGizmoColor()
-    {
-        switch (state)
-        {
-            case HitboxState.Closed:
-                Gizmos.color = inactiveColor;
-                break;
-            case HitboxState.Open:
-                Gizmos.color = collisionOpenColor;
-                break;
-            case HitboxState.Colliding:
-                Gizmos.color = collidingColor;
-                break;
-        }
-    }
-    #endregion
 }

@@ -253,14 +253,30 @@ public class InteractState : BaseState
     }
 }
 
-// COMBAT CODE
-public class PlayerCombatFSM : StateMachine
+public class AttackState : BaseState
 {
-    // player
-    public PlayerCombatManager owner { get; private set; }
-
-    public PlayerCombatFSM(PlayerCombatManager p)
+    public AttackState(PlayerMovementManager m) : base(m)
     {
-        owner = p;
+
+    }
+    
+    public override void Enter()
+    {
+        
+    }
+
+    public override void Exit()
+    {
+        
+    }
+
+    public override void Update()
+    {
+        motor.Walk();
+    }
+
+    public override void Interrupt(BaseState newState)
+    {
+        throw new NotImplementedException();
     }
 }
