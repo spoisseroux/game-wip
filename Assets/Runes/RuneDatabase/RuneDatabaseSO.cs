@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "RuneDatabase", menuName = "Runes/RuneDatabase")]
-public class RuneDatabase : ScriptableObject
+public class RuneDatabaseSO : ScriptableObject
 {
     public List<RuneDataSO> runes;
     public Dictionary<RuneType, RuneDataSO> map;
@@ -15,3 +15,10 @@ public class RuneDatabase : ScriptableObject
         return map[r];
     }
 }
+
+[CreateAssetMenu(fileName = "RuneDBLocater", menuName = "Runes/RuneDBLocater")]
+public class RuneDatabaseLocator : ScriptableObject
+{
+    public RuneDatabaseSO database;
+}
+

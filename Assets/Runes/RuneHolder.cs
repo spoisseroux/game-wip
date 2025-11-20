@@ -7,16 +7,22 @@ using UnityEngine;
 // and then sequentially chanting
 public class RuneHolder : MonoBehaviour
 {
-    [Header("Debugging Purposes")]
-    List<RuneDataSO> serializedRunes = new List<RuneDataSO>();
+    [SerializeField]
+    List<RuneDataSO> debugRunes = new List<RuneDataSO>(4);
+
     // available runes
-    List<IRune> runes = new List<IRune>();
+    [SerializeField]
+    List<RuneType> runes = new List<RuneType>(4);
 
     // chanting
     public float chantRadius;
     List<RuneType> storedChant;
 
-    #region MonoBehaviour & Live Debug Helpers
+    // rune db
+    [SerializeField]
+    public RuneDatabaseLocator dbService;
+
+    #region MonoBehaviour
     private void Awake()
     {
         SyncRunes();
@@ -29,33 +35,53 @@ public class RuneHolder : MonoBehaviour
 
     private void SyncRunes()
     {
-        runes = serializedRunes.OfType<IRune>().ToList();
+        /*
+        foreach (RuneDataSO r in debugRunes)
+        {
+            runes.Add(r.runeValue);
+        }
+        */
     }
     #endregion
 
-    #region Rune Container Public API Methods
+    #region Rune Container Additions
+    // receive a rune from Altar
     public void BestowRune(RuneType runeEnum)
     {
+        // add to list
+        if (!runes.Contains(runeEnum))
+            runes.Add(runeEnum);
+
         // get Rune from database
-        IRune rune = null;
+        IRune rune = (IRune)dbService.database.GetRune(runeEnum);
 
         // give user the associated state of the Rune
-
-        // add to list
-        runes.Add(rune);
     }
+    #endregion
 
+    #region Chanting
+    // receive a chant from UI, .....
     public void AddChant(List<RuneType> runes)
     {
+        storedChant = runes;
         return;
     }
 
+    // clear chant from data
+    public void ClearChant(List<RuneType> runes)
+    {
+        storedChant.Clear();
+    }
+
+    // large coroutine function for actually ~doin da chant?~
     public void ExecuteChant()
     {
-
-        foreach (RuneType rune in storedChant)
+        // activate each rune in backend
+        foreach (RuneType runeEnum in storedChant)
         {
-            
+            // map from runedatabaseSO
+            IRune rune = (IRune)dbService.database.GetRune(runeEnum);
+            rune.Activate();
         }
     }
     #endregion
