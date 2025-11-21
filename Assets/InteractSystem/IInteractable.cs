@@ -1,11 +1,12 @@
+using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 
 public interface IInteractable
 {
-    public abstract void Interact();
-    public virtual bool IsTrigger() { return false; }
-    public virtual void FreePlayer() { }
+    public abstract void Interact(PlayerMovementManager player); // maybe should be an IEnumerator???
+    public bool IsTrigger();
+    public void FreePlayer();
 }
 
 

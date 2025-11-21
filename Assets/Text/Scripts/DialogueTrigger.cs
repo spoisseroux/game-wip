@@ -15,6 +15,10 @@ public class DialogueTrigger : MonoBehaviour, IInteractable
 
     private bool playerInteracting = false;
 
+    public PlayerMovementManager player;
+
+    // input/state objects
+
     #region Monobehavior
     void Start()
     {
@@ -57,10 +61,14 @@ public class DialogueTrigger : MonoBehaviour, IInteractable
     #endregion
 
     #region IInteractable Interface Methods
-    public void Interact()
+    public void Interact(PlayerMovementManager player)
     {
         // set to busy
         playerInteracting = true;
+
+        // set player reference
+        this.player = player;
+
         // start convo
         if (!(dialogueManager.conversationStarted && dialogueManager.waitingForRelease))
             dialogueManager.StartConversation(conversation, this.transform);

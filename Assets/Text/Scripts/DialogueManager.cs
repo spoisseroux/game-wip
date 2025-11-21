@@ -5,8 +5,8 @@ using UnityEngine.InputSystem;
 using Unity.Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.Rendering;
 
+// maybe move all cases of enable/disable action maps back to trigger, only store the input
 public class DialogueManager : MonoBehaviour
 {
     [Header("UI References")]

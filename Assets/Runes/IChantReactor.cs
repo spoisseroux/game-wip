@@ -7,7 +7,7 @@ using UnityEngine;
         // a way to subscribe and receive when a rune reacts
 
 /*
-    Reserved for things like Doors which specifically react to a sequence of runes, and would generate a cutscene as a result
+    Reserved for things like Doors which specifically react to a sequence of runes, and would generate an interaction as a result
 */
 public interface IChantReactor
 {

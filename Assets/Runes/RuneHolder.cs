@@ -53,7 +53,7 @@ public class RuneHolder : MonoBehaviour
             runes.Add(runeEnum);
 
         // get Rune from database
-        IRune rune = (IRune)dbService.database.GetRune(runeEnum);
+        // IRune rune = (IRune)dbService.database.GetRune(runeEnum);
 
         // give user the associated state of the Rune
     }
@@ -76,6 +76,20 @@ public class RuneHolder : MonoBehaviour
     // large coroutine function for actually ~doin da chant?~
     public void ExecuteChant()
     {
+        // lock player controls, necessary?? could be a post game jam thing
+
+        // compile chant sfx into singular sound 
+
+        // animation
+
+        // push chant to any nearby doors, let it react, return confirmation of whether it succeeded
+        Collider[] cols = Physics.OverlapSphere(this.transform.position, chantRadius);
+        foreach (var col in cols) {
+            if (col.TryGetComponent<IChantReactor>(out IChantReactor obj)) {
+                obj.React(storedChant);
+            }
+        }
+
         // activate each rune in backend
         foreach (RuneType runeEnum in storedChant)
         {

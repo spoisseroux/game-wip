@@ -37,7 +37,7 @@
                     "name": "Jump",
                     "type": "Button",
                     "id": "a1e875b2-5167-4323-918a-ec1c988d2f5e",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -46,7 +46,7 @@
                     "name": "WallJump",
                     "type": "Button",
                     "id": "ba2e9307-992d-46fc-8436-c70cc06d79d0",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -55,7 +55,16 @@
                     "name": "BasicAttack",
                     "type": "Button",
                     "id": "b2ee80f1-308c-4500-bcf7-580b14af2b0e",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Interact",
+                    "type": "Button",
+                    "id": "2b11f1a7-217b-4a40-a154-72d455ea00e4",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -213,6 +222,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "BasicAttack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9d461630-9381-4ca8-b3f1-b1568261bc35",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Interact",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

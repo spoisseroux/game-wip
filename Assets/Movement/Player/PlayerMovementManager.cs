@@ -155,6 +155,10 @@ public class PlayerMovementManager : MonoBehaviour
         // attack state transitions
         At(attackState, neutralState, new FuncPredicate(() => true)); // yeah, rough but can fix up
 
+
+        // just for convenience sake, is this a callable or just occurs?
+        // Any(neutralState, new FuncPredicate(() => currentInteraction == null));
+
         // set initial state
         fsm.SetState(neutralState);
 
@@ -231,6 +235,7 @@ public class PlayerMovementManager : MonoBehaviour
     private void OnInputRequest(ActionRequest action, bool performed)
     {
         inputRequests.SetRequest(action, performed);
+        Debug.Log(action);        
         // hard-coded for now to make it event-based, architecture fixes needed later probly
         if (action == ActionRequest.Interact)
         {
@@ -355,7 +360,11 @@ public class PlayerMovementManager : MonoBehaviour
                                        transform.forward, // could be camera forward too!
                                        out hit,
                                        interactDistance);
-        return hit.collider.GetComponent<IInteractable>();
+        IInteractable interact = null;
+        if (cast) {
+            interact = hit.collider.GetComponent<IInteractable>();
+        }
+        return interact;
     }
     #endregion
 
@@ -432,17 +441,18 @@ public class PlayerMovementManager : MonoBehaviour
     #endregion
 
     #region Interact
-    public void RequestInteract()
-    {
+    public void RequestInteract() {
         // check and interact
-        if (inputRequests.Check(ActionRequest.Interact))
-        {
+        if (inputRequests.Check(ActionRequest.Interact)) {
             currentInteraction = GetClosestInteract();
-            currentInteraction?.Interact();
+            // null exit
+            if (currentInteraction == null)
+                return;
 
+            // interact
+            currentInteraction?.Interact(this);
             // clear from object if we don't want to initiate a State change
-            if (!currentInteraction.IsTrigger())
-            {
+            if (!currentInteraction.IsTrigger()) {
                 currentInteraction = null;
             }
         }
@@ -451,7 +461,9 @@ public class PlayerMovementManager : MonoBehaviour
 
     public void ResetInteract()
     {
+        Debug.Log("yeah i got a call...");
         currentInteraction = null;
+        Debug.Log(currentInteraction);
     }
     #endregion
 
