@@ -22,7 +22,7 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
     #region MonoBehaviour
     private void Awake()
     {
-
+        
     }
 
     private void Start()
@@ -42,11 +42,11 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
 
     private void OnDrawGizmos()
     {
-        Gizmos.matrix = parentTransform.localToWorldMatrix;
+        // Gizmos.matrix = Matrix4x4.TRS(parentTransform.position, parentTransform.rotation, new Vector3(1,1,1));
         if (activeHitboxes.Count <= 0)
         {
             Gizmos.color = inactiveColor;
-            Vector3 origin = parentTransform.position + weaponData.hitboxData.pos;
+            Vector3 origin = parentTransform.position + parentTransform.forward * 1.5f;
             Vector3 extents = weaponData.hitboxData.GizmoXYZ();
             Gizmos.DrawWireCube(origin, extents);
         }
@@ -57,7 +57,7 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
                 if (hitbox != null)
                 {
                     CheckGizmoColor(hitbox);
-                    Vector3 origin = parentTransform.position + hitbox.box.pos;
+                    Vector3 origin = parentTransform.position + parentTransform.forward * 1.5f;
                     Vector3 extents = hitbox.box.GizmoXYZ();
                     Gizmos.DrawWireCube(origin, extents);
                 }
@@ -90,9 +90,13 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
 
     public void Attack()
     {
-        Debug.Log("adding Hitbox");
         // spawn a new hitbox, push it to list, execute, and hook event up
-        Hitbox hbox = new Hitbox(weaponData.length, parentTransform.position, weaponData.hitboxData, parentTransform.rotation, this);
+        Debug.Log(parentTransform.position + parentTransform.forward * 0.5f);
+        Hitbox hbox = new Hitbox(weaponData.length, 
+                                 parentTransform.position + parentTransform.forward * 0.5f,
+                                 weaponData.hitboxData, 
+                                 parentTransform.rotation, 
+                                 this);
         activeHitboxes.Add(hbox);
         hbox.Execute();
         hbox.unload += RemoveHitbox;

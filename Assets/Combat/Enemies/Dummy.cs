@@ -6,6 +6,7 @@ public class Dummy : MonoBehaviour, IDamageable
 
     public void TakeDamage(int damage)
     {
+        Debug.Log("hurting");
         health = health - damage;
     }
 }

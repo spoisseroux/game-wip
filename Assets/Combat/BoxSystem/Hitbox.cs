@@ -68,10 +68,8 @@ public class Hitbox
         active.Tick(deltaTime);
         if (state != HitboxState.Open) { return; }
 
-        Debug.Log("ticking active");
-
         // check for overlaps, function calls for half-extents, eventually add in orientation of Player
-        Collider[] cols = Physics.OverlapBox(position + box.pos, new Vector3(box.length / 2, box.width / 2, box.height / 2));
+        Collider[] cols = Physics.OverlapBox(position, new Vector3(box.length / 2, box.width / 2, box.height / 2), orientation);
         for (int i = 0; i < cols.Length; i++)
         {
             source?.CollisionedWith(cols[i]);

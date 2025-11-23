@@ -257,7 +257,7 @@ public class AttackState : BaseState
 {
     public AttackState(PlayerMovementManager m) : base(m)
     {
-
+        
     }
     
     public override void Enter()

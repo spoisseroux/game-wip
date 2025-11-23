@@ -5,7 +5,7 @@ public class WeaponDataSO : ScriptableObject
 {
     // time component
     public float length;
-    // hitbox component
+    // hitbox sizing component
     public Box hitboxData;
     // damage component
     public int damage;

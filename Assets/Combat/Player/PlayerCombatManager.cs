@@ -15,7 +15,7 @@ public class PlayerCombatManager : MonoBehaviour, IDamageable
     [SerializeField]
     private List<Hurtbox> playerHurtboxes = new List<Hurtbox>();
 
-    [SerializeField] Weapon equippedWeapon; 
+    [SerializeField] Weapon equippedWeapon;
     // weapon having its own Update()
     // this can either be data that passes how to construct attacks to this object
     // or this can be it's own API for generating attacks and such --> this probably better for stacking effects and more complicated behavior

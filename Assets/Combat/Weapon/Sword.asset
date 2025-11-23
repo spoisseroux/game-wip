@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponDataSO
   length: 1
   hitboxData:
-    pos: {x: 0, y: 0, z: 1.5}
+    pos: {x: 0, y: 0, z: 1}
     length: 1
     width: 1
     height: 1.5
