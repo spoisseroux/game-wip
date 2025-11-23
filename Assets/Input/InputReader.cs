@@ -121,7 +121,12 @@ public class InputReader : ScriptableObject, IPlayerActions, IUIActions
 
     public void OnInteract(InputAction.CallbackContext context)
     {
-        // no-op right now
+        switch (context.phase)
+        {
+            case InputActionPhase.Started:
+                PollInputRequest?.Invoke(ActionRequest.Interact, true);
+                break;
+        }
     }
     #endregion
 
