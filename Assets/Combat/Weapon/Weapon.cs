@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -112,20 +113,22 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
         hbox.Execute();
     }
 
-    public void AttemptAttack()
+    public bool AttemptAttack()
     {
         // replace if with some of the logic checks below 
-        if (false)
-        {
             // basically, how should logic flow in this circumstance
-                // MovementManager receives input to attempt an attack, pipes it to CombatManager
+                // MovementManager receives input to attempt an attack, pipes it to CombatManager if state isn't AttackState
                 // CombatManager calls Weapon.AttemptAttack( ... args ...)
                 // Weapon determines where in the attack cycle it is based on some info from MovementManager
                 // Weapon spits out which attackSO it should use next
                 // CombatManager provides info from attackSO to MovementManager to override AttackState timer and pass StateTransition predicate
                 // AttackState calls Enter, queue animation etc.
                 // after windup period, AttackState calls CombatManager Weapon.Attack() to actually create hitboxes and increment combo counter
-        }
+        
+        ResolveAttack();
+
+
+        return true;
     }
     #endregion
 
@@ -172,6 +175,22 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
                           attack.hitbox,
                           spawnRotation,
                           this);
+    }
+
+    // determine which attack to choose based on current movement context, combo counter, etc.
+    private int ResolveAttack()
+    {
+        return 0;
+    }
+
+    private bool CheckAttackCycle()
+    {
+        return true;
+    }
+
+    public void ResetWeaponComboCycle()
+    {
+        currentCombo = 0;
     }
     #endregion
 }

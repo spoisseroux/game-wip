@@ -128,8 +128,7 @@ public class PlayerMovementManager : MonoBehaviour
         dashState = new DashingState(this);
         walljumpState = new WallJumpState(this);
         interactState = new InteractState(this);
-        attackState = new AttackState(this);
-        // maybe new attack controlled state? atlyss has some weapons that control movement too!! if not, just allow motor.Move()!
+        attackState = new AttackState(this, combat);
 
         // neutral state transitions
         At(neutralState, jumpingState, new FuncPredicate(() =>
@@ -169,7 +168,7 @@ public class PlayerMovementManager : MonoBehaviour
 
     private void Start()
     {
-        
+        // maybe move states and transitions here
     }
 
     private void Update()
@@ -440,6 +439,7 @@ public class PlayerMovementManager : MonoBehaviour
     }
     #endregion
 
+    // INTERACT
     #region Interact
     public void RequestInteract() {
         // check and interact
@@ -467,9 +467,11 @@ public class PlayerMovementManager : MonoBehaviour
     }
     #endregion
 
+    // ATTACK
     #region Attack
     public void RequestAttack()
     {
+        // need to decide where and how to 'check' against weapon's cycle
         if (inputRequests.Check(ActionRequest.Attack))
         {
             Debug.Log("attempting attack");

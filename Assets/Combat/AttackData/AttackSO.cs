@@ -18,4 +18,6 @@ public class AttackSO : ScriptableObject
     public string animClipName;
     // combo window, check against attackstate timer?
     public Tuple<float, float> comboWindow;
+    // hit number
+    public int hitCount;
 }

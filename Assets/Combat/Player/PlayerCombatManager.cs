@@ -36,9 +36,14 @@ public class PlayerCombatManager : MonoBehaviour, IDamageable
 
     #region Attack
 
-    public void AttemptAttack()
+    public bool AttemptAttack()
     {
-        equippedWeapon.Attack();
+        return equippedWeapon.AttemptAttack();
+    }
+
+    public void ResetWeapon()
+    {
+        equippedWeapon.ResetWeaponComboCycle();
     }
 
     #endregion

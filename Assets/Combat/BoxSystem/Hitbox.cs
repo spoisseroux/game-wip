@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor.Rendering;
 using UnityEngine;
 
@@ -32,8 +33,9 @@ public class Hitbox
     public float activeTime; // this in frames or engine ticks??? same with timer!! has to be clarified at some point
     public CountdownTimer active;
 
-    // de-register from Hitbox list event
-    // public event Action<Hitbox> unload = delegate { };
+    // dictionary for ensuring hits don't balloon to infinity
+    private Dictionary<Collider, int> hitColliders;
+    private int hitCount;
 
     public Hitbox(float time, Vector3 p, Box b, Quaternion q, IHitboxSource s)
     {
@@ -72,7 +74,18 @@ public class Hitbox
         Collider[] cols = Physics.OverlapBox(position, new Vector3(box.length / 2, box.width / 2, box.height / 2), orientation);
         for (int i = 0; i < cols.Length; i++)
         {
-            source?.CollisionedWith(cols[i]);
+            if (hitColliders.ContainsKey(cols[i]))
+            {
+                if (hitColliders[cols[i]] <= hitCount) {
+                    source?.CollisionedWith(cols[i]);
+                    hitColliders[cols[i]]++;
+                }
+            }
+            else
+            {
+                source?.CollisionedWith(cols[i]);
+                hitColliders.Add(cols[i], 1);
+            }
         }
     }
 
