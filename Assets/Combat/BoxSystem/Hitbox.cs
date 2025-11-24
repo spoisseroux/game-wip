@@ -20,7 +20,7 @@ public interface IHitboxSource
 [Serializable]
 public class Hitbox
 {
-    public IHitboxSource source { get; private set; } // weapon or player? have to pick an object to host this hitbox eventually. it can be tied back to player in any case
+    public IHitboxSource source { get; private set; }
     public HitboxState state { get; private set; }
 
     // positioning information
@@ -33,7 +33,7 @@ public class Hitbox
     public CountdownTimer active;
 
     // de-register from Hitbox list event
-    public event Action<Hitbox> unload = delegate { };
+    // public event Action<Hitbox> unload = delegate { };
 
     public Hitbox(float time, Vector3 p, Box b, Quaternion q, IHitboxSource s)
     {
@@ -85,7 +85,6 @@ public class Hitbox
     {
         Debug.Log("hitbox ending");
         // cleanup function
-        unload?.Invoke(this);
         source = null;
         state = HitboxState.Closed;
     }

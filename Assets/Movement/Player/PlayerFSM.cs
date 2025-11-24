@@ -255,9 +255,11 @@ public class InteractState : BaseState
 
 public class AttackState : BaseState
 {
+    CountdownTimer timer;
+
     public AttackState(PlayerMovementManager m) : base(m)
     {
-        
+
     }
     
     public override void Enter()

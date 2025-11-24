@@ -2,6 +2,7 @@ using UnityEngine;
 
 public interface IWeapon
 {
-    void Tick(float delta);
-    void Attack();
+    public void Tick(float delta);
+    public void Attack();
+    public void AttemptAttack();
 }

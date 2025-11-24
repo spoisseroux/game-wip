@@ -10,16 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 14dbbb77617734c63bbaf503d31b59a3, type: 3}
-  m_Name: Sword
+  m_Name: IcePicks
   m_EditorClassIdentifier: Assembly-CSharp::WeaponDataSO
-  length: 1
-  hitboxData:
-    pos: {x: 0, y: 0, z: 1}
-    length: 1
-    width: 1
-    height: 1.5
-  damage: 5
-  controlPlayer: 0
-  velocityMultiplier: 0
-  animClipName: 
   model: {fileID: 0}
+  basicAttackList:
+  - {fileID: 11400000, guid: 6b10547bda2af41f7bbee7317f1ad849, type: 2}
+  - {fileID: 11400000, guid: 5d5b5ed47761d4658b661d6788177569, type: 2}
+  - {fileID: 11400000, guid: 69e55d5d711214799b7cf71a2e38d7ba, type: 2}

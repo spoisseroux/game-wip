@@ -19,10 +19,14 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
     // hitboxes
     public List<Hitbox> activeHitboxes;
 
+    // combo
+    [SerializeField]
+    private int currentCombo = 0;
+
     #region MonoBehaviour
     private void Awake()
     {
-        
+        currentCombo = 0;
     }
 
     private void Start()
@@ -47,7 +51,7 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
         {
             Gizmos.color = inactiveColor;
             Vector3 origin = parentTransform.position + parentTransform.forward * 1.5f;
-            Vector3 extents = weaponData.hitboxData.GizmoXYZ();
+            Vector3 extents = weaponData.basicAttackList[currentCombo].hitbox.GizmoXYZ();
             Gizmos.DrawWireCube(origin, extents);
         }
         else
@@ -82,24 +86,46 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
     #region Weapon Interface
     public void Tick(float delta)
     {
-        foreach (var hitbox in activeHitboxes)
+        // tick all hitboxes & store any that have closed after doing so
+        List<int> remove = new List<int>();
+        for (int i = 0; i < activeHitboxes.Count; i++)
         {
-            hitbox.Tick(delta);
+            activeHitboxes[i].Tick(delta);
+            if (activeHitboxes[i].state == HitboxState.Closed)
+                remove.Add(i);
         }
+        // late loop to remove all closed hitboxes
+        foreach (var index in remove)
+        {
+            activeHitboxes.RemoveAt(index);
+        }
+        // clear list
+        remove.Clear();
     }
 
     public void Attack()
     {
-        // spawn a new hitbox, push it to list, execute, and hook event up
-        Debug.Log(parentTransform.position + parentTransform.forward * 0.5f);
-        Hitbox hbox = new Hitbox(weaponData.length, 
-                                 parentTransform.position + parentTransform.forward * 0.5f,
-                                 weaponData.hitboxData, 
-                                 parentTransform.rotation, 
-                                 this);
+        Vector3 spawnPos = parentTransform.position + (parentTransform.forward * 0.5f);
+        Quaternion spawnRot = parentTransform.rotation;
+        Hitbox hbox = CreateHitbox(spawnPos, spawnRot);
         activeHitboxes.Add(hbox);
         hbox.Execute();
-        hbox.unload += RemoveHitbox;
+    }
+
+    public void AttemptAttack()
+    {
+        // replace if with some of the logic checks below 
+        if (false)
+        {
+            // basically, how should logic flow in this circumstance
+                // MovementManager receives input to attempt an attack, pipes it to CombatManager
+                // CombatManager calls Weapon.AttemptAttack( ... args ...)
+                // Weapon determines where in the attack cycle it is based on some info from MovementManager
+                // Weapon spits out which attackSO it should use next
+                // CombatManager provides info from attackSO to MovementManager to override AttackState timer and pass StateTransition predicate
+                // AttackState calls Enter, queue animation etc.
+                // after windup period, AttackState calls CombatManager Weapon.Attack() to actually create hitboxes and increment combo counter
+        }
     }
     #endregion
 
@@ -107,33 +133,45 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
     public void CollisionedWith(Collider col)
     {
         IDamageable damageable = col.GetComponent<IDamageable>();
-        damageable?.TakeDamage(weaponData.damage);
+        damageable?.TakeDamage(weaponData.basicAttackList[currentCombo].damage);
     }
     #endregion
 
     #region Swapping
     public void SwapWeapon(WeaponDataSO context)
     {
-
+        RemoveWeapon();
+        EquipWeapon(context);
     }
 
-    public void EquipWeapon(WeaponDataSO context)
+    private void EquipWeapon(WeaponDataSO context)
     {
-
+        // load weapondataSO
+        weaponData = context;
+        // load model
+        // play sfx or anims
     }
 
-    public void RemoveWeapon()
+    private void RemoveWeapon()
     {
-
+        // remove model
+        // remove weapondataSO
+        weaponData = null;
+        // reset combo
+        currentCombo = 0;
     }
     #endregion
 
     #region Helpers
-    private void RemoveHitbox(Hitbox h)
+    // create hitbox for current attack from parent's position & rotation
+    private Hitbox CreateHitbox(Vector3 spawnPos, Quaternion spawnRotation)
     {
-        Debug.Log("Removing hitbox");
-        activeHitboxes.Remove(h);
-        h.unload -= RemoveHitbox;
+        AttackSO attack = weaponData.basicAttackList[currentCombo];
+        return new Hitbox(attack.hitboxDuration,
+                          spawnPos,
+                          attack.hitbox,
+                          spawnRotation,
+                          this);
     }
     #endregion
 }
