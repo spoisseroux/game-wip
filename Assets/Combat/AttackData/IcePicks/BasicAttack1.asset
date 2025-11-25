@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AttackSO
   attackDuration: 0.4
   hitboxDuration: 0.2
-  damage: 1
+  damage: 2
   hitbox:
     length: 1
-    width: 1
-    height: 1
+    width: 3
+    height: 1.5
   movespeedModifier: 0.7
   animClipName: n/a
   comboWindowStart: 0.75

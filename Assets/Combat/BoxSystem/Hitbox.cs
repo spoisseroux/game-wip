@@ -1,8 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor.Rendering;
 using UnityEngine;
 
 public enum HitboxState
@@ -15,9 +13,10 @@ public enum HitboxState
 public interface IHitboxSource
 {
     void CollisionedWith(Collider col);
+    void CollisionedWith(IDamageable damageMe);
 }
 
-// Monobehavior for Gizmos
+// Monobehavior for Gizmos?
 [Serializable]
 public class Hitbox
 {
@@ -33,11 +32,15 @@ public class Hitbox
     public float activeTime; // this in frames or engine ticks??? same with timer!! has to be clarified at some point
     public CountdownTimer active;
 
-    // dictionary for ensuring hits don't balloon to infinity
+    // max hit counter allowed for this Hitbox
     private Dictionary<Collider, int> hitColliders;
+    private Dictionary<IDamageable, int> hitDamageables;
     private int hitCount;
 
-    public Hitbox(float time, Vector3 p, Box b, Quaternion q, IHitboxSource s)
+    // guid for unique hit
+    private string guid = System.Guid.NewGuid().ToString();
+
+    public Hitbox(float time, Vector3 p, Box b, Quaternion q, IHitboxSource s, int hitsAllowed)
     {
         // parent
         source = s;
@@ -55,6 +58,11 @@ public class Hitbox
 
         // stored hits
         hitColliders = new Dictionary<Collider, int>();
+        hitDamageables = new Dictionary<IDamageable, int>();
+        hitCount = hitsAllowed;
+
+        // guid
+        guid = Guid.NewGuid().ToString();
 
         // create the timer
         active = new CountdownTimer(activeTime);
@@ -77,18 +85,18 @@ public class Hitbox
         Collider[] cols = Physics.OverlapBox(position, new Vector3(box.length / 2, box.width / 2, box.height / 2), orientation);
         for (int i = 0; i < cols.Length; i++)
         {
-            // check against previous hits
-            if (hitColliders.ContainsKey(cols[i]))
+            if (cols[i].TryGetComponent<IDamageable>(out IDamageable damageMe))
             {
-                if (hitColliders[cols[i]] < hitCount) {
-                    source?.CollisionedWith(cols[i]);
-                    hitColliders[cols[i]]++;
+                if (!hitDamageables.ContainsKey(damageMe))
+                {
+                    source?.CollisionedWith(damageMe);
+                    hitDamageables.Add(damageMe, 1);
                 }
-            }
-            else
-            {
-                source?.CollisionedWith(cols[i]);
-                hitColliders.Add(cols[i], 1);
+                else if (hitDamageables[damageMe] < hitCount)
+                {
+                    source?.CollisionedWith(damageMe);
+                    hitDamageables[damageMe]++;
+                }
             }
         }
     }
@@ -104,5 +112,6 @@ public class Hitbox
         // cleanup function
         source = null;
         state = HitboxState.Closed;
+        hitDamageables.Clear();
     }
 }

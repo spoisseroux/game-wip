@@ -6,7 +6,11 @@ public class Dummy : MonoBehaviour, IDamageable
 
     public void TakeDamage(int damage)
     {
-        Debug.Log("hurting");
         health -= damage;
+    }
+
+    public void TakeDamage(int damage, IHitboxSource source)
+    {
+        TakeDamage(damage);
     }
 }

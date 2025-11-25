@@ -9,7 +9,8 @@ public class PlayerCombatManager : MonoBehaviour, IDamageable
     // movement manager link?
 
     // health component here
-    int health = 100;
+    [SerializeField]
+    private int health = 100;
 
     // active hurtbox here [can be swapped upon dash/etc.]
     private Hurtbox activeHurtbox = null;
@@ -75,6 +76,16 @@ public class PlayerCombatManager : MonoBehaviour, IDamageable
     public void TakeDamage(int damage)
     {
         health -= damage;
+    }
+
+    public void TakeDamage(int damage, IHitboxSource source)
+    {
+        // JANK???
+        Weapon w = source as Weapon;
+        if (w != equippedWeapon)
+        {
+            health -= damage;
+        }
     }
     #endregion
 }

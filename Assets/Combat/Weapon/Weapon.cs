@@ -1,16 +1,13 @@
-using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor.Localization.Plugins.XLIFF.V20;
 using UnityEngine;
 
-// basically, the weapon 'holder' on our Player/Enemy/whatever
+// basically, the weapon 'holder' on our Player/Enemy/whatever... play round with inheritances
 public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
 {
     // parent
     public PlayerCombatManager parent;
 
-    // offset pos
+    // transform of owner
     public Transform parentTransform;
 
     // data
@@ -86,26 +83,28 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
             // hitboxes
             // visual effects
             // yeah...
-        // hardcoded progress value of ~10% completed to queue hitboxes
-        if (attackProgress >= 0.88 && attackProgress <= 0.92) {
+
+        
+        // hardcoded progress value of ~10% completed to queue one hitbox ONLY
+        if (attackProgress >= 0.88 && attackProgress <= 0.92 && activeHitboxes.Count < 1) {
             Attack();
         } 
 
         // tick all hitboxes & store any that have closed after doing so
-        List<int> remove = new List<int>();
+        List<int> inactive = new List<int>();
         for (int i = 0; i < activeHitboxes.Count; i++)
         {
             activeHitboxes[i].Tick(delta);
             if (activeHitboxes[i].state == HitboxState.Closed)
-                remove.Add(i);
+                inactive.Add(i);
         }
-        // late loop to remove all closed hitboxes
-        foreach (var index in remove)
+        // late loop to remove all closed hitboxes, REMOVE BY GUID?
+        foreach (var index in inactive)
         {
             activeHitboxes.RemoveAt(index);
         }
         // clear list
-        remove.Clear();
+        inactive.Clear();
     }
 
     public void Attack()
@@ -123,7 +122,8 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
         if (attNumber < 0)
             return null;
 
-        return weaponData.basicAttackList[attNumber];
+        currentAttack = weaponData.basicAttackList[attNumber];
+        return currentAttack;
     }
     #endregion
 
@@ -132,7 +132,14 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
     {
         IDamageable damageable = col.GetComponent<IDamageable>();
         // combatmanager.GetDamageModifiers();
+        Debug.Log("doing damage: " + weaponData.basicAttackList[currentComboIndex].damage);
         damageable?.TakeDamage(weaponData.basicAttackList[currentComboIndex].damage);
+    }
+
+    public void CollisionedWith(IDamageable damageMe)
+    {
+        Debug.Log("doing damage: " + weaponData.basicAttackList[currentComboIndex].damage);
+        damageMe?.TakeDamage(weaponData.basicAttackList[currentComboIndex].damage);
     }
     #endregion
 
@@ -165,12 +172,12 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
     // create hitbox for current attack from parent's position & rotation
     private Hitbox CreateHitbox(Vector3 spawnPos, Quaternion spawnRotation)
     {
-        AttackSO attack = weaponData.basicAttackList[currentComboIndex];
-        return new Hitbox(attack.hitboxDuration,
+        return new Hitbox(currentAttack.hitboxDuration,
                           spawnPos,
-                          attack.hitbox,
+                          currentAttack.hitbox,
                           spawnRotation,
-                          this);
+                          this, 
+                          currentAttack.hitCount);
     }
 
     // determine which attack to choose based on current movement context, combo counter, etc.
@@ -195,12 +202,10 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
     private bool CanMoveToNextAttack()
     {
         float progress = parent.GetAttackTimerProgress();
-        if (currentComboIndex < 0)
-            return false;
         // do we fall within window to continue a combo, remember countdown timer progresses 1 --> 0
-        return  (progress <= weaponData.basicAttackList[currentComboIndex].comboWindowStart) 
+        return  (progress <= currentAttack.comboWindowStart) 
                 &&
-                (weaponData.basicAttackList[currentComboIndex].comboWindowStart <= progress);
+                (currentAttack.comboWindowEnd <= progress);
     }
 
     public void ResetWeaponComboCycle()

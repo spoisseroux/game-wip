@@ -17,7 +17,7 @@ MonoBehaviour:
   damage: 8
   hitbox:
     length: 1
-    width: 1
+    width: 4
     height: 1.5
   movespeedModifier: 0
   animClipName: n/a
