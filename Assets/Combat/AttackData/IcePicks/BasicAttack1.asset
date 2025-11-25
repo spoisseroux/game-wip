@@ -12,11 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8bb6699acbc94fae82a599386f2079b, type: 3}
   m_Name: BasicAttack1
   m_EditorClassIdentifier: Assembly-CSharp::AttackSO
-  attackDuration: 0
-  damage: 0
+  attackDuration: 0.4
+  hitboxDuration: 0.2
+  damage: 1
   hitbox:
-    length: 0
-    width: 0
-    height: 0
-  movespeedModifier: 0
-  animClipName: 
+    length: 1
+    width: 1
+    height: 1
+  movespeedModifier: 0.7
+  animClipName: n/a
+  comboWindowStart: 0.75
+  comboWindowEnd: 1
+  hitCount: 1

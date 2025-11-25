@@ -9,6 +9,7 @@ public class PlayerCombatManager : MonoBehaviour, IDamageable
     // movement manager link?
 
     // health component here
+    int health = 100;
 
     // active hurtbox here [can be swapped upon dash/etc.]
     private Hurtbox activeHurtbox = null;
@@ -16,11 +17,9 @@ public class PlayerCombatManager : MonoBehaviour, IDamageable
     private List<Hurtbox> playerHurtboxes = new List<Hurtbox>();
 
     [SerializeField] Weapon equippedWeapon;
-    // weapon having its own Update()
-    // this can either be data that passes how to construct attacks to this object
-    // or this can be it's own API for generating attacks and such --> this probably better for stacking effects and more complicated behavior
 
-    // Timer object for tracking attacks, check equipped Weapon for it's attackspeed in Attempt()
+    // timer
+    private CountdownTimer timer;
 
     #region Monobehavior
     void Start()
@@ -30,28 +29,52 @@ public class PlayerCombatManager : MonoBehaviour, IDamageable
 
     void Update()
     {
-        equippedWeapon.Tick(Time.deltaTime);
+        if (equippedWeapon != null && timer != null) {
+            timer.Tick(Time.deltaTime);
+            equippedWeapon.Tick(Time.deltaTime);
+        }
+
     }
     #endregion
 
     #region Attack
-
-    public bool AttemptAttack()
+    public AttackSO AttemptAttack()
     {
-        return equippedWeapon.AttemptAttack();
+        AttackSO attack = equippedWeapon.AttemptAttack();
+        if (attack != null) {
+            timer = new CountdownTimer(attack.attackDuration);
+        }
+        return attack;
     }
 
-    public void ResetWeapon()
+    public void BeginAttack()
+    {
+        if (timer != null)
+        {
+            Debug.Log("Starting timer in CombatManager");
+            timer.Start();
+        }
+    }
+
+    public float GetAttackTimerProgress()
+    {
+        if (timer != null)
+            return timer.progress;
+
+        return 1.1f; // out of bounds value for flagging
+    }
+
+    public void ResetWeaponCycle()
     {
         equippedWeapon.ResetWeaponComboCycle();
+        timer = null;
     }
-
     #endregion
 
     #region Damage Interface
     public void TakeDamage(int damage)
     {
-        // blehhhhh i'm invincible for now!!!
+        health -= damage;
     }
     #endregion
 }

@@ -256,7 +256,6 @@ public class InteractState : BaseState
 public class AttackState : BaseState
 {   
     PlayerCombatManager combat;
-    AttackSO currentAttack;
     CountdownTimer timer;
     private float duration = 0f;
 
@@ -268,19 +267,19 @@ public class AttackState : BaseState
     public override void Enter()
     {
         timer.Start();
+        combat.BeginAttack();
+        // start anim
     }
 
     public override void Exit()
     {
-        
+        timer.Reset(0);
+        combat.ResetWeaponCycle();
     }
 
     public override void Update()
     {
-        // update attack
-
-        // when timer at active point, queue hitboxes
-
+        timer.Tick(Time.deltaTime);
         motor.Walk();
     }
 
@@ -289,11 +288,15 @@ public class AttackState : BaseState
         throw new NotImplementedException();
     }
 
-    public void SetAttack(AttackSO attack)
+    public void SetStateLength(float attackDuration)
     {
-        currentAttack = attack;
         // timer
-        duration = attack.attackDuration;
+        duration = attackDuration;
         timer = new CountdownTimer(duration);
+    }
+
+    public float GetProgress()
+    {
+        return timer.progress;
     }
 }

@@ -75,7 +75,7 @@ public class CountdownTimer : Timer
 // stopwatch timer
 public class StopwatchTimer : Timer
 {
-    float lapTime = int.MinValue; // default to -20382374823750928398472387982375 or whatever
+    float lapTime = int.MinValue; // default to negative bajillion or whatever
 
     public StopwatchTimer() : base(0) { }
     public StopwatchTimer(float lapTimeIn) : base(0) { lapTime = lapTimeIn; }

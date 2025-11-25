@@ -53,6 +53,9 @@ public class Hitbox
         // state
         state = HitboxState.Closed;
 
+        // stored hits
+        hitColliders = new Dictionary<Collider, int>();
+
         // create the timer
         active = new CountdownTimer(activeTime);
         active.OnStart = StartCheckingCollision;
@@ -70,13 +73,14 @@ public class Hitbox
         active.Tick(deltaTime);
         if (state != HitboxState.Open) { return; }
 
-        // check for overlaps, function calls for half-extents, eventually add in orientation of Player
+        // check for overlaps with damageable objects
         Collider[] cols = Physics.OverlapBox(position, new Vector3(box.length / 2, box.width / 2, box.height / 2), orientation);
         for (int i = 0; i < cols.Length; i++)
         {
+            // check against previous hits
             if (hitColliders.ContainsKey(cols[i]))
             {
-                if (hitColliders[cols[i]] <= hitCount) {
+                if (hitColliders[cols[i]] < hitCount) {
                     source?.CollisionedWith(cols[i]);
                     hitColliders[cols[i]]++;
                 }

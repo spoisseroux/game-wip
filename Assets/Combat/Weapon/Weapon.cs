@@ -1,58 +1,50 @@
 using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEditor.Localization.Plugins.XLIFF.V20;
 using UnityEngine;
 
 // basically, the weapon 'holder' on our Player/Enemy/whatever
 public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
 {
     // parent
-    PlayerCombatManager parent;
+    public PlayerCombatManager parent;
 
     // offset pos
     public Transform parentTransform;
 
     // data
     public WeaponDataSO weaponData;
+    public AttackSO currentAttack;
+
+    // combo
+    [SerializeField]
+    private int currentComboIndex = -1;
 
     // model
 
     // hitboxes
     public List<Hitbox> activeHitboxes;
 
-    // combo
-    [SerializeField]
-    private int currentCombo = 0;
-
     #region MonoBehaviour
     private void Awake()
     {
-        currentCombo = 0;
-    }
-
-    private void Start()
-    {
-
-    }
-
-    private void Update()
-    {
-
+        currentComboIndex = -1;
     }
     #endregion
 
     #region Gizmos
-    public Color inactiveColor = Color.green;
-    public Color collisionOpenColor = Color.red;
+    public Color inactiveColor = Color.red;
+    public Color collisionOpenColor = Color.green;
 
     private void OnDrawGizmos()
     {
-        // Gizmos.matrix = Matrix4x4.TRS(parentTransform.position, parentTransform.rotation, new Vector3(1,1,1));
+        Gizmos.matrix = Matrix4x4.TRS(parentTransform.position, parentTransform.rotation, new Vector3(1,1,1));
         if (activeHitboxes.Count <= 0)
         {
             Gizmos.color = inactiveColor;
             Vector3 origin = parentTransform.position + parentTransform.forward * 1.5f;
-            Vector3 extents = weaponData.basicAttackList[currentCombo].hitbox.GizmoXYZ();
+            Vector3 extents = weaponData.basicAttackList[0].hitbox.GizmoXYZ();
             Gizmos.DrawWireCube(origin, extents);
         }
         else
@@ -87,6 +79,18 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
     #region Weapon Interface
     public void Tick(float delta)
     {
+        // check against attack progress
+        float attackProgress = parent.GetAttackTimerProgress();
+
+        // queue actions based on timing intervals defined in AttackSO
+            // hitboxes
+            // visual effects
+            // yeah...
+        // hardcoded progress value of ~10% completed to queue hitboxes
+        if (attackProgress >= 0.88 && attackProgress <= 0.92) {
+            Attack();
+        } 
+
         // tick all hitboxes & store any that have closed after doing so
         List<int> remove = new List<int>();
         for (int i = 0; i < activeHitboxes.Count; i++)
@@ -113,22 +117,13 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
         hbox.Execute();
     }
 
-    public bool AttemptAttack()
-    {
-        // replace if with some of the logic checks below 
-            // basically, how should logic flow in this circumstance
-                // MovementManager receives input to attempt an attack, pipes it to CombatManager if state isn't AttackState
-                // CombatManager calls Weapon.AttemptAttack( ... args ...)
-                // Weapon determines where in the attack cycle it is based on some info from MovementManager
-                // Weapon spits out which attackSO it should use next
-                // CombatManager provides info from attackSO to MovementManager to override AttackState timer and pass StateTransition predicate
-                // AttackState calls Enter, queue animation etc.
-                // after windup period, AttackState calls CombatManager Weapon.Attack() to actually create hitboxes and increment combo counter
-        
-        ResolveAttack();
+    public AttackSO AttemptAttack()
+    {   
+        int attNumber = ResolveAttack();
+        if (attNumber < 0)
+            return null;
 
-
-        return true;
+        return weaponData.basicAttackList[attNumber];
     }
     #endregion
 
@@ -136,7 +131,8 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
     public void CollisionedWith(Collider col)
     {
         IDamageable damageable = col.GetComponent<IDamageable>();
-        damageable?.TakeDamage(weaponData.basicAttackList[currentCombo].damage);
+        // combatmanager.GetDamageModifiers();
+        damageable?.TakeDamage(weaponData.basicAttackList[currentComboIndex].damage);
     }
     #endregion
 
@@ -161,7 +157,7 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
         // remove weapondataSO
         weaponData = null;
         // reset combo
-        currentCombo = 0;
+        currentComboIndex = -1;
     }
     #endregion
 
@@ -169,7 +165,7 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
     // create hitbox for current attack from parent's position & rotation
     private Hitbox CreateHitbox(Vector3 spawnPos, Quaternion spawnRotation)
     {
-        AttackSO attack = weaponData.basicAttackList[currentCombo];
+        AttackSO attack = weaponData.basicAttackList[currentComboIndex];
         return new Hitbox(attack.hitboxDuration,
                           spawnPos,
                           attack.hitbox,
@@ -179,18 +175,49 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
 
     // determine which attack to choose based on current movement context, combo counter, etc.
     private int ResolveAttack()
-    {
-        return 0;
+    {   
+        // combo chain not started
+        if (currentComboIndex < 0)
+            return ++currentComboIndex;
+
+        // do we fall within window to continue a combo
+        if (CanMoveToNextAttack())
+        {
+            return ++currentComboIndex;
+        }
+
+        // no attack to progress to, reset our combo and say no unsuccessful attack queue
+        ResetWeaponComboCycle();
+        return currentComboIndex;
+
     }
 
-    private bool CheckAttackCycle()
+    private bool CanMoveToNextAttack()
     {
-        return true;
+        float progress = parent.GetAttackTimerProgress();
+        if (currentComboIndex < 0)
+            return false;
+        // do we fall within window to continue a combo, remember countdown timer progresses 1 --> 0
+        return  (progress <= weaponData.basicAttackList[currentComboIndex].comboWindowStart) 
+                &&
+                (weaponData.basicAttackList[currentComboIndex].comboWindowStart <= progress);
     }
 
     public void ResetWeaponComboCycle()
     {
-        currentCombo = 0;
+        currentComboIndex = -1;
     }
     #endregion
 }
+
+
+
+
+// basically, how should logic flow in this circumstance
+    // MovementManager receives input to attempt an attack, pipes it to CombatManager if state isn't AttackState
+    // CombatManager calls Weapon.AttemptAttack( ... args ...)
+    // Weapon determines where in the attack cycle it is based on some info from MovementManager
+    // Weapon spits out which attackSO it should use next
+    // CombatManager provides info from attackSO to MovementManager to override AttackState timer and pass StateTransition predicate
+    // AttackState calls Enter, queue animation etc.
+    // Weapon ticks forward, queueing hitboxes at designated times after windup, etc.
