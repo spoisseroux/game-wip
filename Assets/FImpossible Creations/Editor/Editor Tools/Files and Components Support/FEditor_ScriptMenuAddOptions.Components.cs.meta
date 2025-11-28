@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: d1bd3c56bdf13284ebc28a5a22890ef6
+timeCreated: 1531406488
+licenseType: Store
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 121819
+  packageName: Tail Animator
+  packageVersion: 2.0.7.4
+  assetPath: Assets/FImpossible Creations/Editor/Editor Tools/Files and Components
+    Support/FEditor_ScriptMenuAddOptions.Components.cs
+  uploadId: 824694

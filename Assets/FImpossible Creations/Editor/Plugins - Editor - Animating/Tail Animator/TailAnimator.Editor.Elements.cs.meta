@@ -1,0 +1,20 @@
+fileFormatVersion: 2
+guid: bcf1a74f343e94f4d83b39f22572bd73
+timeCreated: 1532131583
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 121819
+  packageName: Tail Animator
+  packageVersion: 2.0.7.4
+  assetPath: Assets/FImpossible Creations/Editor/Plugins - Editor - Animating/Tail
+    Animator/TailAnimator.Editor.Elements.cs
+  uploadId: 824694

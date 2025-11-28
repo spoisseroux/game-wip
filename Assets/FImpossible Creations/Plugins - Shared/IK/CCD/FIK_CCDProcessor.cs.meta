@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: dad66f3b80f9f2a4fa589a5b9ab4da09
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 121819
+  packageName: Tail Animator
+  packageVersion: 2.0.7.4
+  assetPath: Assets/FImpossible Creations/Plugins - Shared/IK/CCD/FIK_CCDProcessor.cs
+  uploadId: 824694

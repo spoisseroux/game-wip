@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: a7eb67ced331ec24b845911cd4ae82d1
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 121819
+  packageName: Tail Animator
+  packageVersion: 2.0.7.4
+  assetPath: Assets/FImpossible Creations/Editor/Plugins - Editor - Animating/Tail
+    Animator/Resources/Tail Animator/TailAnimator_Langs.xml
+  uploadId: 824694
