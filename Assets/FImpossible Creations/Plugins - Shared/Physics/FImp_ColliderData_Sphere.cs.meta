@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: bba586e4c6fd54349ad44a2c387d49bf
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: 4ba1f7a7d53fd274c98bdce0c9242640, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 121819
+  packageName: Tail Animator
+  packageVersion: 2.0.7.4
+  assetPath: Assets/FImpossible Creations/Plugins - Shared/Physics/FImp_ColliderData_Sphere.cs
+  uploadId: 824694

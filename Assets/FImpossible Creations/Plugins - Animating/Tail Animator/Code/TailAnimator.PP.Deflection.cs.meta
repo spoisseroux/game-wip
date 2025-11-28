@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: f9279b9459c57b248a52fb0f3d63e82e
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 121819
+  packageName: Tail Animator
+  packageVersion: 2.0.7.4
+  assetPath: Assets/FImpossible Creations/Plugins - Animating/Tail Animator/Code/TailAnimator.PP.Deflection.cs
+  uploadId: 824694
