@@ -1,7 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Rendering;
+using System.Linq;
 using UnityEngine;
 
 public enum HitboxState
@@ -14,13 +13,14 @@ public enum HitboxState
 public interface IHitboxSource
 {
     void CollisionedWith(Collider col);
+    void CollisionedWith(IDamageable damageMe);
 }
 
-// Monobehavior for Gizmos
+// Monobehavior for Gizmos?
 [Serializable]
 public class Hitbox
 {
-    public IHitboxSource source { get; private set; } // weapon or player? have to pick an object to host this hitbox eventually. it can be tied back to player in any case
+    public IHitboxSource source { get; private set; }
     public HitboxState state { get; private set; }
 
     // positioning information
@@ -32,10 +32,15 @@ public class Hitbox
     public float activeTime; // this in frames or engine ticks??? same with timer!! has to be clarified at some point
     public CountdownTimer active;
 
-    // de-register from Hitbox list event
-    public event Action<Hitbox> unload = delegate { };
+    // max hit counter allowed for this Hitbox
+    private Dictionary<Collider, int> hitColliders;
+    private Dictionary<IDamageable, int> hitDamageables;
+    private int hitCount;
 
-    public Hitbox(float time, Vector3 p, Box b, Quaternion q, IHitboxSource s)
+    // guid for unique hit
+    private string guid = System.Guid.NewGuid().ToString();
+
+    public Hitbox(float time, Vector3 p, Box b, Quaternion q, IHitboxSource s, int hitsAllowed)
     {
         // parent
         source = s;
@@ -50,6 +55,14 @@ public class Hitbox
 
         // state
         state = HitboxState.Closed;
+
+        // stored hits
+        hitColliders = new Dictionary<Collider, int>();
+        hitDamageables = new Dictionary<IDamageable, int>();
+        hitCount = hitsAllowed;
+
+        // guid
+        guid = Guid.NewGuid().ToString();
 
         // create the timer
         active = new CountdownTimer(activeTime);
@@ -68,13 +81,23 @@ public class Hitbox
         active.Tick(deltaTime);
         if (state != HitboxState.Open) { return; }
 
-        Debug.Log("ticking active");
-
-        // check for overlaps, function calls for half-extents, eventually add in orientation of Player
-        Collider[] cols = Physics.OverlapBox(position + box.pos, new Vector3(box.length / 2, box.width / 2, box.height / 2));
+        // check for overlaps with damageable objects
+        Collider[] cols = Physics.OverlapBox(position, new Vector3(box.length / 2, box.width / 2, box.height / 2), orientation);
         for (int i = 0; i < cols.Length; i++)
         {
-            source?.CollisionedWith(cols[i]);
+            if (cols[i].TryGetComponent<IDamageable>(out IDamageable damageMe))
+            {
+                if (!hitDamageables.ContainsKey(damageMe))
+                {
+                    source?.CollisionedWith(damageMe);
+                    hitDamageables.Add(damageMe, 1);
+                }
+                else if (hitDamageables[damageMe] < hitCount)
+                {
+                    source?.CollisionedWith(damageMe);
+                    hitDamageables[damageMe]++;
+                }
+            }
         }
     }
 
@@ -87,8 +110,8 @@ public class Hitbox
     {
         Debug.Log("hitbox ending");
         // cleanup function
-        unload?.Invoke(this);
         source = null;
         state = HitboxState.Closed;
+        hitDamageables.Clear();
     }
 }

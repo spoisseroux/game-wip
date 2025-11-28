@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 // TODO: eventually abstract this out into generic entity logic, moving grounded/airborne/actionflags into a generic movement manager
@@ -128,8 +127,7 @@ public class PlayerMovementManager : MonoBehaviour
         dashState = new DashingState(this);
         walljumpState = new WallJumpState(this);
         interactState = new InteractState(this);
-        attackState = new AttackState(this);
-        // maybe new attack controlled state? atlyss has some weapons that control movement too!! if not, just allow motor.Move()!
+        attackState = new AttackState(this, combat);
 
         // neutral state transitions
         At(neutralState, jumpingState, new FuncPredicate(() =>
@@ -141,7 +139,7 @@ public class PlayerMovementManager : MonoBehaviour
                                         && !isGrounded));
         At(neutralState, interactState, new FuncPredicate(() => currentInteraction != null && currentInteraction.IsTrigger()
                                         && isGrounded));
-        At(neutralState, attackState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Attack)));
+        At(neutralState, attackState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Attack) && RequestAttack()));
         // jumping state transitions
         At(jumpingState, neutralState, new FuncPredicate(() => isGrounded || jumpingState.GetProgress() <= 0));
         // dashing state transitions
@@ -153,7 +151,7 @@ public class PlayerMovementManager : MonoBehaviour
         // interaction state transitions
         At(interactState, neutralState, new FuncPredicate(() => currentInteraction == null)); // need to figure out how to do this!!!
         // attack state transitions
-        At(attackState, neutralState, new FuncPredicate(() => true)); // yeah, rough but can fix up
+        At(attackState, neutralState, new FuncPredicate(() => attackState.GetProgress() <= 0)); // yeah, rough but can fix up
 
 
         // just for convenience sake, is this a callable or just occurs?
@@ -169,7 +167,7 @@ public class PlayerMovementManager : MonoBehaviour
 
     private void Start()
     {
-        
+        // maybe move states and transitions here
     }
 
     private void Update()
@@ -234,17 +232,11 @@ public class PlayerMovementManager : MonoBehaviour
 
     private void OnInputRequest(ActionRequest action, bool performed)
     {
-        inputRequests.SetRequest(action, performed);
-        Debug.Log(action);        
+        inputRequests.SetRequest(action, performed);        
         // hard-coded for now to make it event-based, architecture fixes needed later probly
         if (action == ActionRequest.Interact)
         {
             RequestInteract();
-        }
-        // hard-coded
-        if (action == ActionRequest.Attack)
-        {
-            RequestAttack();
         }
     } 
     #endregion
@@ -440,6 +432,7 @@ public class PlayerMovementManager : MonoBehaviour
     }
     #endregion
 
+    // INTERACT
     #region Interact
     public void RequestInteract() {
         // check and interact
@@ -467,14 +460,20 @@ public class PlayerMovementManager : MonoBehaviour
     }
     #endregion
 
+    // ATTACK
     #region Attack
-    public void RequestAttack()
+    // make this a bool, place in state transition, and then make a true or false based on returned AttackSO with the logic below?
+    public bool RequestAttack()
     {
-        if (inputRequests.Check(ActionRequest.Attack))
+        AttackSO queuedAttack = combat.AttemptAttack();
+        Debug.Log(queuedAttack);
+        if (queuedAttack != null)
         {
-            Debug.Log("attempting attack");
-            combat.AttemptAttack();
+            attackState.SetStateLength(queuedAttack.attackDuration);
+            return true;
         }
+        
+        return false;
     }
     #endregion
     #endregion

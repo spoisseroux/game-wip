@@ -6,6 +6,11 @@ public class Dummy : MonoBehaviour, IDamageable
 
     public void TakeDamage(int damage)
     {
-        health = health - damage;
+        health -= damage;
+    }
+
+    public void TakeDamage(int damage, IHitboxSource source)
+    {
+        TakeDamage(damage);
     }
 }

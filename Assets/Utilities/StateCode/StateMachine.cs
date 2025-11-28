@@ -90,6 +90,11 @@ public class StateMachine
         return node;
     }
 
+    public IState GetCurrentState()
+    {
+        return current.state;
+    }
+
 
     class StateNode
     {

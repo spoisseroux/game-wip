@@ -1863,8 +1863,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6bd7efa6f3e9c40e6b8124bf0d65a4bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Weapon
+  parent: {fileID: 340063250}
   parentTransform: {fileID: 340063254}
   weaponData: {fileID: 11400000, guid: 242d18e5e98be4d90929792b624e903a, type: 2}
+  currentAttack: {fileID: 0}
+  currentComboIndex: -1
   activeHitboxes: []
   inactiveColor: {r: 0, g: 1, b: 0, a: 1}
   collisionOpenColor: {r: 1, g: 0, b: 0, a: 1}

@@ -254,29 +254,49 @@ public class InteractState : BaseState
 }
 
 public class AttackState : BaseState
-{
-    public AttackState(PlayerMovementManager m) : base(m)
-    {
+{   
+    PlayerCombatManager combat;
+    CountdownTimer timer;
+    private float duration = 0f;
 
+    public AttackState(PlayerMovementManager m, PlayerCombatManager c) : base(m)
+    {
+        combat = c;
     }
     
     public override void Enter()
     {
-        
+        timer.Start();
+        combat.BeginAttack();
+        // start anim
     }
 
     public override void Exit()
     {
-        
+        timer.Reset(0);
+        combat.ResetWeaponCycle();
     }
 
     public override void Update()
     {
+        timer.Tick(Time.deltaTime);
         motor.Walk();
     }
 
     public override void Interrupt(BaseState newState)
     {
         throw new NotImplementedException();
+    }
+
+    public void SetStateLength(float attackDuration)
+    {
+        // timer
+        duration = attackDuration;
+        timer = new CountdownTimer(duration);
+    }
+
+    public float GetProgress()
+    {
+        return timer.progress;
     }
 }
