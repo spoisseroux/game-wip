@@ -20,12 +20,12 @@ public class AnimationController : MonoBehaviour, IAnimationController
     #region IAnimationController Interface
     public void Play(string animName)
     {
-        animator.Play("");
+        animator.Play(animName);
     }
 
     public void CrossFade(string animName, float crossfade)
     {
-        animator.CrossFade(animName, 0.3f);
+        animator.CrossFade(animName, crossfade);
     }
 
     public void ForceToAnim(string animName)

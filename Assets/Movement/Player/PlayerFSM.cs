@@ -4,6 +4,9 @@ using System;
 // All states have a protected PlayerMovementManager component set in their BaseState predecessor. Use this to call movement logic
 public class NeutralState : BasePlayerState
 {
+    string walkAnim = "Run_Full";
+    string idleAnim = "Idle";
+
     // maybe split this into Idle && Walk states?
     public NeutralState(PlayerMovementManager f, AnimationController a) : base(f, a) { }
 
@@ -12,17 +15,33 @@ public class NeutralState : BasePlayerState
     public override void Update()
     {
         motor.HandleRotation();
+        if (motor.CheckIfMoving())
+        {
+            animator.Play(animBase + walkAnim);
+        }
+        else
+        {
+            animator.Play(animBase + idleAnim);
+        }
         motor.Walk();
     }
 
     public override void Interrupt(BasePlayerState newState) { return; }
 }
 
+// NEED TO FIX FOR ANIMATOR
 public class JumpingState : BasePlayerState
 {
-    // internals
+    // need to re-tool for proper animations!!! not just transition to neutral immediately
+    // timer
     CountdownTimer cooldownTimer;
     float cooldown = 0.5f;
+
+    // animations
+    string jumpBase = "Jump_";
+    string jumpStart = "Start";
+    string jumpFalling = "Falling";
+    string jumpLand = "Landing";
 
     public JumpingState(PlayerMovementManager f, AnimationController a) : base(f, a)
     {
@@ -33,12 +52,15 @@ public class JumpingState : BasePlayerState
     {
         motor.ApplyJumpingVelocity();
         cooldownTimer.Start();
+        // animator.Play(animBase + jumpBase + jumpStart);
+        
     }
 
     public override void Exit()
     {
         cooldownTimer.Pause();
         cooldownTimer.Reset(cooldown);
+        // animator.Play(animBase + jumpBase + jumpLand);
     }
 
     public override void Update()
@@ -46,6 +68,12 @@ public class JumpingState : BasePlayerState
         motor.Walk();
         motor.HandleRotation();
         cooldownTimer.Tick(Time.deltaTime);
+        /*
+        if (motor.GetVerticalMovementComponent().y <= 0.0f)
+        {
+            animator.Play(animBase + jumpBase + jumpFalling);
+        }
+        */
     }
 
     public override void Interrupt(BasePlayerState newState)
@@ -62,11 +90,15 @@ public class JumpingState : BasePlayerState
 
 public class DashingState : BasePlayerState
 {
-    // internals
+    // timers
     CountdownTimer cooldownTimer;
     float dashCDTime = 1.0f;
     StopwatchTimer activeTimer;
     float activeTime = 0.5f;
+
+    // animation
+    string dashAnim = "Dash_Forward";
+    string idleAnim = "Idle";
 
     public DashingState(PlayerMovementManager f, AnimationController a) : base(f, a)
     {
@@ -82,6 +114,7 @@ public class DashingState : BasePlayerState
         motor.SetDashDirection();
         cooldownTimer.Start();
         activeTimer.Start();
+        animator.Play(animBase + dashAnim);
     }
 
     public override void Exit()
@@ -98,6 +131,11 @@ public class DashingState : BasePlayerState
         if (!activeTimer.lapComplete)
         {
             motor.Dash();
+        }
+        else
+        {
+            motor.Walk();
+            animator.CrossFade(animBase + idleAnim, 0.1f);
         }
     }
 
