@@ -12,11 +12,9 @@ public class PlayerMovementManager : MonoBehaviour
     [SerializeField] public CharacterController characterController;
     [SerializeField] InputReader input;
     [SerializeField] PlayerCombatManager combat;
+    [SerializeField] AnimationController animationController;
 
     // fsm & states
-    // TODO: consider the following
-    // omaybe instead of state machine approach it could be a list of IActions that all individually tick? 
-    // some can stack and interact??? do some interesting stuffs together? idk an idea to try!
     [SerializeField] StateMachine fsm;
     public NeutralState neutralState;
     public JumpingState jumpingState;
@@ -117,17 +115,18 @@ public class PlayerMovementManager : MonoBehaviour
         player = GetComponent<PlayerManager>();
         combat = GetComponent<PlayerCombatManager>();
         characterController = GetComponent<CharacterController>();
+        animationController = GetComponent<AnimationController>();
 
         // state machine
         fsm = new StateMachine();
 
         // states
-        neutralState = new NeutralState(this);
-        jumpingState = new JumpingState(this);
-        dashState = new DashingState(this);
-        walljumpState = new WallJumpState(this);
-        interactState = new InteractState(this);
-        attackState = new AttackState(this, combat);
+        neutralState = new NeutralState(this, animationController);
+        jumpingState = new JumpingState(this, animationController);
+        dashState = new DashingState(this, animationController);
+        walljumpState = new WallJumpState(this, animationController);
+        interactState = new InteractState(this, animationController);
+        attackState = new AttackState(this, combat, animationController);
 
         // neutral state transitions
         At(neutralState, jumpingState, new FuncPredicate(() =>
@@ -210,8 +209,6 @@ public class PlayerMovementManager : MonoBehaviour
     {
         horizontalMovement = input.horizontalInput;
         verticalMovement = input.verticalInput;
-        moveAmount = input.moveAmount;
-
         // clamp for animations (???)
     }
 
@@ -299,6 +296,12 @@ public class PlayerMovementManager : MonoBehaviour
 
         Quaternion newRotation = Quaternion.LookRotation(targetDir);
         transform.rotation = newRotation;
+    }
+
+    public bool CheckIfMoving()
+    {
+        moveAmount = input.moveAmount;
+        return moveAmount > 0;
     }
 
     public void Walk()

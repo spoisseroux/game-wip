@@ -2,9 +2,10 @@ using UnityEngine;
 using System;
 
 // All states have a protected PlayerMovementManager component set in their BaseState predecessor. Use this to call movement logic
-public class NeutralState : BaseState
+public class NeutralState : BasePlayerState
 {
-    public NeutralState(PlayerMovementManager f) : base(f) { }
+    // maybe split this into Idle && Walk states?
+    public NeutralState(PlayerMovementManager f, AnimationController a) : base(f, a) { }
 
     public override void Enter() { return; }
     public override void Exit() { return; }
@@ -14,16 +15,16 @@ public class NeutralState : BaseState
         motor.Walk();
     }
 
-    public override void Interrupt(BaseState newState) { return; }
+    public override void Interrupt(BasePlayerState newState) { return; }
 }
 
-public class JumpingState : BaseState
+public class JumpingState : BasePlayerState
 {
     // internals
     CountdownTimer cooldownTimer;
     float cooldown = 0.5f;
 
-    public JumpingState(PlayerMovementManager f) : base(f)
+    public JumpingState(PlayerMovementManager f, AnimationController a) : base(f, a)
     {
         cooldownTimer = new CountdownTimer(cooldown);
     }
@@ -47,7 +48,7 @@ public class JumpingState : BaseState
         cooldownTimer.Tick(Time.deltaTime);
     }
 
-    public override void Interrupt(BaseState newState)
+    public override void Interrupt(BasePlayerState newState)
     {
         // pause timers
         cooldownTimer.Pause();
@@ -59,7 +60,7 @@ public class JumpingState : BaseState
     }
 }
 
-public class DashingState : BaseState
+public class DashingState : BasePlayerState
 {
     // internals
     CountdownTimer cooldownTimer;
@@ -67,7 +68,7 @@ public class DashingState : BaseState
     StopwatchTimer activeTimer;
     float activeTime = 0.5f;
 
-    public DashingState(PlayerMovementManager f) : base(f)
+    public DashingState(PlayerMovementManager f, AnimationController a) : base(f, a)
     {
         // length of state
         cooldownTimer = new CountdownTimer(dashCDTime);
@@ -100,7 +101,7 @@ public class DashingState : BaseState
         }
     }
 
-    public override void Interrupt(BaseState newState)
+    public override void Interrupt(BasePlayerState newState)
     {
         // pause timers
         activeTimer.Pause();
@@ -113,7 +114,7 @@ public class DashingState : BaseState
     }
 }
 
-public class WallJumpState : BaseState
+public class WallJumpState : BasePlayerState
 {
     // phase enum
     public enum WallJumpPhase
@@ -130,7 +131,7 @@ public class WallJumpState : BaseState
     private float bounceLength = 0.2f;
 
 
-    public WallJumpState(PlayerMovementManager f) : base(f)
+    public WallJumpState(PlayerMovementManager f, AnimationController a) : base(f, a)
     {
         // timers
         seekTimer = new CountdownTimer(seekLength);
@@ -159,7 +160,7 @@ public class WallJumpState : BaseState
         phase = WallJumpPhase.Seeking;
     }
 
-    public override void Interrupt(BaseState newState)
+    public override void Interrupt(BasePlayerState newState)
     {
         throw new System.NotImplementedException();
     }
@@ -223,11 +224,11 @@ public class WallJumpState : BaseState
     }
 }
 
-public class InteractState : BaseState
+public class InteractState : BasePlayerState
 {
     // maybe we make a hook here to the component we want to receive input?
 
-    public InteractState(PlayerMovementManager m) : base(m)
+    public InteractState(PlayerMovementManager m, AnimationController a) : base(m, a)
     {
         
     }
@@ -247,19 +248,19 @@ public class InteractState : BaseState
         
     }
 
-    public override void Interrupt(BaseState newState)
+    public override void Interrupt(BasePlayerState newState)
     {
         throw new NotImplementedException();
     }
 }
 
-public class AttackState : BaseState
+public class AttackState : BasePlayerState
 {   
     PlayerCombatManager combat;
     CountdownTimer timer;
     private float duration = 0f;
 
-    public AttackState(PlayerMovementManager m, PlayerCombatManager c) : base(m)
+    public AttackState(PlayerMovementManager m, PlayerCombatManager c, AnimationController a) : base(m, a)
     {
         combat = c;
     }
@@ -283,7 +284,7 @@ public class AttackState : BaseState
         motor.Walk();
     }
 
-    public override void Interrupt(BaseState newState)
+    public override void Interrupt(BasePlayerState newState)
     {
         throw new NotImplementedException();
     }
