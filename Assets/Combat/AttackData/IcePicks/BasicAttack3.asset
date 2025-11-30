@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AttackSO
   attackDuration: 0.8
   hitboxDuration: 0.3
-  damage: 8
+  damage: 10
   hitbox:
     length: 1
     width: 4
     height: 1.5
   movespeedModifier: 0
-  animName: _Attack3
-  comboWindowStart: -5
-  comboWindowEnd: -4
-  hitCount: 2
+  animName: Attack3
+  comboWindowStart: -10
+  comboWindowEnd: -10
+  hitCount: 1

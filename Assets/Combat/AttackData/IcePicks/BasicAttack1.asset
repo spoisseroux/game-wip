@@ -20,7 +20,7 @@ MonoBehaviour:
     width: 3
     height: 1.5
   movespeedModifier: 0.7
-  animName: _Attack1
-  comboWindowStart: 0.75
-  comboWindowEnd: 1
+  animName: Attack1
+  comboWindowStart: 0.9
+  comboWindowEnd: 0.1
   hitCount: 1
