@@ -12,11 +12,9 @@ public class PlayerMovementManager : MonoBehaviour
     [SerializeField] public CharacterController characterController;
     [SerializeField] InputReader input;
     [SerializeField] PlayerCombatManager combat;
+    [SerializeField] AnimationController animationController;
 
     // fsm & states
-    // TODO: consider the following
-    // omaybe instead of state machine approach it could be a list of IActions that all individually tick? 
-    // some can stack and interact??? do some interesting stuffs together? idk an idea to try!
     [SerializeField] StateMachine fsm;
     public NeutralState neutralState;
     public JumpingState jumpingState;
@@ -79,7 +77,7 @@ public class PlayerMovementManager : MonoBehaviour
     [Header("Physics Checks")]
     // Grounded Check, want the widest portion of sphere shown in DrawGizmosSelected to reach the edge of either foot
     [SerializeField] float groundCheckSphereRadius = 0.4f;
-    [SerializeField] Vector3 groundCheckTranslationAdjustment = new Vector3(0f, -1.0f, 0f);
+    [SerializeField] Vector3 groundCheckTranslationAdjustment = new Vector3(0f, 0f, 0f);
     [SerializeField] LayerMask groundLayer;
     public bool isGrounded = true;
 
@@ -117,17 +115,18 @@ public class PlayerMovementManager : MonoBehaviour
         player = GetComponent<PlayerManager>();
         combat = GetComponent<PlayerCombatManager>();
         characterController = GetComponent<CharacterController>();
+        animationController = GetComponent<AnimationController>();
 
         // state machine
         fsm = new StateMachine();
 
         // states
-        neutralState = new NeutralState(this);
-        jumpingState = new JumpingState(this);
-        dashState = new DashingState(this);
-        walljumpState = new WallJumpState(this);
-        interactState = new InteractState(this);
-        attackState = new AttackState(this, combat);
+        neutralState = new NeutralState(this, animationController);
+        jumpingState = new JumpingState(this, animationController);
+        dashState = new DashingState(this, animationController);
+        walljumpState = new WallJumpState(this, animationController);
+        interactState = new InteractState(this, animationController);
+        attackState = new AttackState(this, combat, animationController);
 
         // neutral state transitions
         At(neutralState, jumpingState, new FuncPredicate(() =>
@@ -151,7 +150,7 @@ public class PlayerMovementManager : MonoBehaviour
         // interaction state transitions
         At(interactState, neutralState, new FuncPredicate(() => currentInteraction == null)); // need to figure out how to do this!!!
         // attack state transitions
-        At(attackState, neutralState, new FuncPredicate(() => attackState.GetProgress() <= 0)); // yeah, rough but can fix up
+        At(attackState, neutralState, new FuncPredicate(() => attackState.GetProgress() <= 0));
 
 
         // just for convenience sake, is this a callable or just occurs?
@@ -210,8 +209,6 @@ public class PlayerMovementManager : MonoBehaviour
     {
         horizontalMovement = input.horizontalInput;
         verticalMovement = input.verticalInput;
-        moveAmount = input.moveAmount;
-
         // clamp for animations (???)
     }
 
@@ -233,10 +230,16 @@ public class PlayerMovementManager : MonoBehaviour
     private void OnInputRequest(ActionRequest action, bool performed)
     {
         inputRequests.SetRequest(action, performed);        
-        // hard-coded for now to make it event-based, architecture fixes needed later probly
+        // hard-coded meep, architecture fixes needed later probly
         if (action == ActionRequest.Interact)
         {
             RequestInteract();
+        }
+        // hard-coded meep
+        if (action == ActionRequest.Attack && fsm.GetCurrentState() == attackState)
+        {
+            inputRequests.Check(ActionRequest.Attack);
+            RequestAttack();
         }
     } 
     #endregion
@@ -301,6 +304,12 @@ public class PlayerMovementManager : MonoBehaviour
         transform.rotation = newRotation;
     }
 
+    public bool CheckIfMoving()
+    {
+        moveAmount = input.moveAmount;
+        return moveAmount > 0;
+    }
+
     public void Walk()
     {
         moveDirection = SetWalkMovementDir();
@@ -357,6 +366,12 @@ public class PlayerMovementManager : MonoBehaviour
             interact = hit.collider.GetComponent<IInteractable>();
         }
         return interact;
+    }
+    
+    // check vertical velocity
+    public Vector3 GetVerticalMovementComponent()
+    {
+        return yVel;
     }
     #endregion
 
@@ -462,14 +477,13 @@ public class PlayerMovementManager : MonoBehaviour
 
     // ATTACK
     #region Attack
-    // make this a bool, place in state transition, and then make a true or false based on returned AttackSO with the logic below?
+    
     public bool RequestAttack()
     {
         AttackSO queuedAttack = combat.AttemptAttack();
-        Debug.Log(queuedAttack);
         if (queuedAttack != null)
         {
-            attackState.SetStateLength(queuedAttack.attackDuration);
+            attackState.SetAttackInternals(queuedAttack);
             return true;
         }
         
