@@ -264,7 +264,9 @@ public class WallJumpState : BasePlayerState
 
 public class InteractState : BasePlayerState
 {
-    // maybe we make a hook here to the component we want to receive input?
+    // animation
+    string interactUse = "";
+    string interactGeneral = "";
 
     public InteractState(PlayerMovementManager m, AnimationController a) : base(m, a)
     {
@@ -294,26 +296,36 @@ public class InteractState : BasePlayerState
 
 public class AttackState : BasePlayerState
 {   
+    // combat link
     PlayerCombatManager combat;
+
+    // timer
     CountdownTimer timer;
     private float duration = 0f;
+
+    // animations
+    private string attackAnim;
 
     public AttackState(PlayerMovementManager m, PlayerCombatManager c, AnimationController a) : base(m, a)
     {
         combat = c;
+        attackAnim = "";
     }
     
     public override void Enter()
     {
         timer.Start();
-        combat.BeginAttack();
+        combat.BeginAttack(duration);
         // start anim
+        animator.Play(attackAnim);
+        Debug.Log("Attacking!");
     }
 
     public override void Exit()
     {
-        timer.Reset(0);
+        timer = null;
         combat.ResetWeaponCycle();
+        attackAnim = "";
     }
 
     public override void Update()
@@ -327,11 +339,25 @@ public class AttackState : BasePlayerState
         throw new NotImplementedException();
     }
 
-    public void SetStateLength(float attackDuration)
+    public void SetAttackInternals(AttackSO attackData)
     {
+        bool active = timer != null;
+
         // timer
-        duration = attackDuration;
+        duration = attackData.attackDuration;
         timer = new CountdownTimer(duration);
+
+        // anim 
+        attackAnim = animBase + attackData.animName;
+        
+        // restart check
+        if (active)
+            Restart();
+    }
+
+    public void Restart()
+    {
+        Enter();
     }
 
     public float GetProgress()

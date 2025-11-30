@@ -6992,6 +6992,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Weapon
   parent: {fileID: 1268397142074050466}
   parentTransform: {fileID: 6875238338647865976}
+  yDisplace: {x: 0, y: 2, z: 0}
   weaponData: {fileID: 11400000, guid: 242d18e5e98be4d90929792b624e903a, type: 2}
   currentAttack: {fileID: 0}
   currentComboIndex: -1
@@ -7661,8 +7662,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6062426169732554946}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 34.867973, y: -1.81, z: -41.103733}
+  m_LocalRotation: {x: -0, y: -0.19309889, z: -0, w: 0.9811793}
+  m_LocalPosition: {x: 0, y: -1.81, z: -1.56}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -7676,7 +7677,7 @@ Transform:
   - {fileID: 7298888977282060851}
   - {fileID: 5893168521910259999}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -22.267, z: 0}
 --- !u!222 &6924053406945126298
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -8348,7 +8349,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AnimationController
   animator: {fileID: 139784149230446216}
-  defaultState: 
+  defaultAnim: 
 --- !u!1 &8462589926926344984
 GameObject:
   m_ObjectHideFlags: 0

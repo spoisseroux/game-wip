@@ -42,19 +42,13 @@ public class PlayerCombatManager : MonoBehaviour, IDamageable
     public AttackSO AttemptAttack()
     {
         AttackSO attack = equippedWeapon.AttemptAttack();
-        if (attack != null) {
-            timer = new CountdownTimer(attack.attackDuration);
-        }
         return attack;
     }
 
-    public void BeginAttack()
+    public void BeginAttack(float duration)
     {
-        if (timer != null)
-        {
-            Debug.Log("Starting timer in CombatManager");
-            timer.Start();
-        }
+        timer = new CountdownTimer(duration);
+        timer.Start();
     }
 
     public float GetAttackTimerProgress()
@@ -62,7 +56,7 @@ public class PlayerCombatManager : MonoBehaviour, IDamageable
         if (timer != null)
             return timer.progress;
 
-        return 1.1f; // out of bounds value for flagging
+        return 10f; // out of bounds value for flagging
     }
 
     public void ResetWeaponCycle()

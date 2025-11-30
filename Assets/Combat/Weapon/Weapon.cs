@@ -10,13 +10,16 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
     // transform of owner
     public Transform parentTransform;
 
+    // positioning quirks
+    public Vector3 yDisplace;
+
     // data
     public WeaponDataSO weaponData;
     public AttackSO currentAttack;
 
     // combo
     [SerializeField]
-    private int currentComboIndex = -1;
+    private int currentComboIndex;
 
     // model
 
@@ -36,27 +39,17 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
 
     private void OnDrawGizmos()
     {
-        Gizmos.matrix = Matrix4x4.TRS(parentTransform.position, parentTransform.rotation, new Vector3(1,1,1));
-        if (activeHitboxes.Count <= 0)
+        foreach (var hitbox in activeHitboxes)
         {
-            Gizmos.color = inactiveColor;
-            Vector3 origin = parentTransform.position + parentTransform.forward * 1.5f;
-            Vector3 extents = weaponData.basicAttackList[0].hitbox.GizmoXYZ();
-            Gizmos.DrawWireCube(origin, extents);
-        }
-        else
-        {
-            foreach (var hitbox in activeHitboxes)
+            if (hitbox != null)
             {
-                if (hitbox != null)
-                {
-                    CheckGizmoColor(hitbox);
-                    Vector3 origin = parentTransform.position + parentTransform.forward * 1.5f;
-                    Vector3 extents = hitbox.box.GizmoXYZ();
-                    Gizmos.DrawWireCube(origin, extents);
-                }
+                CheckGizmoColor(hitbox);
+                HitboxGizmo gd = hitbox.GetGizmoData();
+                Gizmos.matrix = Matrix4x4.TRS(gd.position, gd.rotation, Vector3.one);
+                Gizmos.DrawWireCube(Vector3.zero, gd.extents);
             }
         }
+        Gizmos.matrix = Matrix4x4.identity;
     }
 
     private void CheckGizmoColor(Hitbox h)
@@ -109,7 +102,7 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
 
     public void Attack()
     {
-        Vector3 spawnPos = parentTransform.position + (parentTransform.forward * 0.5f);
+        Vector3 spawnPos = parentTransform.position + parentTransform.forward;
         Quaternion spawnRot = parentTransform.rotation;
         Hitbox hbox = CreateHitbox(spawnPos, spawnRot);
         activeHitboxes.Add(hbox);
@@ -173,7 +166,7 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
     private Hitbox CreateHitbox(Vector3 spawnPos, Quaternion spawnRotation)
     {
         return new Hitbox(currentAttack.hitboxDuration,
-                          spawnPos,
+                          spawnPos + yDisplace,
                           currentAttack.hitbox,
                           spawnRotation,
                           this, 
@@ -202,7 +195,8 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
     private bool CanMoveToNextAttack()
     {
         float progress = parent.GetAttackTimerProgress();
-        // do we fall within window to continue a combo, remember countdown timer progresses 1 --> 0
+        // do we fall within window to continue a combo 
+        // remember countdown timer progress starts at 1 and decreases to 0!!!
         return  (progress <= currentAttack.comboWindowStart) 
                 &&
                 (currentAttack.comboWindowEnd <= progress);

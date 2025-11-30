@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Animator))]
@@ -8,7 +7,7 @@ public class AnimationController : MonoBehaviour, IAnimationController
     private Animator animator;
 
     [SerializeField]
-    public string defaultState;
+    public string defaultAnim;
 
     #region MonoBehaviours
     private void Awake()
@@ -33,14 +32,14 @@ public class AnimationController : MonoBehaviour, IAnimationController
         animator.Play(animName);
     }
 
-    public void SetDefaultAnim(string defaultAnim)
+    public void SetDefaultAnim(string defA)
     {
-        animator.Play(defaultAnim);
+        defaultAnim = defA;
     }
 
     public void ToDefaultAnim()
     {
-        animator.Play(defaultState);
+        animator.Play(defaultAnim);
     }
     #endregion
 }

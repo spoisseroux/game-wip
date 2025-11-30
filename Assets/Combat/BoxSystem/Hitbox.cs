@@ -16,6 +16,20 @@ public interface IHitboxSource
     void CollisionedWith(IDamageable damageMe);
 }
 
+public struct HitboxGizmo
+{
+    public Vector3 position;
+    public Vector3 extents;
+    public Quaternion rotation;
+
+    public HitboxGizmo(Vector3 p, Vector3 e, Quaternion q)
+    {
+        position = p;
+        extents = e;
+        rotation = q;
+    }
+}
+
 // Monobehavior for Gizmos?
 [Serializable]
 public class Hitbox
@@ -113,5 +127,10 @@ public class Hitbox
         source = null;
         state = HitboxState.Closed;
         hitDamageables.Clear();
+    }
+
+    public HitboxGizmo GetGizmoData()
+    {
+        return new HitboxGizmo(position, box.GizmoXYZ(), orientation);
     }
 }

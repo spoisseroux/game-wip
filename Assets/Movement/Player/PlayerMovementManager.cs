@@ -150,7 +150,7 @@ public class PlayerMovementManager : MonoBehaviour
         // interaction state transitions
         At(interactState, neutralState, new FuncPredicate(() => currentInteraction == null)); // need to figure out how to do this!!!
         // attack state transitions
-        At(attackState, neutralState, new FuncPredicate(() => attackState.GetProgress() <= 0)); // yeah, rough but can fix up
+        At(attackState, neutralState, new FuncPredicate(() => attackState.GetProgress() <= 0));
 
 
         // just for convenience sake, is this a callable or just occurs?
@@ -230,10 +230,16 @@ public class PlayerMovementManager : MonoBehaviour
     private void OnInputRequest(ActionRequest action, bool performed)
     {
         inputRequests.SetRequest(action, performed);        
-        // hard-coded for now to make it event-based, architecture fixes needed later probly
+        // hard-coded meep, architecture fixes needed later probly
         if (action == ActionRequest.Interact)
         {
             RequestInteract();
+        }
+        // hard-coded meep
+        if (action == ActionRequest.Attack && fsm.GetCurrentState() == attackState)
+        {
+            inputRequests.Check(ActionRequest.Attack);
+            RequestAttack();
         }
     } 
     #endregion
@@ -471,14 +477,13 @@ public class PlayerMovementManager : MonoBehaviour
 
     // ATTACK
     #region Attack
-    // make this a bool, place in state transition, and then make a true or false based on returned AttackSO with the logic below?
+    
     public bool RequestAttack()
     {
         AttackSO queuedAttack = combat.AttemptAttack();
-        Debug.Log(queuedAttack);
         if (queuedAttack != null)
         {
-            attackState.SetStateLength(queuedAttack.attackDuration);
+            attackState.SetAttackInternals(queuedAttack);
             return true;
         }
         

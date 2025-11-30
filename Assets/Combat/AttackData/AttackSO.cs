@@ -15,8 +15,8 @@ public class AttackSO : ScriptableObject
     // movespeed modifier
     public float movespeedModifier;
     // anim
-    public string animClipName;
-    // combo window, check against attackstate timer?
+    public string animName;
+    // combo window, checked against progress
     public float comboWindowStart;
     public float comboWindowEnd;
     // hit number
