@@ -8,4 +8,6 @@ public class WeaponDataSO : ScriptableObject
     public GameObject model;
     // attacks
     public List<AttackSO> basicAttackList;
+    // offset location of hitbox ??
+    public Vector3 offset;
 }

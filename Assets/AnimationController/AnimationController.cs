@@ -41,5 +41,15 @@ public class AnimationController : MonoBehaviour, IAnimationController
     {
         animator.Play(defaultAnim);
     }
+
+    public void SetAnimatorSpeed(float speed)
+    {
+        animator.speed = speed;
+    }
+
+    public void SetDefaultAnimatorSpeed()
+    {
+        animator.speed = 1.0f;
+    }
     #endregion
 }
