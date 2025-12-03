@@ -11,7 +11,7 @@ public class Altar : MonoBehaviour, IInteractable
     bool interactedPreviously = false;
 
     // rune
-    [SerializeField] private RuneType storedRune;
+    [SerializeField] private RuneDataSO storedRune;
 
     [Header("Debug")]
     public Material before;

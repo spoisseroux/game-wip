@@ -6801,7 +6801,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a91d40a939cba4570bfb066a865308ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RuneHolder
-  debugRunes: []
+  debugRunes:
+  - {fileID: 11400000, guid: b730412e4fa90442bb3a1eed0e4045e7, type: 2}
+  - {fileID: 11400000, guid: 02c30f8087075428282a7057a4d5517b, type: 2}
+  - {fileID: 11400000, guid: 3cf31e534cf9f492e8e39e8bef525c7e, type: 2}
+  - {fileID: 11400000, guid: 8d977b52010db4f0791d353dd96116b0, type: 2}
   runes: 
   chantRadius: 5
   dbService: {fileID: 11400000, guid: aab89afee8a164475b56a9da0a4b15f2, type: 2}

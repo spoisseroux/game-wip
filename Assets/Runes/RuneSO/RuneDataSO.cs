@@ -1,8 +1,19 @@
+using System.Collections.Generic;
 using UnityEngine;
+
+public enum RuneType
+{
+    Attack,
+    Dash,
+    Jump,
+    WallJump
+}
 
 public abstract class RuneDataSO : ScriptableObject {
     // sfx file
-    // associated state, hmmmmm where...
+    public AudioClip soundFX;
+    // highlight shader
+    public Material shader;
     // sprite
     public Sprite UIimage;
     // affect duration
@@ -11,4 +22,31 @@ public abstract class RuneDataSO : ScriptableObject {
     public RuneType runeValue;
     // activation count for pushing updates to mobs, traps, etc.
     public int activationCount;
+    // list of effects
+    public List<IStatusEffect> effects;
+}
+
+// concrete runes
+[CreateAssetMenu(fileName = "AttackRune", menuName = "Runes/RuneData/AttackRune")]
+public class AttackRune : RuneDataSO
+{
+    
+}
+
+[CreateAssetMenu(fileName = "DashRune", menuName = "Runes/RuneData/DashRune")]
+public class DashRune : RuneDataSO
+{
+    
+}
+
+[CreateAssetMenu(fileName = "JumpRune", menuName = "Runes/RuneData/JumpRune")]
+public class JumpRune : RuneDataSO
+{
+    
+}
+
+[CreateAssetMenu(fileName = "WallJumpRune", menuName = "Runes/RuneData/WallJumpRune")]
+public class WallJumpRune : RuneDataSO
+{
+    
 }

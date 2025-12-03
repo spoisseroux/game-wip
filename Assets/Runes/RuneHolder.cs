@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
@@ -7,16 +8,16 @@ using UnityEngine;
 // and then sequentially chanting
 public class RuneHolder : MonoBehaviour
 {
-    [SerializeField]
-    List<RuneDataSO> debugRunes = new List<RuneDataSO>(4);
-
     // available runes
     [SerializeField]
-    List<RuneType> runes = new List<RuneType>(4);
+    List<RuneDataSO> runes = new List<RuneDataSO>(4);
 
     // chanting
     public float chantRadius;
-    List<RuneType> storedChant;
+    List<RuneDataSO> storedChant;
+
+    // reaction
+    public float reactRadius;
 
     // rune db
     [SerializeField]
@@ -46,29 +47,24 @@ public class RuneHolder : MonoBehaviour
 
     #region Rune Container Additions
     // receive a rune from Altar
-    public void BestowRune(RuneType runeEnum)
+    public void BestowRune(RuneDataSO rune)
     {
         // add to list
-        if (!runes.Contains(runeEnum))
-            runes.Add(runeEnum);
-
-        // get Rune from database
-        // IRune rune = (IRune)dbService.database.GetRune(runeEnum);
-
-        // give user the associated state of the Rune
+        if (!runes.Contains(rune))
+            runes.Add(rune);
     }
     #endregion
 
     #region Chanting
     // receive a chant from UI, .....
-    public void AddChant(List<RuneType> runes)
+    public void AddChant(List<RuneDataSO> runes)
     {
         storedChant = runes;
         return;
     }
 
     // clear chant from data
-    public void ClearChant(List<RuneType> runes)
+    public void ClearChant()
     {
         storedChant.Clear();
     }
@@ -79,24 +75,57 @@ public class RuneHolder : MonoBehaviour
         // lock player controls, necessary?? could be a post game jam thing
 
         // compile chant sfx into singular sound 
+        List<AudioClip> audio = ChantRunes(storedChant);
 
-        // animation
+        // animation/shaders?
+
+        // activate the runes we have
+        ActivateRunes();
 
         // push chant to any nearby doors, let it react, return confirmation of whether it succeeded
-        Collider[] cols = Physics.OverlapSphere(this.transform.position, chantRadius);
+        Collider[] cols = Physics.OverlapSphere(transform.position, chantRadius);
         foreach (var col in cols) {
-            if (col.TryGetComponent<IChantReactor>(out IChantReactor obj)) {
-                obj.React(storedChant);
+            // check for chant reactors
+            if (col.TryGetComponent<IChantReactor>(out IChantReactor cr)) {
+                // package as just enums for chant reader
+                cr.React(storedChant.Select(n => n.runeValue).ToList());
             }
         }
+    }
 
-        // activate each rune in backend
-        foreach (RuneType runeEnum in storedChant)
+    public List<AudioClip> ChantRunes(List<RuneDataSO> runes)
+    {
+        List<AudioClip> clips = new List<AudioClip>();
+        foreach (RuneDataSO rune in runes)
         {
-            // map from runedatabaseSO
-            IRune rune = (IRune)dbService.database.GetRune(runeEnum);
-            rune.Activate();
+            clips.Add(rune.soundFX);
         }
+        return clips;
+    }
+    #endregion
+
+    #region Activating Runes
+    public void ActivateRunes()
+    {
+        // get all concerned columns
+        Collider[] cols = Physics.OverlapSphere(transform.position, reactRadius);
+        // check for rune reactors
+        foreach (RuneDataSO rune in storedChant) {
+            foreach (var col in cols) {
+                if (col.TryGetComponent<IRuneReactor>(out IRuneReactor rr)) {
+                    rr.React(rune.runeValue);
+                }
+            }
+        }
+    }
+
+    public void ApplyRune(RuneDataSO rune)
+    {
+        foreach (IStatusEffect se in rune.effects)
+        {
+            
+        }
+        return;
     }
     #endregion
 }

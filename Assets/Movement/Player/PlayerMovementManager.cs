@@ -59,6 +59,8 @@ public class PlayerMovementManager : MonoBehaviour
     }
     ActionRequests inputRequests;
 
+    // Status fx??
+
     [Header("Movement Settings")]
     public Vector3 yVel;
     public Vector3 moveDirection;
@@ -171,6 +173,8 @@ public class PlayerMovementManager : MonoBehaviour
 
     private void Update()
     {
+        // tick status effects
+        
         // read input
         SetMovementValues();
         // checks
@@ -501,4 +505,10 @@ public class PlayerMovementManager : MonoBehaviour
     void At(IState from, IState to, IPredicate condition) => fsm.AddTransition(from, to, condition);
     void Any(IState to, IPredicate condition) => fsm.AddAnyTransition(to, condition);
     #endregion
+
+    #region StatusEffects
+
+
+    #endregion
+
 }
