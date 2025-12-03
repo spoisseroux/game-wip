@@ -40,8 +40,9 @@ public class JumpingState : BasePlayerState
     // animations
     string jumpBase = "Jump_";
     string jumpStart = "Start";
-    string jumpFalling = "Falling";
-    string jumpLand = "Landing";
+
+    // float 
+    float animatorAdjustment = 7.5f;
 
     public JumpingState(PlayerMovementManager f, AnimationController a) : base(f, a)
     {
@@ -52,7 +53,8 @@ public class JumpingState : BasePlayerState
     {
         motor.ApplyJumpingVelocity();
         cooldownTimer.Start();
-        // animator.Play(animBase + jumpBase + jumpStart);
+        animator.SetAnimatorSpeed(animatorAdjustment);
+        animator.Play(animBase + jumpBase + jumpStart);
         
     }
 
@@ -60,7 +62,7 @@ public class JumpingState : BasePlayerState
     {
         cooldownTimer.Pause();
         cooldownTimer.Reset(cooldown);
-        // animator.Play(animBase + jumpBase + jumpLand);
+        animator.SetDefaultAnimatorSpeed();
     }
 
     public override void Update()
@@ -68,18 +70,115 @@ public class JumpingState : BasePlayerState
         motor.Walk();
         motor.HandleRotation();
         cooldownTimer.Tick(Time.deltaTime);
-        /*
-        if (motor.GetVerticalMovementComponent().y <= 0.0f)
-        {
-            animator.Play(animBase + jumpBase + jumpFalling);
-        }
-        */
     }
 
     public override void Interrupt(BasePlayerState newState)
     {
         // pause timers
         cooldownTimer.Pause();
+    }
+
+    public float GetProgress()
+    {
+        return cooldownTimer.progress;
+    }
+}
+
+public class RisingState : BasePlayerState
+{
+    public RisingState(PlayerMovementManager m, AnimationController a) : base(m, a) {}
+
+    public override void Enter()
+    {
+        
+    }
+
+    public override void Update()
+    {
+        motor.Walk();
+        motor.HandleRotation();
+    }
+
+    public override void Exit()
+    {
+        
+    }
+
+    public override void Interrupt(BasePlayerState newState)
+    {
+        
+    }
+}
+
+public class FallingState : BasePlayerState
+{
+    string jumpBase = "Jump_";
+    string jumpFalling = "Falling";
+
+    public FallingState(PlayerMovementManager m, AnimationController a) : base(m, a) {}
+
+    public override void Enter()
+    {
+        animator.CrossFade(animBase + jumpBase + jumpFalling, 0.3f);
+    }
+
+    public override void Update()
+    {
+        motor.Walk();
+        motor.HandleRotation();
+    }
+
+    public override void Exit()
+    {
+        
+    }
+
+    public override void Interrupt(BasePlayerState newState)
+    {
+        
+    }
+}
+
+public class LandingState : BasePlayerState
+{
+    string jumpBase = "Jump_";
+    string jumpLand = "Landing";
+
+    // timer
+    CountdownTimer cooldownTimer;
+    float cooldown = 0.3f; // change to anim length!
+
+    // adjustment
+    float animatorAdjustment = 7.5f;
+
+    public LandingState(PlayerMovementManager m, AnimationController a) : base(m, a)
+    {
+        cooldownTimer = new CountdownTimer(cooldown);
+    }
+
+    public override void Enter()
+    {
+        cooldownTimer.Start();
+        animator.SetAnimatorSpeed(animatorAdjustment);
+        animator.Play(animBase + jumpBase + jumpLand);
+    }
+
+    public override void Update()
+    {
+        cooldownTimer.Tick(Time.deltaTime);
+        motor.Walk();
+    }
+
+    public override void Exit()
+    {
+        cooldownTimer.Pause();
+        cooldownTimer.Reset(cooldown);
+        animator.SetDefaultAnimatorSpeed();
+    }
+
+    public override void Interrupt(BasePlayerState newState)
+    {
+        
     }
 
     public float GetProgress()
@@ -306,6 +405,9 @@ public class AttackState : BasePlayerState
     // animations
     private string attackAnim;
 
+    // anim adjust
+    float animatorAdjustment = 2f;
+
     public AttackState(PlayerMovementManager m, PlayerCombatManager c, AnimationController a) : base(m, a)
     {
         combat = c;
@@ -316,9 +418,9 @@ public class AttackState : BasePlayerState
     {
         timer.Start();
         combat.BeginAttack(duration);
+        animator.SetAnimatorSpeed(animatorAdjustment);
         // start anim
         animator.Play(attackAnim);
-        Debug.Log("Attacking!");
     }
 
     public override void Exit()
@@ -326,6 +428,7 @@ public class AttackState : BasePlayerState
         timer = null;
         combat.ResetWeaponCycle();
         attackAnim = "";
+        animator.SetDefaultAnimatorSpeed();
     }
 
     public override void Update()

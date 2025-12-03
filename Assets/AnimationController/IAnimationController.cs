@@ -5,4 +5,6 @@ public interface IAnimationController
     public void ForceToAnim(string animName);
     public void SetDefaultAnim(string defA);
     public void ToDefaultAnim();
+    public void SetAnimatorSpeed(float speed);
+    public void SetDefaultAnimatorSpeed();
 }
