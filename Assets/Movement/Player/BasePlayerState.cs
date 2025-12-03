@@ -1,7 +1,7 @@
 public abstract class BasePlayerState : IState
 {
     protected readonly PlayerMovementManager motor;
-    protected readonly AnimationController animator; // AnimationController???
+    protected readonly AnimationController animator;
     protected readonly string animBase = "Character_";
 
     protected BasePlayerState(PlayerMovementManager m , AnimationController a)

@@ -18,6 +18,9 @@ public class PlayerMovementManager : MonoBehaviour
     [SerializeField] StateMachine fsm;
     public NeutralState neutralState;
     public JumpingState jumpingState;
+    public RisingState risingState;
+    public FallingState fallingState;
+    public LandingState landingState;
     public DashingState dashState;
     public WallJumpState walljumpState;
     public InteractState interactState;
@@ -125,6 +128,9 @@ public class PlayerMovementManager : MonoBehaviour
         // states
         neutralState = new NeutralState(this, animationController);
         jumpingState = new JumpingState(this, animationController);
+        risingState = new RisingState(this, animationController);
+        fallingState = new FallingState(this, animationController);
+        landingState = new LandingState(this, animationController);
         dashState = new DashingState(this, animationController);
         walljumpState = new WallJumpState(this, animationController);
         interactState = new InteractState(this, animationController);
@@ -132,8 +138,7 @@ public class PlayerMovementManager : MonoBehaviour
 
         // neutral state transitions
         At(neutralState, jumpingState, new FuncPredicate(() =>
-                                        inputRequests.Check(ActionRequest.Jump)
-                                        && !bonusJumpTaken));
+                                        inputRequests.Check(ActionRequest.Jump)));
         At(neutralState, dashState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Dash)));
         At(neutralState, walljumpState, new FuncPredicate(() =>
                                         inputRequests.Check(ActionRequest.WallJump)
@@ -141,22 +146,65 @@ public class PlayerMovementManager : MonoBehaviour
         At(neutralState, interactState, new FuncPredicate(() => currentInteraction != null && currentInteraction.IsTrigger()
                                         && isGrounded));
         At(neutralState, attackState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Attack) && RequestAttack()));
+
         // jumping state transitions
-        At(jumpingState, neutralState, new FuncPredicate(() => isGrounded || jumpingState.GetProgress() <= 0));
+        At(jumpingState, risingState, new FuncPredicate(() => jumpingState.GetProgress() <= 0));
+        At(jumpingState, dashState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Dash)));
+        At(jumpingState, attackState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Attack) && RequestAttack()));
+
+        // rising state transitions
+        At(risingState, jumpingState, new FuncPredicate(() =>
+                                        inputRequests.Check(ActionRequest.Jump)
+                                        && !bonusJumpTaken));
+        At(risingState, fallingState, new FuncPredicate(() => !isGrounded && GetVerticalMovementComponent().y <= 0.0f));
+        At(risingState, dashState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Dash)));
+        At(risingState, attackState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Attack) && RequestAttack()));
+
+        // falling state transitions
+        At(fallingState, jumpingState, new FuncPredicate(() =>
+                                        inputRequests.Check(ActionRequest.Jump)
+                                        && !bonusJumpTaken));
+        At(fallingState, landingState, new FuncPredicate(() => isGrounded));
+        At(fallingState, dashState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Dash)));
+        At(fallingState, attackState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Attack) && RequestAttack()));
+
+        // landing state transitions
+        At(landingState, jumpingState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Jump)));
+        At(landingState, neutralState, new FuncPredicate(() => landingState.GetProgress() <= 0));
+        At(landingState, dashState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Dash)));
+        At(landingState, attackState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Attack) && RequestAttack()));
+
         // dashing state transitions
-        At(dashState, neutralState, new FuncPredicate(() => dashState.GetProgress() <= 0));
+        At(dashState, neutralState, new FuncPredicate(() => dashState.GetProgress() <= 0 && isGrounded));
+        At(dashState, risingState, new FuncPredicate(() => dashState.GetProgress() <= 0 
+                                                           && !isGrounded 
+                                                           && GetVerticalMovementComponent().y > 0.0f));
+        At(dashState, fallingState, new FuncPredicate(() => dashState.GetProgress() <= 0 
+                                                           && !isGrounded 
+                                                           && GetVerticalMovementComponent().y <= 0.0f));
+
         // wall jump state transitions
         At(walljumpState, neutralState, new FuncPredicate(() =>
-                                        isGrounded ||
+                                        isGrounded &&
                                         walljumpState.IsFinished()));
+        At(walljumpState, risingState, new FuncPredicate(() =>
+                                        !isGrounded && GetVerticalMovementComponent().y > 0.0f &&
+                                        walljumpState.IsFinished()));
+        At(walljumpState, fallingState, new FuncPredicate(() =>
+                                        !isGrounded && GetVerticalMovementComponent().y <= 0.0f &&
+                                        walljumpState.IsFinished()));
+
         // interaction state transitions
         At(interactState, neutralState, new FuncPredicate(() => currentInteraction == null)); // need to figure out how to do this!!!
+
         // attack state transitions
-        At(attackState, neutralState, new FuncPredicate(() => attackState.GetProgress() <= 0));
-
-
-        // just for convenience sake, is this a callable or just occurs?
-        // Any(neutralState, new FuncPredicate(() => currentInteraction == null));
+        At(attackState, neutralState, new FuncPredicate(() => isGrounded && attackState.GetProgress() <= 0));
+        At(attackState, risingState, new FuncPredicate(() => !isGrounded 
+                                                             && attackState.GetProgress() <= 0
+                                                             && GetVerticalMovementComponent().y > 0.0f));
+        At(attackState, fallingState, new FuncPredicate(() => !isGrounded 
+                                                             && attackState.GetProgress() <= 0 
+                                                             && GetVerticalMovementComponent().y <= 0.0f));
 
         // set initial state
         fsm.SetState(neutralState);
