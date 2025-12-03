@@ -14,10 +14,15 @@ public class RuneHolder : MonoBehaviour
 
     // chanting
     public float chantRadius;
+
+    [SerializeField]
     List<RuneDataSO> storedChant;
 
     // reaction
     public float reactRadius;
+
+    // status effect factory
+    StatusEffectFactory seFactory;
 
     // rune db
     [SerializeField]
@@ -26,6 +31,7 @@ public class RuneHolder : MonoBehaviour
     #region MonoBehaviour
     private void Awake()
     {
+        seFactory = new StatusEffectFactory();
         SyncRunes();
     }
 
@@ -56,22 +62,15 @@ public class RuneHolder : MonoBehaviour
     #endregion
 
     #region Chanting
-    // receive a chant from UI, .....
-    public void AddChant(List<RuneDataSO> runes)
-    {
-        storedChant = runes;
-        return;
-    }
-
-    // clear chant from data
     public void ClearChant()
     {
         storedChant.Clear();
     }
 
     // large coroutine function for actually ~doin da chant?~
-    public void ExecuteChant()
+    public void ExecuteChant(List<RuneDataSO> runes)
     {
+        storedChant = runes;
         // lock player controls, necessary?? could be a post game jam thing
 
         // compile chant sfx into singular sound 
@@ -91,6 +90,9 @@ public class RuneHolder : MonoBehaviour
                 cr.React(storedChant.Select(n => n.runeValue).ToList());
             }
         }
+
+        // clear chant
+        ClearChant();
     }
 
     public List<AudioClip> ChantRunes(List<RuneDataSO> runes)
@@ -111,6 +113,9 @@ public class RuneHolder : MonoBehaviour
         Collider[] cols = Physics.OverlapSphere(transform.position, reactRadius);
         // check for rune reactors
         foreach (RuneDataSO rune in storedChant) {
+            rune.activationCount++;
+            ApplyRune(rune);
+
             foreach (var col in cols) {
                 if (col.TryGetComponent<IRuneReactor>(out IRuneReactor rr)) {
                     rr.React(rune.runeValue);
@@ -121,11 +126,13 @@ public class RuneHolder : MonoBehaviour
 
     public void ApplyRune(RuneDataSO rune)
     {
+        /*
         foreach (IStatusEffect se in rune.effects)
         {
-            
+            se.ApplyStatus(this.gameObject);
         }
         return;
+        */
     }
     #endregion
 }

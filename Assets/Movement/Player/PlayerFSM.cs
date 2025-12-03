@@ -365,7 +365,7 @@ public class InteractState : BasePlayerState
 {
     // animation
     string interactUse = "";
-    string interactGeneral = "";
+    string interactGeneral = "Interact_Generic";
 
     public InteractState(PlayerMovementManager m, AnimationController a) : base(m, a)
     {
@@ -374,7 +374,7 @@ public class InteractState : BasePlayerState
 
     public override void Enter()
     {
-        
+        animator.Play(animBase + interactGeneral);
     }
 
     public override void Exit()

@@ -9,7 +9,8 @@ public enum RuneType
     WallJump
 }
 
-public abstract class RuneDataSO : ScriptableObject {
+[CreateAssetMenu(fileName = "__Rune", menuName = "Runes/RuneData/Runes")]
+public class RuneDataSO : ScriptableObject {
     // sfx file
     public AudioClip soundFX;
     // highlight shader
@@ -27,6 +28,7 @@ public abstract class RuneDataSO : ScriptableObject {
 }
 
 // concrete runes
+/*
 [CreateAssetMenu(fileName = "AttackRune", menuName = "Runes/RuneData/AttackRune")]
 public class AttackRune : RuneDataSO
 {
@@ -50,3 +52,4 @@ public class WallJumpRune : RuneDataSO
 {
     
 }
+*/

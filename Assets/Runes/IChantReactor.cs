@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 /*
@@ -6,5 +7,47 @@ using UnityEngine;
 */
 public interface IChantReactor
 {
-    public virtual void React(List<RuneType> runes) { return; }
+    public abstract void React(List<RuneType> runes);
+}
+
+public class RuneDoor : MonoBehaviour, IChantReactor
+{
+    public Material before;
+    public Material after;
+
+    [SerializeField]
+    public List<RuneType> runeCode;
+
+    #region MonoBehaviour
+    private void Awake()
+    {
+        GetComponent<Renderer>().material = before;
+    }
+
+
+    #endregion
+
+    #region IChantReactor
+    public void React(List<RuneType> runes)
+    {
+        if (runeCode.Count != runes.Count) 
+            return;
+
+        for (int i = 0; i < runeCode.Count; i++)
+        {
+            if (runes[i] != runeCode[i])
+                return;
+        }
+
+        OpenRoutine();
+    }
+    #endregion
+
+    public void OpenRoutine()
+    {
+        // make noises
+        // make shader fx
+        GetComponent<Renderer>().material = after;
+        // open doors
+    }
 }

@@ -1117,7 +1117,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Altar
   player: {fileID: 0}
-  storedRune: 3
+  storedRune: {fileID: 11400000, guid: 3cf31e534cf9f492e8e39e8bef525c7e, type: 2}
   before: {fileID: 2100000, guid: 4da125616e47042d99983f3910be7dae, type: 2}
   after: {fileID: 2100000, guid: a887dce4f2c15493ebc8c1e77dee248e, type: 2}
 --- !u!136 &1514631311
@@ -6801,13 +6801,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a91d40a939cba4570bfb066a865308ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RuneHolder
-  debugRunes:
-  - {fileID: 11400000, guid: b730412e4fa90442bb3a1eed0e4045e7, type: 2}
-  - {fileID: 11400000, guid: 02c30f8087075428282a7057a4d5517b, type: 2}
-  - {fileID: 11400000, guid: 3cf31e534cf9f492e8e39e8bef525c7e, type: 2}
-  - {fileID: 11400000, guid: 8d977b52010db4f0791d353dd96116b0, type: 2}
-  runes: 
+  runes: []
   chantRadius: 5
+  storedChant: []
+  reactRadius: 0
   dbService: {fileID: 11400000, guid: aab89afee8a164475b56a9da0a4b15f2, type: 2}
 --- !u!4 &5549004161018702188
 Transform:
@@ -8125,7 +8122,7 @@ MonoBehaviour:
     m_Bits: 8
   isGrounded: 1
   interactSphereRadius: 0.2
-  interactCheckTranslationOffset: {x: 0, y: 0, z: 0}
+  interactCheckTranslationOffset: {x: 0, y: 1, z: 0}
   interactDistance: 2
   dashSpeed: 30
   bonusJumpTaken: 0

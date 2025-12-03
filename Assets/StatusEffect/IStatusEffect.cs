@@ -1,19 +1,21 @@
 using UnityEngine;
+using System.Collections;
 
 public interface IStatusEffect
 {
     void ApplyStatus(GameObject target);
-    bool UpdateStatus();
+    void UpdateStatus();
     void ExitStatus();
 }
 
 // does this need to be 1-1 between buff and factory?
 public class StatusEffectFactory : ScriptableObject {
     // maybe the StatusEffectSO goes here
+    StatusEffectSO moveBuff;
 
     public MovementSpeedEffect CreateMovementBuff()
     {
-        return null;//new MovementSpeedEffect(statusEffect);
+        return new MovementSpeedEffect(moveBuff);
     }
 }
 
@@ -21,22 +23,36 @@ public class StatusEffectFactory : ScriptableObject {
 public class MovementSpeedEffect : IStatusEffect
 {
     private StatusEffectSO statusEffect;
+    GameObject target;
+    CountdownTimer timer;
 
-    public MovementSpeedEffect(StatusEffectSO se) { statusEffect = se; }
-
-    public void ApplyStatus(GameObject target)
-    {
-        throw new System.NotImplementedException();
+    public MovementSpeedEffect(StatusEffectSO se) { 
+        statusEffect = se; 
+        timer = new CountdownTimer(statusEffect.duration);
     }
 
-    public bool UpdateStatus()
+    public void ApplyStatus(GameObject t)
     {
-        throw new System.NotImplementedException();
+        target = t;
+        PlayerMovementManager motor = target.GetComponent<PlayerMovementManager>();
+        motor.ChangeAdditiveBonus(statusEffect.additiveValue);
+        motor.ChangeMultBonus(statusEffect.multValue);
+        timer.Start();
+    }
+
+    public void UpdateStatus()
+    {
+        timer.Tick(Time.deltaTime);
+        if (timer.progress <= 0)
+            ExitStatus();
     }
 
     public void ExitStatus()
     {
-        throw new System.NotImplementedException();
+        PlayerMovementManager motor = target.GetComponent<PlayerMovementManager>();
+        motor.ChangeAdditiveBonus(-1 * statusEffect.additiveValue);
+        motor.ChangeMultBonus(-1 * statusEffect.multValue);
+        timer = null;
     }
 }
 
