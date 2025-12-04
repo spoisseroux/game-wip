@@ -227,7 +227,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RuneDoor
   before: {fileID: 2100000, guid: 4da125616e47042d99983f3910be7dae, type: 2}
   after: {fileID: 2100000, guid: a887dce4f2c15493ebc8c1e77dee248e, type: 2}
-  runeCode: 00000000010000000300000002000000
+  code: 0000000001000000
 --- !u!136 &199490286
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -6934,11 +6934,10 @@ MonoBehaviour:
   runes:
   - {fileID: 11400000, guid: b730412e4fa90442bb3a1eed0e4045e7, type: 2}
   - {fileID: 11400000, guid: 02c30f8087075428282a7057a4d5517b, type: 2}
-  - {fileID: 11400000, guid: 8d977b52010db4f0791d353dd96116b0, type: 2}
-  - {fileID: 11400000, guid: 3cf31e534cf9f492e8e39e8bef525c7e, type: 2}
-  chantRadius: 5
+  Yadjustment: {x: 0, y: 0, z: 0}
+  chantRadius: 10
   storedChant: []
-  reactRadius: 20
+  reactRadius: 30
   dbService: {fileID: 11400000, guid: aab89afee8a164475b56a9da0a4b15f2, type: 2}
 --- !u!4 &5549004161018702188
 Transform:

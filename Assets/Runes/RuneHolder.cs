@@ -11,6 +11,9 @@ public class RuneHolder : MonoBehaviour
     [SerializeField]
     List<RuneDataSO> runes = new List<RuneDataSO>(4);
 
+    // position adjustment
+    public Vector3 Yadjustment;
+
     // chanting
     public float chantRadius;
 
@@ -31,6 +34,8 @@ public class RuneHolder : MonoBehaviour
     private void Awake()
     {
         seFactory = new StatusEffectFactory();
+
+        Yadjustment = new Vector3(0.0f, 1.0f, 0.0f);
     }
 
     private void Update()
@@ -47,10 +52,10 @@ public class RuneHolder : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.purple;
-        Gizmos.DrawWireSphere(this.transform.position, chantRadius);
+        Gizmos.DrawWireSphere(this.transform.position + Yadjustment, chantRadius);
 
         Gizmos.color = Color.bisque;
-        Gizmos.DrawWireSphere(this.transform.position, reactRadius);
+        Gizmos.DrawWireSphere(this.transform.position + Yadjustment, reactRadius);
     }
     #endregion
 
@@ -85,8 +90,45 @@ public class RuneHolder : MonoBehaviour
         // ActivateRunes();
 
         // push chant to any nearby doors, let it react, return confirmation of whether it succeeded
-        Collider[] cols = Physics.OverlapSphere(transform.position, chantRadius);
+        Collider[] cols = Physics.OverlapSphere(transform.position + Yadjustment, chantRadius);
         foreach (var col in cols) {
+            // filter for objects only ABOVE the player, no reaching below the level
+            /* 
+                halfspherenormal = player.transform.up; or Vector3.up...
+                dirToCollider = (col.transform.position - transform.position).normalized;
+                if Vector3.Dot(dirToCollider, halfspherenormal) > 0;
+                    yeah we want it 
+
+
+
+                OKAY LINEAR ALGEBRA LESSON
+
+                SO
+
+                the collider, in world space, is centered at P
+
+                but also, it can be represented as a series of displacements from (0,0,0)
+                    - 1) displace to Vector3 player.transform
+                    - 2) displace to Collider
+                    - 3) Wa-Lah! We've displaced ourselves towards P
+
+                now,,,,, we get the raw displacement vector of 2) by UNDOING the displacement from 1)
+                so, if we need 2) but technically have 1) && 3), we just subtract 1 from 3
+                then! we have 2) the displacement to the collider, from our origin point...!
+                if you want direction, just normalize it!
+
+                NOTE if we reversed this, then it'd be the direction from collider to the player!!!
+
+
+                numerically... collider is at (9,3,5) for example...
+                and our player is at (-3,0,5)... the vector from the origin (0,0,0) is defined by C - P
+                (9,3,5) - (-3,0,5) = (12,3,0)... 
+                (12,3,0)... that's the displacement needed to get to the collider if we start at our player, given our reference is (0,0,0)
+                NORM((12,3,0)) == direction from player to collider! 
+
+                Notice that the vector subtraction (p - c) yields a vector from c to p
+            */
+
             // check for chant reactors
             if (col.TryGetComponent<IChantReactor>(out IChantReactor cr)) {
                 // package as just enums for chant reader
