@@ -11,6 +11,9 @@ public class PlayerCombatManager : MonoBehaviour, IDamageable
     // health component here
     [SerializeField]
     private int health = 100;
+    // death event
+    public delegate void PlayerDiedEvent();
+    public event PlayerDiedEvent Died;
 
     // active hurtbox here [can be swapped upon dash/etc.]
     private Hurtbox activeHurtbox = null;
@@ -70,6 +73,10 @@ public class PlayerCombatManager : MonoBehaviour, IDamageable
     public void TakeDamage(int damage)
     {
         health -= damage;
+        if (health <= 0)
+        {
+            Died?.Invoke();
+        }
     }
 
     public void TakeDamage(int damage, IHitboxSource source)

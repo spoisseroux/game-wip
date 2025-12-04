@@ -1,8 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 // have to figure out where we separate the act of generating a chant from the UI, 
 // and then sequentially chanting
@@ -32,22 +31,26 @@ public class RuneHolder : MonoBehaviour
     private void Awake()
     {
         seFactory = new StatusEffectFactory();
-        SyncRunes();
     }
 
-    private void OnValidate()
+    private void Update()
     {
-        SyncRunes();
-    }
-
-    private void SyncRunes()
-    {
-        /*
-        foreach (RuneDataSO r in debugRunes)
+        // m key for quick testing
+        var keyboard = Keyboard.current;
+        if (keyboard.mKey.wasPressedThisFrame)
         {
-            runes.Add(r.runeValue);
+            Debug.Log("heyyy checking...");
+            ExecuteChant(runes);
         }
-        */
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.purple;
+        Gizmos.DrawWireSphere(this.transform.position, chantRadius);
+
+        Gizmos.color = Color.bisque;
+        Gizmos.DrawWireSphere(this.transform.position, reactRadius);
     }
     #endregion
 
@@ -74,12 +77,12 @@ public class RuneHolder : MonoBehaviour
         // lock player controls, necessary?? could be a post game jam thing
 
         // compile chant sfx into singular sound 
-        List<AudioClip> audio = ChantRunes(storedChant);
+        // List<AudioClip> audio = ChantRunes(storedChant);
 
         // animation/shaders?
 
         // activate the runes we have
-        ActivateRunes();
+        // ActivateRunes();
 
         // push chant to any nearby doors, let it react, return confirmation of whether it succeeded
         Collider[] cols = Physics.OverlapSphere(transform.position, chantRadius);

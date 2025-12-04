@@ -1,14 +1,5 @@
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-
-/*
-    Reserved for things like Doors which specifically react to a sequence of runes, and would generate an interaction as a result
-*/
-public interface IChantReactor
-{
-    public abstract void React(List<RuneType> runes);
-}
+using System.Collections.Generic;
 
 public class RuneDoor : MonoBehaviour, IChantReactor
 {
@@ -16,30 +7,39 @@ public class RuneDoor : MonoBehaviour, IChantReactor
     public Material after;
 
     [SerializeField]
-    public List<RuneType> runeCode;
+    public List<RuneType> code;
 
     #region MonoBehaviour
     private void Awake()
     {
         GetComponent<Renderer>().material = before;
     }
-
-
     #endregion
 
     #region IChantReactor
     public void React(List<RuneType> runes)
     {
-        if (runeCode.Count != runes.Count) 
-            return;
-
-        for (int i = 0; i < runeCode.Count; i++)
+        Debug.Log("Woah someone wanted something from me the humble RoonDoar...");
+        if (IsValidChant(runes))
         {
-            if (runes[i] != runeCode[i])
-                return;
+            OpenRoutine();
+        }
+    }
+    #endregion
+
+    #region Helpers
+    public bool IsValidChant(List<RuneType> runes)
+    {
+        if (code.Count != runes.Count) 
+            return false;
+
+        for (int i = 0; i < code.Count; i++)
+        {
+            if (runes[i] != code[i])
+                return false;
         }
 
-        OpenRoutine();
+        return true;
     }
     #endregion
 

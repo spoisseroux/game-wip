@@ -25,6 +25,7 @@ public class PlayerMovementManager : MonoBehaviour
     public WallJumpState walljumpState;
     public InteractState interactState;
     public AttackState attackState;
+    public ChantState chantState;
 
     // polling input vals
     [HideInInspector] public float horizontalMovement;
@@ -136,6 +137,7 @@ public class PlayerMovementManager : MonoBehaviour
         walljumpState = new WallJumpState(this, animationController);
         interactState = new InteractState(this, animationController);
         attackState = new AttackState(this, combat, animationController);
+        chantState = new ChantState(this, animationController);
 
         // neutral state transitions
         At(neutralState, jumpingState, new FuncPredicate(() =>
@@ -144,6 +146,7 @@ public class PlayerMovementManager : MonoBehaviour
         At(neutralState, interactState, new FuncPredicate(() => currentInteraction != null && currentInteraction.IsTrigger()
                                         && isGrounded));
         At(neutralState, attackState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Attack) && RequestAttack()));
+        At(neutralState, chantState, new FuncPredicate(() => false)); // how to fire an event to pipe into here?
 
         // jumping state transitions
         At(jumpingState, risingState, new FuncPredicate(() => jumpingState.GetProgress() <= 0));
@@ -207,6 +210,9 @@ public class PlayerMovementManager : MonoBehaviour
         At(attackState, fallingState, new FuncPredicate(() => !isGrounded 
                                                              && attackState.GetProgress() <= 0 
                                                              && GetVerticalMovementComponent().y <= 0.0f));
+
+        // chant state transitions
+        At(chantState, neutralState, new FuncPredicate(() => chantState.GetProgress() <= 0));
 
         // set initial state
         fsm.SetState(neutralState);
