@@ -105,12 +105,12 @@ public class RuneHolder : MonoBehaviour
 
                 SO
 
-                the collider, in world space, is centered at P
+                the collider, in world space, is located at P
 
                 but also, it can be represented as a series of displacements from (0,0,0)
                     - 1) displace to Vector3 player.transform
                     - 2) displace to Collider
-                    - 3) Wa-Lah! We've displaced ourselves towards P
+                    - 3) Wa-Lah! We've displaced ourselves towards and reached P
 
                 now,,,,, we get the raw displacement vector of 2) by UNDOING the displacement from 1)
                 so, if we need 2) but technically have 1) && 3), we just subtract 1 from 3
