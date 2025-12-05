@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BasicAttack3
   m_EditorClassIdentifier: Assembly-CSharp::AttackSO
   attackDuration: 0.8
-  hitboxDuration: 0.3
+  hitboxDuration: 0.4
   damage: 10
   hitbox:
     length: 1

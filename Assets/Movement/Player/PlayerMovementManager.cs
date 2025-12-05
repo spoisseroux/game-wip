@@ -25,6 +25,7 @@ public class PlayerMovementManager : MonoBehaviour
     public WallJumpState walljumpState;
     public InteractState interactState;
     public AttackState attackState;
+    public ChantState chantState;
 
     // polling input vals
     [HideInInspector] public float horizontalMovement;
@@ -62,6 +63,9 @@ public class PlayerMovementManager : MonoBehaviour
     }
     ActionRequests inputRequests;
 
+    // Status fx??
+    public MovementStatusHandler moveBuffHandler { get; private set;}
+
     [Header("Movement Settings")]
     public Vector3 yVel;
     public Vector3 moveDirection;
@@ -89,7 +93,7 @@ public class PlayerMovementManager : MonoBehaviour
     // other scripts read it for state changes and logic flows
     [Header("Interaction Check")]
     [SerializeField] float interactSphereRadius = 0.2f;
-    [SerializeField] Vector3 interactCheckTranslationOffset = new Vector3(0f, 0f, 0f);
+    [SerializeField] Vector3 interactCheckTranslationOffset = new Vector3(0f, 1f, 0f);
     [SerializeField] float interactDistance = 2f;
     [SerializeField] IInteractable currentInteraction;
 
@@ -133,22 +137,24 @@ public class PlayerMovementManager : MonoBehaviour
         walljumpState = new WallJumpState(this, animationController);
         interactState = new InteractState(this, animationController);
         attackState = new AttackState(this, combat, animationController);
+        chantState = new ChantState(this, animationController);
 
         // neutral state transitions
         At(neutralState, jumpingState, new FuncPredicate(() =>
                                         inputRequests.Check(ActionRequest.Jump)));
         At(neutralState, dashState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Dash)));
-        At(neutralState, walljumpState, new FuncPredicate(() =>
-                                        inputRequests.Check(ActionRequest.WallJump)
-                                        && !isGrounded));
         At(neutralState, interactState, new FuncPredicate(() => currentInteraction != null && currentInteraction.IsTrigger()
                                         && isGrounded));
         At(neutralState, attackState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Attack) && RequestAttack()));
+        At(neutralState, chantState, new FuncPredicate(() => false)); // how to fire an event to pipe into here?
 
         // jumping state transitions
         At(jumpingState, risingState, new FuncPredicate(() => jumpingState.GetProgress() <= 0));
         At(jumpingState, dashState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Dash)));
         At(jumpingState, attackState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Attack) && RequestAttack()));
+        At(jumpingState, walljumpState, new FuncPredicate(() =>
+                                        inputRequests.Check(ActionRequest.WallJump)
+                                        && !isGrounded));
 
         // rising state transitions
         At(risingState, jumpingState, new FuncPredicate(() =>
@@ -157,6 +163,7 @@ public class PlayerMovementManager : MonoBehaviour
         At(risingState, fallingState, new FuncPredicate(() => !isGrounded && GetVerticalMovementComponent().y <= 0.0f));
         At(risingState, dashState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Dash)));
         At(risingState, attackState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Attack) && RequestAttack()));
+        At(risingState, walljumpState, new FuncPredicate(() => inputRequests.Check(ActionRequest.WallJump)));
 
         // falling state transitions
         At(fallingState, jumpingState, new FuncPredicate(() =>
@@ -165,6 +172,7 @@ public class PlayerMovementManager : MonoBehaviour
         At(fallingState, landingState, new FuncPredicate(() => isGrounded));
         At(fallingState, dashState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Dash)));
         At(fallingState, attackState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Attack) && RequestAttack()));
+        At(fallingState, walljumpState, new FuncPredicate(() => inputRequests.Check(ActionRequest.WallJump)));
 
         // landing state transitions
         At(landingState, jumpingState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Jump)));
@@ -182,9 +190,8 @@ public class PlayerMovementManager : MonoBehaviour
                                                            && GetVerticalMovementComponent().y <= 0.0f));
 
         // wall jump state transitions
-        At(walljumpState, neutralState, new FuncPredicate(() =>
-                                        isGrounded &&
-                                        walljumpState.IsFinished()));
+        At(walljumpState, landingState, new FuncPredicate(() =>
+                                        isGrounded));
         At(walljumpState, risingState, new FuncPredicate(() =>
                                         !isGrounded && GetVerticalMovementComponent().y > 0.0f &&
                                         walljumpState.IsFinished()));
@@ -204,6 +211,9 @@ public class PlayerMovementManager : MonoBehaviour
                                                              && attackState.GetProgress() <= 0 
                                                              && GetVerticalMovementComponent().y <= 0.0f));
 
+        // chant state transitions
+        At(chantState, neutralState, new FuncPredicate(() => chantState.GetProgress() <= 0));
+
         // set initial state
         fsm.SetState(neutralState);
 
@@ -215,10 +225,13 @@ public class PlayerMovementManager : MonoBehaviour
     private void Start()
     {
         // maybe move states and transitions here
+        moveBuffHandler = new MovementStatusHandler();
     }
 
     private void Update()
     {
+        // tick status effects
+        
         // read input
         SetMovementValues();
         // checks
@@ -245,7 +258,7 @@ public class PlayerMovementManager : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawSphere(GetComponent<PlayerManager>().gameObject.transform.position + groundCheckTranslationAdjustment, groundCheckSphereRadius);
 
-        // walljump raycast, isn't rly working anyways, camera shenanigans
+        // walljump raycast, isn't rly working anyways, bad linalg
         Gizmos.color = Color.blue;
         Gizmos.DrawSphere(transform.position + castPosOffset,
                             wallJumpSphereRaycastRadius);
@@ -360,14 +373,14 @@ public class PlayerMovementManager : MonoBehaviour
 
     public void Walk()
     {
+        float finalSpeed = moveBuffHandler.ApplyBonuses(walkSpeed);
         moveDirection = SetWalkMovementDir();
-        characterController.Move(walkSpeed * Time.deltaTime * moveDirection);
+        characterController.Move(finalSpeed * Time.deltaTime * moveDirection);
     }
 
     public void Dash()
     {
         characterController.Move(dashSpeed * Time.deltaTime * moveDirection);
-        // handle dash rotation!
     }
 
     public void SeekWall()
@@ -390,7 +403,7 @@ public class PlayerMovementManager : MonoBehaviour
     public Tuple<bool, RaycastHit> WallContactCheck()
     {
         RaycastHit hitData;
-        bool hitVal = Physics.SphereCast(transform.position + castPosOffset,
+        bool hitVal = Physics.SphereCast(transform.position + castPosOffset, // THIS IS WRONG IN SPACE!! FORWARD * OFFSET
                             wallJumpSphereRaycastRadius,
                             moveDirection,
                             out hitData,
@@ -404,16 +417,17 @@ public class PlayerMovementManager : MonoBehaviour
     {
         RaycastHit hit;
         // basic sphere cast for now
-        bool cast = Physics.SphereCast(transform.position + interactCheckTranslationOffset,
+        bool cast = Physics.SphereCast(player.transform.position + interactCheckTranslationOffset, // THIS IS WRONG IN SPACE!! FORWARD * OFFSET
                                        interactSphereRadius,
                                        transform.forward, // could be camera forward too!
                                        out hit,
                                        interactDistance);
-        IInteractable interact = null;
+        Debug.Log(cast);
         if (cast) {
-            interact = hit.collider.GetComponent<IInteractable>();
+            Debug.Log("cast hit!");
+            return hit.collider.GetComponent<IInteractable>();
         }
-        return interact;
+        return null;
     }
     
     // check vertical velocity
@@ -500,12 +514,14 @@ public class PlayerMovementManager : MonoBehaviour
     public void RequestInteract() {
         // check and interact
         if (inputRequests.Check(ActionRequest.Interact)) {
+            Debug.Log("checking for interacts");
             currentInteraction = GetClosestInteract();
             // null exit
             if (currentInteraction == null)
                 return;
 
             // interact
+            Debug.Log("found one!");
             currentInteraction?.Interact(this);
             // clear from object if we don't want to initiate a State change
             if (!currentInteraction.IsTrigger()) {
@@ -549,4 +565,18 @@ public class PlayerMovementManager : MonoBehaviour
     void At(IState from, IState to, IPredicate condition) => fsm.AddTransition(from, to, condition);
     void Any(IState to, IPredicate condition) => fsm.AddAnyTransition(to, condition);
     #endregion
+
+    #region StatusEffects
+    public void ChangeAdditiveBonus(float input)
+    {
+        moveBuffHandler.ChangeAdditiveBonus(input);
+    }
+
+    public void ChangeMultBonus(float input)
+    {
+        moveBuffHandler.ChangeMultiplicativeBonus(input);
+    }
+
+    #endregion
+
 }

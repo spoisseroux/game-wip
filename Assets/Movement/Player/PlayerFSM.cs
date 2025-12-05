@@ -29,7 +29,6 @@ public class NeutralState : BasePlayerState
     public override void Interrupt(BasePlayerState newState) { return; }
 }
 
-// NEED TO FIX FOR ANIMATOR
 public class JumpingState : BasePlayerState
 {
     // need to re-tool for proper animations!!! not just transition to neutral immediately
@@ -365,7 +364,7 @@ public class InteractState : BasePlayerState
 {
     // animation
     string interactUse = "";
-    string interactGeneral = "";
+    string interactGeneral = "Interact_Generic";
 
     public InteractState(PlayerMovementManager m, AnimationController a) : base(m, a)
     {
@@ -374,7 +373,7 @@ public class InteractState : BasePlayerState
 
     public override void Enter()
     {
-        
+        animator.Play(animBase + interactGeneral);
     }
 
     public override void Exit()
@@ -461,6 +460,51 @@ public class AttackState : BasePlayerState
     public void Restart()
     {
         Enter();
+    }
+
+    public float GetProgress()
+    {
+        return timer.progress;
+    }
+}
+
+// chant state???
+public class ChantState : BasePlayerState
+{
+    // timing
+    CountdownTimer timer;
+    float duration = 1.5f;
+
+    // animation?
+    string chantAnim = "";
+
+    public ChantState(PlayerMovementManager m, AnimationController a) : base(m, a)
+    {
+        timer = new CountdownTimer(duration);
+    }
+
+    public override void Enter()
+    {
+        timer.Start();
+        // start anim
+        // animator.Play(animBase + chantAnim);
+    }
+
+    public override void Exit()
+    {
+        timer = null;
+        animator.SetDefaultAnimatorSpeed();
+    }
+
+    public override void Update()
+    {
+        timer.Tick(Time.deltaTime);
+        motor.Walk();
+    }
+
+    public override void Interrupt(BasePlayerState newState)
+    {
+        throw new NotImplementedException();
     }
 
     public float GetProgress()

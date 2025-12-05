@@ -1,5 +1,5 @@
+using System.Collections;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class Altar : MonoBehaviour, IInteractable
 {
@@ -10,8 +10,11 @@ public class Altar : MonoBehaviour, IInteractable
     bool interacting = false;
     bool interactedPreviously = false;
 
+    // anim , needs some work!
+    string animName = "Interact_Generic";
+
     // rune
-    [SerializeField] private RuneType storedRune;
+    [SerializeField] private RuneDataSO storedRune;
 
     [Header("Debug")]
     public Material before;
@@ -19,7 +22,8 @@ public class Altar : MonoBehaviour, IInteractable
 
     #region MonoBehaviour
     private void Awake() {
-        
+        interacting = false;
+        interactedPreviously = false;
     }
 
     private void Start() {
@@ -36,19 +40,8 @@ public class Altar : MonoBehaviour, IInteractable
         // resolve player
         player = p;
 
-        // flag to busy
-        interacting = true;
-
-        // material change
-        GetComponent<Renderer>().material = after;
-
-        // send rune to player
-        player.GetComponent<RuneHolder>().BestowRune(storedRune);
-
-        // turn off option to interact
-        interactedPreviously = true;
-
-        FreePlayer();
+        // start coroutine
+        StartCoroutine(ExecuteInteraction());
     }
 
     public void FreePlayer() {
@@ -59,5 +52,22 @@ public class Altar : MonoBehaviour, IInteractable
     public bool IsTrigger() {
         return true;
     }
+    #endregion
+
+    #region Coroutine
+    public IEnumerator ExecuteInteraction()
+    {
+        // flag to busy
+        interacting = true;
+        yield return new WaitForSeconds(1.0f);
+        // visuals & data
+        GetComponent<Renderer>().material = after;
+        player.GetComponent<RuneHolder>().BestowRune(storedRune);
+        yield return new WaitForSeconds(2.0f);
+        // free player
+        interactedPreviously = true;
+        FreePlayer();
+    }
+
     #endregion
 }
