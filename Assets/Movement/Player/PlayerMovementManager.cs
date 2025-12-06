@@ -557,11 +557,6 @@ public class PlayerMovementManager : MonoBehaviour
     #endregion
 
     #region FSM
-    public void TransitionFSM(BaseState newState)
-    {
-        fsm.Transition(newState);
-    }
-
     void At(IState from, IState to, IPredicate condition) => fsm.AddTransition(from, to, condition);
     void Any(IState to, IPredicate condition) => fsm.AddAnyTransition(to, condition);
     #endregion
