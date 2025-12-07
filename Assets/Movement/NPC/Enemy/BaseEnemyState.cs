@@ -6,7 +6,7 @@ public abstract class BaseEnemyState : IState
     protected readonly AnimationController animator;
     protected readonly string ownerAnimName;
 
-    protected BaseEnemyState(EnemyMotor m , AnimationController a)
+    protected BaseEnemyState(EnemyMotor m, AnimationController a)
     {
         this.motor = m;
         this.animator = a;

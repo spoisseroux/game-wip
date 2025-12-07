@@ -1,30 +1,34 @@
 using UnityEngine.AI;
 using UnityEngine;
-
+/*
 public class IdleState : BaseEnemyState
 {
     float duration = 1f;
     CountdownTimer timer;
 
-    public IdleState(EnemyMotor m, AnimationController a) : base(m, a)
+    public IdleState(EnemyMotor m, AnimationController a, float dur) : base(m, a)
     {
-        timer = new CountdownTimer(duration);
+        duration = dur;
+        if (duration > 0)
+            timer = new CountdownTimer(duration);
     }
 
     public override void Enter()
     {
-        // just play an animation
-        timer.Start();
+        if (timer != null)
+            timer.Start();
     }
 
     public override void Update()
     {
-        timer.Tick(Time.deltaTime);
+        if (timer != null)
+            timer.Tick(Time.deltaTime);
     }
 
     public override void Exit()
     {
-        timer.Reset(duration);
+        if (timer != null)
+            timer.Reset(duration);
     }
 
     public override void Interrupt(BaseEnemyState newState)
@@ -58,7 +62,7 @@ public class RoamState : BaseEnemyState
 
     public override void Update()
     {
-        /*
+        
         if (ReachedDestination())
         {
             // sample a new destination within our wander radius and provide to the agent.... CUSTOMIZE THIS LATER!!!
@@ -70,7 +74,7 @@ public class RoamState : BaseEnemyState
             
             agent.SetDestination(finalPosition);
         }
-        */
+        
     }
 
     public override void Interrupt(BaseEnemyState newState)
@@ -200,3 +204,4 @@ public class EnemyAttackState : BaseEnemyState
         return timer.progress;
     }
 }
+*/
