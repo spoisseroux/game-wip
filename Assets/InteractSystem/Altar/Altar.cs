@@ -1,20 +1,25 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
-public class Altar : MonoBehaviour, IInteractable
+public class Altar : SaveableObject, IInteractable
 {
     [Header("Player References")]
     public PlayerMovementManager player;
 
     // state internals
     bool interacting = false;
-    bool interactedPreviously = false;
+    private class AltarSaveData : ISaveData
+    {
+        public bool interactedBefore { get; set; }
+    }
+    AltarSaveData saveData;
 
     // anim , needs some work!
     string animName = "Interact_Generic";
 
     // rune
-    [SerializeField] private RuneDataSO storedRune;
+    [SerializeField] private RuneDataSO storedRune; // don't think we need to 'save' serialized data like runes...
 
     [Header("Debug")]
     public Material before;
@@ -23,18 +28,39 @@ public class Altar : MonoBehaviour, IInteractable
     #region MonoBehaviour
     private void Awake() {
         interacting = false;
-        interactedPreviously = false;
+        saveData.interactedBefore = false;
+
+        // assign a GUID?
     }
 
     private void Start() {
         GetComponent<Renderer>().material = before;
+
+        // check if instantiated
+        if (guid != null && guid != String.Empty)
+        {
+            // check if save data exists
+            if (SaveGameManager.HasData(guid))
+            {
+                data = SaveGameManager.GetObjectData(guid) as AltarSaveData;
+            }
+            else
+            {
+                data = new AltarSaveData();
+                SaveGameManager.AddObject(guid, data);
+            }
+        }
     }
     #endregion
 
     #region Interaction Interface
     public void Interact(PlayerMovementManager p) {
         // only bestow rune once
-        if (interactedPreviously)
+        if (saveData.interactedBefore)
+            return;
+
+        // no simultaneous interactions
+        if (interacting)
             return;
 
         // resolve player
@@ -65,7 +91,7 @@ public class Altar : MonoBehaviour, IInteractable
         player.GetComponent<RuneHolder>().BestowRune(storedRune);
         yield return new WaitForSeconds(2.0f);
         // free player
-        interactedPreviously = true;
+        saveData.interactedBefore = true;
         FreePlayer();
     }
 

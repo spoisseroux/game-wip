@@ -127,6 +127,7 @@ public class Tile : MonoBehaviour, IRuneReactor, IDamageable, IHitboxSource
     [SerializeField] private int health;
     // damage
     [SerializeField] private int damage;
+    [SerializeField] private int runeDamageMultiplier;
 
     // hitbox
     [SerializeField] Box hitboxPos;
