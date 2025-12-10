@@ -15,7 +15,8 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
     public Vector3 yDisplace;
 
     // data
-    public WeaponDataSO weaponData;
+    public WeaponDataSO weaponData; // meant to be exchanged at runtime but need more services set up for this....
+    public WeaponDataSO defaultWeapon; // so we make a default weapon that's separate from the save system for this
     public AttackSO currentAttack;
 
     // combo
@@ -31,6 +32,11 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
     private void Awake()
     {
         currentComboIndex = -1;
+    }
+
+    private void Start()
+    {
+        weaponData = defaultWeapon;
     }
     #endregion
 
@@ -166,6 +172,16 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
         weaponData = null;
         // reset combo
         currentComboIndex = -1;
+    }
+
+    public void LoadWeaponFromSave(WeaponDataSO weapon)
+    {
+        if (defaultWeapon != null)
+        {
+            weaponData = defaultWeapon;
+            return;
+        }
+        weaponData = weapon;
     }
     #endregion
 

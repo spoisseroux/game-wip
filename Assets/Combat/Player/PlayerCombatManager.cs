@@ -89,4 +89,29 @@ public class PlayerCombatManager : MonoBehaviour, IDamageable
         }
     }
     #endregion
+
+    #region Weapon Helpers
+    public WeaponDataSO GetEquippedWeapon()
+    {
+        return equippedWeapon.weaponData;
+    }
+
+    public void SetEquippedWeapon(WeaponDataSO weapon)
+    {
+        equippedWeapon.LoadWeaponFromSave(weapon);
+    }
+    #endregion
+
+    #region Health
+    public int GetHealth()
+    {
+        return health;
+    }
+
+    public void SetHealth(int h)
+    {
+        health = h;
+    }
+    #endregion
+
 }

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEditor.SearchService;
 
 // data class
 [System.Serializable]
@@ -7,9 +8,10 @@ public class PlayerData : ISaveData
 {
     // saveable fields
     //public int scene;
-    //public Vector3 position;
+    public SerializeableVector3 position;
+    public SerializeableQuaternion rotation;
     //public List<RuneDataSO> runes;
-    //public WeaponDataSO weapon;
+    public WeaponDataSO weapon;
     public int health;
     // stats, deathcount, etc..... anything you want....
 
@@ -17,10 +19,11 @@ public class PlayerData : ISaveData
     public PlayerData()
     {
         //scene = 0;
-        //position = Vector3.zero;
+        position = new SerializeableVector3(SceneTransitionManager.startPosition);
+        rotation = new SerializeableQuaternion(SceneTransitionManager.startRotation);
         //runes = new List<RuneDataSO>();
-        //weapon = null;
-        health = 14590;
+        weapon = null;
+        health = 100;
     }
 }
 
@@ -28,7 +31,9 @@ public class PlayerData : ISaveData
 public class PlayerSaveData : SaveableObject
 {
     [SerializeField] PlayerManager player;
-    private PlayerData saveData;
+    [SerializeField] private PlayerData saveData;
+
+    // could hack around by dragging in default weapon, etc. then plugging into saveData
 
     #region MonoBehaviour
     private void Awake()

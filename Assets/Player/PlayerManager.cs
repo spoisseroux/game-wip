@@ -47,13 +47,14 @@ public class PlayerManager : MonoBehaviour
     {
         Debug.Log("PlayerManager::LoadData() --> loading player data");
         // player manager
-        //this.transform.position = data.position;
+        this.transform.position = data.position.UnityVector;
+        this.transform.rotation = data.rotation.UnityQuaternion;
 
         // movement manager saved objects
 
-        // combatManager.Equip(data.weaponData);
-        // combatManager.SetHealth(data.health);
-        combatManager.TakeDamage(-1 * data.health); // hacky for now
+        // combat saved objects
+        combatManager.SetHealth(data.health); // hacky for now
+        // combatManager.SetEquippedWeapon(data.weapon); // leaving alone for a moment
 
         // rune holder
         // runeHolder.LoadRunes(List<RuneDataSO> runes);
@@ -61,8 +62,20 @@ public class PlayerManager : MonoBehaviour
 
     public PlayerData GatherSaveData()
     {
-        PlayerData hey = new PlayerData();
-        hey.health = 14690;
+        PlayerData saveOverwrite = new PlayerData();
+
+        // fill save data down the hierarchy
+        // gameobject level
+        saveOverwrite.position = new SerializeableVector3(this.transform.position);
+        saveOverwrite.rotation = new SerializeableQuaternion(this.transform.rotation);
+
+        // combat manager
+        saveOverwrite.health = combatManager.GetHealth();
+        // leave til fixed saveOverwrite.weapon = ...
+
+        // rune holder
+        
+        
         return null;
     }
 }

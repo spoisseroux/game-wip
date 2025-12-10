@@ -34,7 +34,7 @@ public class SaveGameManager : MonoBehaviour
     FileSaveHandler fileHandler;
 
     // configs
-    public bool debugMode = true; 
+    public bool debugMode = false; 
     /* 
         if on debug mode, we'll want to forgo loading of player, possibly other objects as well
         we want to provide the option to set data manually and keep it maintained through debug testing
@@ -66,7 +66,7 @@ public class SaveGameManager : MonoBehaviour
 
     private void Start()
     {
-        // LoadGame();
+        
     }
 
     // CALLED BEFORE START
