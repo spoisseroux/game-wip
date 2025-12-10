@@ -2,54 +2,79 @@ using System;
 using System.Collections;
 using UnityEngine;
 
+// for saving
+[System.Serializable]
+public class AltarSaveData : ISaveData
+{
+    public bool interactedBefore { get; set; }
+
+    public AltarSaveData()
+    {
+        interactedBefore = false;
+    }
+}
+
 public class Altar : SaveableObject, IInteractable
 {
+    // player we're interacting with
     [Header("Player References")]
     public PlayerMovementManager player;
 
     // state internals
     bool interacting = false;
-    private class AltarSaveData : ISaveData
-    {
-        public bool interactedBefore { get; set; }
-    }
-    AltarSaveData saveData;
 
-    // anim , needs some work!
-    string animName = "Interact_Generic";
+    // data
+    AltarSaveData saveData = new AltarSaveData();
 
     // rune
     [SerializeField] private RuneDataSO storedRune; // don't think we need to 'save' serialized data like runes...
 
+    // materials
     [Header("Debug")]
     public Material before;
     public Material after;
 
     #region MonoBehaviour
     private void Awake() {
-        interacting = false;
-        saveData.interactedBefore = false;
+        // assign a GUID in the Awake of every SaveableObject inheritor?
+        if (string.IsNullOrEmpty(guid))
+        {
+            AssignID();
+        }
 
-        // assign a GUID?
+        interacting = false;
     }
 
     private void Start() {
         GetComponent<Renderer>().material = before;
 
+        saveData = new AltarSaveData();
         // check if instantiated
         if (guid != null && guid != String.Empty)
         {
             // check if save data exists
             if (SaveGameManager.HasData(guid))
             {
-                data = SaveGameManager.GetObjectData(guid) as AltarSaveData;
+                saveData = SaveGameManager.GetObjectData(guid) as AltarSaveData;
             }
             else
             {
-                data = new AltarSaveData();
-                SaveGameManager.AddObject(guid, data);
+                SaveGameManager.AddObject(guid, saveData);
             }
         }
+        Debug.Log("Altar save data: " + saveData + saveData.interactedBefore);
+
+        if (saveData.interactedBefore)
+        {
+            GetComponent<Renderer>().material = after;
+        }
+
+        SaveGameManager.OnSave += SaveData;
+    }
+
+    private void OnDestroy()
+    {
+        SaveGameManager.OnSave -= SaveData;
     }
     #endregion
 
@@ -57,7 +82,10 @@ public class Altar : SaveableObject, IInteractable
     public void Interact(PlayerMovementManager p) {
         // only bestow rune once
         if (saveData.interactedBefore)
+        {
+            FreePlayer();
             return;
+        }
 
         // no simultaneous interactions
         if (interacting)
@@ -94,6 +122,19 @@ public class Altar : SaveableObject, IInteractable
         saveData.interactedBefore = true;
         FreePlayer();
     }
+    #endregion
 
+    #region Saveable Object
+    public override void SaveData()
+    {
+        Debug.Log("Altar::SaveData() --> writing Altar data to SaveGameManager");
+        SaveGameManager.SaveDataAtGUID(this.guid, saveData);
+    }
+
+    public override void LoadData(ISaveData data)
+    {
+        Debug.Log("Altar::LoadData() --> Loading save data.... ");
+        saveData = data as AltarSaveData; 
+    }
     #endregion
 }

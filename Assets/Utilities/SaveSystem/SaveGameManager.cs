@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using Newtonsoft.Json;
+using System.Linq;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -18,16 +18,27 @@ public class SaveGameManager : MonoBehaviour
     private static SaveGameManager instance;
 
     // all save data
-    private static Dictionary<string, ISaveData> save;
+    [SerializeField]
+    private static SerializeableDictionary<string, ISaveData> save;
     /*
         maps any given GUID --> ISaveData instance
+
+        NOTE: JSON formats do not serialize/deserialize dictionaries by default, so we are using the ISerializationCallbackReceiver 
+        interface to take care of this problem.
+
+        If the scope of datatypes and complexity of objects to save grows larger, then maybe JSON .NET for Unity package would be 
+        a good idea to add support for...
     */
 
+    // filehandler
+    FileSaveHandler fileHandler;
+
     // configs
-    private static bool newGame = true;
+    public bool debugMode = true;
 
     // actions
     public static Action OnSave; // NEED TO FIGURE OUT WHERE && HOW TO HOOKUP SAVEABLE OBJECTS TO THIS!!!
+    public static Action OnLoad; // YEAH FIGURE THIS OUT TOO
 
     #region MonoBehaviour
     private void Awake()
@@ -36,34 +47,34 @@ public class SaveGameManager : MonoBehaviour
         if (instance != null)
         {
             Debug.Log("More than one save game managers!");
+            Destroy(this.gameObject);
         }
-        instance = this;
-        DontDestroyOnLoad(this.gameObject); // singleton instance takes care of multiple spawns
+        //instance = this;
+        DontDestroyOnLoad(this.gameObject); // singleton instance takes care of multiple spawns, need fix this
 
         
-        //save = new();
+        save = new();
         //newGame = true;
         
-        // access persistent file path
-
+        // set up file handler
+        this.fileHandler = new FileSaveHandler(debugMode);
     }
 
     private void Start()
     {
-        // i sense necessary but we shall see
+        // LoadGame();
     }
 
     // CALLED BEFORE START
     public void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // gather all SaveableObjects
-        // load their data
         LoadGame();
     }
 
     // CALLED BEFORE START
     public void OnSceneUnloaded(Scene scene)
     {
+        Debug.Log("SaveGameManager::OnSceneUnloaded() --> called");
         SaveGame();
     }
 
@@ -81,35 +92,40 @@ public class SaveGameManager : MonoBehaviour
     #endregion
 
     #region Saving
-    public static void SaveGame()
+    public void SaveGame()
     {
+        Debug.Log("SaveGameManager::SaveGame() --> called");
         if (save == null)
         {
             Debug.Log("SaveGameManager::SaveGame() --> no save data found, need a new save file");
             return;
         }
 
+        Debug.Log("SaveGameManager::SaveGame() --> Invoking OnSave Action method");
         // ask all items to save their info
         OnSave?.Invoke();
 
-        // write to json
-        var json = JsonConvert.SerializeObject(save); // need second settings argument
-        if (Debug.isDebugBuild)
-			{
-				Debug.Log("Saving file " + Application.persistentDataPath + "/Save.json");
-			}
-			
-			using (var file = new StreamWriter(Application.persistentDataPath + "/Save.json"))
-			{
-				file.Write(json);
-			}
+        // save to file
+        Debug.Log("SaveGameManager::SaveGame() --> Attempting to save to file...");
+        foreach (KeyValuePair<string, ISaveData> pair in save)
+        {
+            Debug.Log(pair.Key.ToString() + "\n");
+            ISaveData val = pair.Value;
+            Debug.Log(val);
+        }
+        fileHandler.Save(1, save);
+    }
+
+    public static void SaveDataAtGUID(string guid, ISaveData data)
+    {
+        Debug.Log(data);
+        save[guid] = data;
     }
     #endregion
 
     #region Adding Objects
     public static void AddObject(string id, ISaveData data)
     {
-        // add to outer dict
         save.Add(id, data);
     }
     #endregion
@@ -128,19 +144,28 @@ public class SaveGameManager : MonoBehaviour
     }
 
     public static bool HasData(string id)
-		{
-			return save.ContainsKey(id);
-		}
+	{
+		return save.ContainsKey(id);
+	}
     #endregion
 
     #region Loading Save Data
     public void LoadGame()
     {
-        // read from file... tbi
-        save = null;
+        // read from file
+        save = fileHandler.Load(1);
+
+        // debug mode and null data
+        if (save == null && debugMode)
+        {
+            Debug.Log("SaveGameManager::LoadData() --> no saved data from file, creating new file");
+            NewGame(); // hmmm maybe not?
+        }
+
+        // just null data, need new game
         if (save == null)
         {
-            // hmmm
+            NewGame();
         }
     }
     #endregion
@@ -148,7 +173,9 @@ public class SaveGameManager : MonoBehaviour
     #region New Game
     public void NewGame()
     {
-        
+        // new game
+        save = new SerializeableDictionary<string, ISaveData>();
+        Debug.Log("Created new save dictionary!");
     }
     #endregion
 }

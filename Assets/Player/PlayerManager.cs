@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,14 +8,7 @@ public class PlayerManager : MonoBehaviour
     // various system components
     public PlayerMovementManager movementManager; 
     public PlayerCombatManager combatManager;
-
-    // save data for player
-    private class PlayerSaveData : ISaveData
-    {
-        private List<RuneDataSO> runes;
-        private WeaponDataSO weapon;
-        private int health;
-    }
+    public RuneHolder runeHolder;
 
     #region Monobehavior
     private void Awake()
@@ -25,16 +19,8 @@ public class PlayerManager : MonoBehaviour
             UNCOMMENT FOR WHEN ACTUALLY SWITCHING SCENES!!! OTHERWISE YOU SPAWN INTO OBLIVION LOL
         */
         // DontDestroyOnLoad(gameObject);
-
         movementManager = GetComponent<PlayerMovementManager>();
         combatManager = GetComponent<PlayerCombatManager>();
-
-        // give camera our info
-        // PlayerCamera.instance.player = this;
-
-        // first game start load
-        this.transform.position = SceneTransitionManager.startPosition;
-        this.transform.rotation = SceneTransitionManager.startRotation;
     }
 
     private void Start()
@@ -56,4 +42,27 @@ public class PlayerManager : MonoBehaviour
         PlayerCamera.instance.HandleAllCameraActions();
     }
     #endregion
+
+    public void LoadData(PlayerData data)
+    {
+        Debug.Log("PlayerManager::LoadData() --> loading player data");
+        // player manager
+        //this.transform.position = data.position;
+
+        // movement manager saved objects
+
+        // combatManager.Equip(data.weaponData);
+        // combatManager.SetHealth(data.health);
+        combatManager.TakeDamage(-1 * data.health); // hacky for now
+
+        // rune holder
+        // runeHolder.LoadRunes(List<RuneDataSO> runes);
+    }
+
+    public PlayerData GatherSaveData()
+    {
+        PlayerData hey = new PlayerData();
+        hey.health = 14690;
+        return null;
+    }
 }
