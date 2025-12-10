@@ -424,8 +424,9 @@ public class PlayerMovementManager : MonoBehaviour
                                        interactDistance);
         Debug.Log(cast);
         if (cast) {
-            Debug.Log("cast hit!");
-            return hit.collider.GetComponent<IInteractable>();
+            IInteractable interact = hit.collider.GetComponent<IInteractable>();
+            if (interact.CanInteract())
+                return interact;
         }
         return null;
     }
@@ -514,14 +515,12 @@ public class PlayerMovementManager : MonoBehaviour
     public void RequestInteract() {
         // check and interact
         if (inputRequests.Check(ActionRequest.Interact)) {
-            Debug.Log("checking for interacts");
             currentInteraction = GetClosestInteract();
             // null exit
             if (currentInteraction == null)
                 return;
 
             // interact
-            Debug.Log("found one!");
             currentInteraction?.Interact(this);
             // clear from object if we don't want to initiate a State change
             if (!currentInteraction.IsTrigger()) {

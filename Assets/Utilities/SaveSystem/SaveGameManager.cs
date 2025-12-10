@@ -34,7 +34,11 @@ public class SaveGameManager : MonoBehaviour
     FileSaveHandler fileHandler;
 
     // configs
-    public bool debugMode = true;
+    public bool debugMode = true; 
+    /* 
+        if on debug mode, we'll want to forgo loading of player, possibly other objects as well
+        we want to provide the option to set data manually and keep it maintained through debug testing
+    */
 
     // actions
     public static Action OnSave; // NEED TO FIGURE OUT WHERE && HOW TO HOOKUP SAVEABLE OBJECTS TO THIS!!!

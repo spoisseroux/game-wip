@@ -79,14 +79,13 @@ public class Altar : SaveableObject, IInteractable
     #endregion
 
     #region Interaction Interface
-    public void Interact(PlayerMovementManager p) {
-        // only bestow rune once
-        if (saveData.interactedBefore)
-        {
-            FreePlayer();
-            return;
-        }
+    public bool CanInteract()
+    {
+        // if we have interacted before, want to return false!
+        return !saveData.interactedBefore;
+    }
 
+    public void Interact(PlayerMovementManager p) {
         // no simultaneous interactions
         if (interacting)
             return;
