@@ -12,13 +12,68 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: Leaf
+    second: {fileID: 2100000, guid: 64c3aadf52feed44bbef1e1882433d7c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: LightSilver
     second: {fileID: 2100000, guid: f8cdf753a5ecf444984f0657e9a8576c, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: Plant1
+    second: {fileID: 2100000, guid: d12219e9c3f2d124188ef618d53e95a5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Plant2
+    second: {fileID: 2100000, guid: 86ce770195a303142ac25797de35a9b8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Plant3
+    second: {fileID: 2100000, guid: 444d13b1e204ef7408295f3c8974c058, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: WhiteBrick
     second: {fileID: 2100000, guid: 632676e5896a4114e8af70bcd99eaa71, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Wood1
+    second: {fileID: 2100000, guid: 0085464e10aa6d448afc685e1a22e3a9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: dungeonRock
+    second: {fileID: 2100000, guid: d3df45182606a204cb5c842851f3a08b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: dungeonWall
+    second: {fileID: 2100000, guid: 805a12998ecb12749812719274904643, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: grateTransparent
+    second: {fileID: 2100000, guid: 191fb80564ebaaf43a405b677914e0de, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sunGradient
+    second: {fileID: 2100000, guid: a4d1a03bb4b2b274b85ad17119a979e7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: sunGrate
+    second: {fileID: 2100000, guid: 66891d89775289245ac85366a1baecae, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tex_u1_v1
+    second: {fileID: 2100000, guid: ee19aeef6aca7b04186c2c531453926f, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
