@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="DataFile" id="{90a38bdb-5b1c-483f-bbe1-af16c1641ce9}">
+		<property name="assetPath">
+			<value>Character/Footsteps/Footsteps_GenericAssets/footsteps_player_grass_02.ogg.meta</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{1b19455c-9950-476f-9512-657e174f25fe}</destination>
+		</relationship>
+	</object>
+</objects>
