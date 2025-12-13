@@ -11,6 +11,9 @@ public enum RuneType
 
 [CreateAssetMenu(fileName = "__Rune", menuName = "Runes/RuneData/Runes")]
 public class RuneDataSO : ScriptableObject {
+    // id
+    public int databaseID;
+
     // sfx file
     public AudioClip soundFX;
     // highlight shader
@@ -26,30 +29,3 @@ public class RuneDataSO : ScriptableObject {
     // list of effects
     public List<IStatusEffect> effects;
 }
-
-// concrete runes
-/*
-[CreateAssetMenu(fileName = "AttackRune", menuName = "Runes/RuneData/AttackRune")]
-public class AttackRune : RuneDataSO
-{
-    
-}
-
-[CreateAssetMenu(fileName = "DashRune", menuName = "Runes/RuneData/DashRune")]
-public class DashRune : RuneDataSO
-{
-    
-}
-
-[CreateAssetMenu(fileName = "JumpRune", menuName = "Runes/RuneData/JumpRune")]
-public class JumpRune : RuneDataSO
-{
-    
-}
-
-[CreateAssetMenu(fileName = "WallJumpRune", menuName = "Runes/RuneData/WallJumpRune")]
-public class WallJumpRune : RuneDataSO
-{
-    
-}
-*/

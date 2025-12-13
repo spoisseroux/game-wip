@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor.Overlays;
 using UnityEngine;
 
 // require components
@@ -21,6 +22,7 @@ public class PlayerManager : MonoBehaviour
         // DontDestroyOnLoad(gameObject);
         movementManager = GetComponent<PlayerMovementManager>();
         combatManager = GetComponent<PlayerCombatManager>();
+        runeHolder = GetComponent<RuneHolder>();
     }
 
     private void Start()
@@ -57,7 +59,7 @@ public class PlayerManager : MonoBehaviour
         // combatManager.SetEquippedWeapon(data.weapon); // leaving alone for a moment
 
         // rune holder
-        // runeHolder.LoadRunes(List<RuneDataSO> runes);
+        runeHolder.LoadRunes(data.runeIDs);
     }
 
     public PlayerData GatherSaveData()
@@ -74,6 +76,7 @@ public class PlayerManager : MonoBehaviour
         // leave til fixed saveOverwrite.weapon = ...
 
         // rune holder
+        saveOverwrite.runeIDs = runeHolder.SetSavedRunes();
         
         
         return saveOverwrite;

@@ -10,7 +10,7 @@ public class PlayerData : ISaveData
     //public int scene;
     public SerializeableVector3 position;
     public SerializeableQuaternion rotation;
-    //public List<RuneDataSO> runes;
+    public List<int> runeIDs;
     public WeaponDataSO weapon;
     public int health;
     // stats, deathcount, etc..... anything you want....
@@ -21,7 +21,7 @@ public class PlayerData : ISaveData
         //scene = 0;
         position = new SerializeableVector3(SceneTransitionManager.startPosition);
         rotation = new SerializeableQuaternion(SceneTransitionManager.startRotation);
-        //runes = new List<RuneDataSO>();
+        runeIDs = new List<int>();
         //weapon = null;
         health = 100;
     }
