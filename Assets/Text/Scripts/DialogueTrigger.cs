@@ -61,6 +61,11 @@ public class DialogueTrigger : MonoBehaviour, IInteractable
     #endregion
 
     #region IInteractable Interface Methods
+    public bool CanInteract()
+    {
+        return false;
+    }
+
     public void Interact(PlayerMovementManager player)
     {
         // set to busy

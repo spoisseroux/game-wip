@@ -6,6 +6,7 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
 {
     // parent
     public PlayerCombatManager parent;
+    
 
     // transform of owner
     public Transform parentTransform;
@@ -14,7 +15,8 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
     public Vector3 yDisplace;
 
     // data
-    public WeaponDataSO weaponData;
+    public WeaponDataSO weaponData; // meant to be exchanged at runtime but need more services set up for this....
+    public WeaponDataSO defaultWeapon; // so we make a default weapon that's separate from the save system for this
     public AttackSO currentAttack;
 
     // combo
@@ -30,6 +32,11 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
     private void Awake()
     {
         currentComboIndex = -1;
+    }
+
+    private void Start()
+    {
+        weaponData = defaultWeapon;
     }
     #endregion
 
@@ -123,16 +130,23 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
     #region HitboxSource Interface
     public void CollisionedWith(Collider col)
     {
-        IDamageable damageable = col.GetComponent<IDamageable>();
-        // combatmanager.GetDamageModifiers();
-        Debug.Log("doing damage: " + weaponData.basicAttackList[currentComboIndex].damage);
-        damageable?.TakeDamage(weaponData.basicAttackList[currentComboIndex].damage);
+        return;
+    }
+
+    public void CollisionedWith(PlayerCombatManager player)
+    {
+        
     }
 
     public void CollisionedWith(IDamageable damageMe)
     {
         Debug.Log("doing damage: " + weaponData.basicAttackList[currentComboIndex].damage);
         damageMe?.TakeDamage(weaponData.basicAttackList[currentComboIndex].damage);
+    }
+
+    public void CollisionedWith(IHittable hitMe)
+    {
+        hitMe?.Hit();
     }
     #endregion
 
@@ -158,6 +172,16 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
         weaponData = null;
         // reset combo
         currentComboIndex = -1;
+    }
+
+    public void LoadWeaponFromSave(WeaponDataSO weapon)
+    {
+        if (defaultWeapon != null)
+        {
+            weaponData = defaultWeapon;
+            return;
+        }
+        weaponData = weapon;
     }
     #endregion
 
@@ -208,15 +232,3 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
     }
     #endregion
 }
-
-
-
-
-// basically, how should logic flow in this circumstance
-    // MovementManager receives input to attempt an attack, pipes it to CombatManager if state isn't AttackState
-    // CombatManager calls Weapon.AttemptAttack( ... args ...)
-    // Weapon determines where in the attack cycle it is based on some info from MovementManager
-    // Weapon spits out which attackSO it should use next
-    // CombatManager provides info from attackSO to MovementManager to override AttackState timer and pass StateTransition predicate
-    // AttackState calls Enter, queue animation etc.
-    // Weapon ticks forward, queueing hitboxes at designated times after windup, etc.

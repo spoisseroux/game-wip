@@ -4,13 +4,14 @@ using UnityEngine;
 public class PlayerCombatManager : MonoBehaviour, IDamageable
 {
     // player context
-    PlayerManager player;
+    // PlayerManager player;
 
     // movement manager link?
 
     // health component here
     [SerializeField]
     private int health = 100;
+    
     // death event
     public delegate void PlayerDiedEvent();
     public event PlayerDiedEvent Died;
@@ -28,7 +29,7 @@ public class PlayerCombatManager : MonoBehaviour, IDamageable
     #region Monobehavior
     void Start()
     {
-        player = GetComponent<PlayerManager>();
+        // player = GetComponent<PlayerManager>();
     }
 
     void Update()
@@ -89,4 +90,29 @@ public class PlayerCombatManager : MonoBehaviour, IDamageable
         }
     }
     #endregion
+
+    #region Weapon Helpers
+    public WeaponDataSO GetEquippedWeapon()
+    {
+        return equippedWeapon.weaponData;
+    }
+
+    public void SetEquippedWeapon(WeaponDataSO weapon)
+    {
+        equippedWeapon.LoadWeaponFromSave(weapon);
+    }
+    #endregion
+
+    #region Health
+    public int GetHealth()
+    {
+        return health;
+    }
+
+    public void SetHealth(int h)
+    {
+        health = h;
+    }
+    #endregion
+
 }

@@ -1,18 +1,67 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
-public class RuneDoor : MonoBehaviour, IChantReactor
+[System.Serializable]
+public class RuneDoorSaveData : ISaveData
+{
+    public bool opened { get; set; }
+
+    public RuneDoorSaveData()
+    {
+        opened = false;
+    }
+}
+
+public class RuneDoor : SaveableObject, IChantReactor
 {
     public Material before;
     public Material after;
 
+    // code for chanting door open
     [SerializeField]
     public List<RuneType> code;
+
+    // save data
+    RuneDoorSaveData saveData;
+
+    // state internal
+    bool interacting = false;
 
     #region MonoBehaviour
     private void Awake()
     {
+        // assign a GUID in the Awake of every SaveableObject inheritor?
+        if (string.IsNullOrEmpty(guid))
+        {
+            AssignID();
+        }
+
+        interacting = false;
+    }
+
+    private void Start()
+    {
         GetComponent<Renderer>().material = before;
+
+        // check save
+        saveData = new RuneDoorSaveData();
+        if (guid != null && guid != String.Empty)
+        {
+            if (SaveGameManager.HasData(guid))
+                saveData = SaveGameManager.GetObjectData(guid) as RuneDoorSaveData;
+
+            else 
+                SaveGameManager.AddObject(guid, saveData);
+        }
+
+        if (saveData.opened)
+        {
+            GetComponent<Renderer>().material = after;
+        }
+
+        // link to event
+        SaveGameManager.OnSave += SaveData;
     }
     #endregion
 
@@ -40,6 +89,19 @@ public class RuneDoor : MonoBehaviour, IChantReactor
         }
 
         return true;
+    }
+    #endregion
+
+    #region Saveable Object 
+    public override void SaveData()
+    {
+        Debug.Log("RuneDoor::SaveData() --> saving RuneDoor data to json");
+        SaveGameManager.SaveDataAtGUID(guid, saveData);
+    }
+
+    public override void LoadData(ISaveData data)
+    {
+        saveData = data as RuneDoorSaveData;
     }
     #endregion
 

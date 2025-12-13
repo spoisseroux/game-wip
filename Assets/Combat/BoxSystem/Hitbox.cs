@@ -13,7 +13,9 @@ public enum HitboxState
 public interface IHitboxSource
 {
     void CollisionedWith(Collider col);
+    void CollisionedWith(PlayerCombatManager player);
     void CollisionedWith(IDamageable damageMe);
+    void CollisionedWith(IHittable hitMe);
 }
 
 public struct HitboxGizmo
@@ -47,9 +49,10 @@ public class Hitbox
     public CountdownTimer active;
 
     // max hit counter allowed for this Hitbox
-    private Dictionary<Collider, int> hitColliders;
+    private Dictionary<IHittable, int> hitHittables;
     private Dictionary<IDamageable, int> hitDamageables;
     private int hitCount;
+    private int damageCount;
 
     // guid for unique hit
     private string guid = System.Guid.NewGuid().ToString();
@@ -71,9 +74,9 @@ public class Hitbox
         state = HitboxState.Closed;
 
         // stored hits
-        hitColliders = new Dictionary<Collider, int>();
+        hitHittables = new Dictionary<IHittable, int>();
         hitDamageables = new Dictionary<IDamageable, int>();
-        hitCount = hitsAllowed;
+        damageCount = hitsAllowed;
 
         // guid
         guid = Guid.NewGuid().ToString();
@@ -99,6 +102,7 @@ public class Hitbox
         Collider[] cols = Physics.OverlapBox(position, new Vector3(box.length / 2, box.width / 2, box.height / 2), orientation);
         for (int i = 0; i < cols.Length; i++)
         {
+            // damage
             if (cols[i].TryGetComponent<IDamageable>(out IDamageable damageMe))
             {
                 if (!hitDamageables.ContainsKey(damageMe))
@@ -106,10 +110,20 @@ public class Hitbox
                     source?.CollisionedWith(damageMe);
                     hitDamageables.Add(damageMe, 1);
                 }
-                else if (hitDamageables[damageMe] < hitCount)
+                else if (hitDamageables[damageMe] < damageCount)
                 {
                     source?.CollisionedWith(damageMe);
                     hitDamageables[damageMe]++;
+                }
+            }
+
+            // hittables
+            else if (cols[i].TryGetComponent<IHittable>(out IHittable hitMe))
+            {
+                if (!hitHittables.ContainsKey(hitMe))
+                {
+                    source?.CollisionedWith(hitMe);
+                    hitHittables.Add(hitMe, 1);
                 }
             }
         }

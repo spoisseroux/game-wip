@@ -4,6 +4,7 @@ using UnityEngine;
 
 public interface IInteractable
 {
+    public abstract bool CanInteract();
     public abstract void Interact(PlayerMovementManager player); // maybe should be an IEnumerator???
     public bool IsTrigger();
     public void FreePlayer();

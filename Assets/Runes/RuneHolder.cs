@@ -27,8 +27,7 @@ public class RuneHolder : MonoBehaviour
     StatusEffectFactory seFactory;
 
     // rune db
-    [SerializeField]
-    public RuneDatabaseLocator dbService;
+    // public RuneDatabaseLocator dbService;
 
     #region MonoBehaviour
     private void Awake()
