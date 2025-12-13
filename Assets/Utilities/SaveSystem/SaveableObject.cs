@@ -3,9 +3,12 @@ using UnityEngine;
 
 public abstract class SaveableObject : MonoBehaviour
 {
-    protected ISaveData data;
+    protected ISaveData data; // hmm....
     public string guid;
 
+    /*
+        This function is called within the Awake() of every SaveableObject existing in the game world
+    */
     [ContextMenu("Generate guid for id")]
     protected void AssignID()
     {

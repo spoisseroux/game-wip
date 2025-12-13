@@ -207,6 +207,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55c66cda90ccf4bd19d4d82ddfd49c43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RuneDoor
+  guid: 
   before: {fileID: 2100000, guid: 4da125616e47042d99983f3910be7dae, type: 2}
   after: {fileID: 2100000, guid: a887dce4f2c15493ebc8c1e77dee248e, type: 2}
   code: 0000000001000000
@@ -2128,7 +2129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18d3d9965718f4da082c649edbba244f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SaveGameManager
-  debugMode: 0
+  debugMode: 1
 --- !u!1 &1514631308
 GameObject:
   m_ObjectHideFlags: 0
