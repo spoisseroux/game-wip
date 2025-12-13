@@ -24,7 +24,7 @@ public class Altar : SaveableObject, IInteractable
     bool interacting = false;
 
     // data
-    AltarSaveData saveData = new AltarSaveData();
+    AltarSaveData saveData;
 
     // rune
     [SerializeField] private RuneDataSO storedRune; // don't think we need to 'save' serialized data like runes...
@@ -62,7 +62,6 @@ public class Altar : SaveableObject, IInteractable
                 SaveGameManager.AddObject(guid, saveData);
             }
         }
-        Debug.Log("Altar save data: " + saveData + saveData.interactedBefore);
 
         if (saveData.interactedBefore)
         {

@@ -2128,7 +2128,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18d3d9965718f4da082c649edbba244f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SaveGameManager
-  debugMode: 1
+  debugMode: 0
 --- !u!1 &1514631308
 GameObject:
   m_ObjectHideFlags: 0
@@ -3080,6 +3080,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1619676529}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2013600020
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2013600021}
+  m_Layer: 0
+  m_Name: DatabaseService
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2013600021
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2013600020}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4287415617829820545}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2053389395
 GameObject:
@@ -7172,6 +7203,7 @@ Transform:
   - {fileID: 3413762644532104589}
   - {fileID: 1619676529}
   - {fileID: 1485555229}
+  - {fileID: 2013600021}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4393494436844331454
@@ -8607,7 +8639,6 @@ MonoBehaviour:
   chantRadius: 10
   storedChant: []
   reactRadius: 30
-  dbService: {fileID: 11400000, guid: aab89afee8a164475b56a9da0a4b15f2, type: 2}
 --- !u!4 &5549004161018702188
 Transform:
   m_ObjectHideFlags: 0
@@ -8797,6 +8828,7 @@ MonoBehaviour:
   parentTransform: {fileID: 6875238338647865976}
   yDisplace: {x: 0, y: 2, z: 0}
   weaponData: {fileID: 11400000, guid: 242d18e5e98be4d90929792b624e903a, type: 2}
+  defaultWeapon: {fileID: 11400000, guid: 242d18e5e98be4d90929792b624e903a, type: 2}
   currentAttack: {fileID: 0}
   currentComboIndex: -1
   activeHitboxes: []
@@ -10230,6 +10262,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerSaveData
   guid: aa60a57e-901c-4c41-9403-fd3c8de3397a
   player: {fileID: 0}
+  saveData:
+    position:
+      x: -20
+      y: 0
+      z: 10
+    rotation:
+      x: 0
+      y: 0.38268346
+      z: 0
+      w: 0.9238795
+    weapon: {fileID: 0}
+    health: 100
 --- !u!1 &8462589926926344984
 GameObject:
   m_ObjectHideFlags: 0

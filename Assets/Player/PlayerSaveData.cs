@@ -22,7 +22,7 @@ public class PlayerData : ISaveData
         position = new SerializeableVector3(SceneTransitionManager.startPosition);
         rotation = new SerializeableQuaternion(SceneTransitionManager.startRotation);
         //runes = new List<RuneDataSO>();
-        weapon = null;
+        //weapon = null;
         health = 100;
     }
 }
@@ -50,22 +50,20 @@ public class PlayerSaveData : SaveableObject
     private void Start()
     {
         saveData = new PlayerData();
-        Debug.Log(saveData.health);
 
         // check for data 
         if (SaveGameManager.HasData(guid))
         {
             // load routine
             saveData = SaveGameManager.GetObjectData(guid) as PlayerData;
-            player.LoadData(saveData);
         }
         else
         {
             SaveGameManager.AddObject(guid, saveData);
-            player.LoadData(saveData);
         }
 
-        Debug.Log("Player save data: " + saveData + saveData.health);
+        player.LoadData(saveData);
+        Debug.Log("Player save data: " + saveData + " " + saveData.health);
         SaveGameManager.OnSave += SaveData;
     }
 
@@ -80,7 +78,7 @@ public class PlayerSaveData : SaveableObject
     public override void SaveData()
     {
         Debug.Log("PlayerSaveData::SaveData() --> writing Player data to SaveGameManager");
-        //saveData = player.GatherSaveData();
+        saveData = player.GatherSaveData();
         SaveGameManager.SaveDataAtGUID(this.guid, saveData);
     }
 

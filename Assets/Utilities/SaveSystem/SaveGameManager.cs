@@ -41,8 +41,12 @@ public class SaveGameManager : MonoBehaviour
     */
 
     // actions
-    public static Action OnSave; // NEED TO FIGURE OUT WHERE && HOW TO HOOKUP SAVEABLE OBJECTS TO THIS!!!
-    public static Action OnLoad; // YEAH FIGURE THIS OUT TOO
+    public static Action OnSave; 
+    /* 
+        Hooked up to every SaveableObject within its Start() function
+        Removed from every SaveableObject within its OnDestroy() function
+    */
+    // public static Action OnLoad; // hmmm.... not sure if we even need this
 
     #region MonoBehaviour
     private void Awake()
@@ -114,8 +118,7 @@ public class SaveGameManager : MonoBehaviour
         foreach (KeyValuePair<string, ISaveData> pair in save)
         {
             Debug.Log(pair.Key.ToString() + "\n");
-            ISaveData val = pair.Value;
-            Debug.Log(val);
+            Debug.Log(pair.Value);
         }
         fileHandler.Save(1, save);
     }
@@ -156,6 +159,10 @@ public class SaveGameManager : MonoBehaviour
     #region Loading Save Data
     public void LoadGame()
     {
+        // if we want to avoid loading from file and just do debug testing
+        if (debugMode)
+            return;
+
         // read from file
         save = fileHandler.Load(1);
 
