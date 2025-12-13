@@ -1,4 +1,4 @@
-Shader "Universal Render Pipeline/Unlit"
+Shader "Custom/URP/HorizontalFadeScrollShader"
 {
     Properties
     {
@@ -15,6 +15,10 @@ Shader "Universal Render Pipeline/Unlit"
         [Space(10)]
         _ScrollSpeedX("Scroll Speed X", Float) = 0.0
         _ScrollSpeedY("Scroll Speed Y", Float) = 0.0
+        
+        [Header(Opacity)]
+        [Space(10)]
+        _OverallOpacity("Overall Opacity", Range(0,1)) = 1.0
         
         [Header(Fog)]
         [Space(10)]
@@ -113,6 +117,7 @@ Shader "Universal Render Pipeline/Unlit"
             float _FadeSmoothness;
             float _ScrollSpeedX;
             float _ScrollSpeedY;
+            float _OverallOpacity;
             
             // Custom vertex function that computes fog
             Varyings VertexCustom(Attributes input)
@@ -196,6 +201,9 @@ Shader "Universal Render Pipeline/Unlit"
                 #ifdef _FOG_ENABLED
                     finalColor.rgb = MixFog(finalColor.rgb, input.fogCoord);
                 #endif
+                
+                // Apply overall opacity
+                finalColor.a *= _OverallOpacity;
                 
                 finalColor.a = OutputAlpha(finalColor.a, IsSurfaceTypeTransparent(_Surface));
 

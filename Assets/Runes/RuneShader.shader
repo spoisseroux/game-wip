@@ -1,4 +1,4 @@
-Shader "Custom/RuneEchoShader"
+Shader "Custom/URP/SpriteEchoShader"
 {
     Properties
     {
@@ -12,6 +12,9 @@ Shader "Custom/RuneEchoShader"
         _PulseAlpha("Pulse Alpha (max)", Range(0,2)) = 0.6
         _FadePower("Fade Curve Power", Range(0.1,6)) = 1.5
         _EchoDirection("Echo Direction (XY)", Vector) = (0, 0, 0, 0)
+        
+        // NEW: Overall opacity control
+        _OverallOpacity("Overall Opacity", Range(0,1)) = 1.0
     }
 
     SubShader
@@ -63,6 +66,9 @@ Shader "Custom/RuneEchoShader"
             float _PulseAlpha;
             float _FadePower;
             float4 _EchoDirection;
+            
+            // NEW: Overall opacity uniform
+            float _OverallOpacity;
 
             Varyings vert(Attributes IN)
             {
@@ -148,6 +154,9 @@ Shader "Custom/RuneEchoShader"
 
                 // Apply URP fog
                 finalRGB = MixFog(finalRGB, IN.fogFactor);
+
+                // NEW: Apply overall opacity
+                finalA *= _OverallOpacity;
 
                 return half4(finalRGB, finalA);
             }
