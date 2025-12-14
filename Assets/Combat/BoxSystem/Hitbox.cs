@@ -13,7 +13,6 @@ public enum HitboxState
 public interface IHitboxSource
 {
     void CollisionedWith(Collider col);
-    void CollisionedWith(PlayerCombatManager player);
     void CollisionedWith(IDamageable damageMe);
     void CollisionedWith(IHittable hitMe);
 }

@@ -118,6 +118,10 @@ public class Tile : MonoBehaviour, IRuneReactor, IDamageable, IHitboxSource
     [SerializeField] Material runeReactionTexture;
     [SerializeField] private Transform player;
 
+    // death event
+    public delegate void TileDied();
+    public event TileDied OnTileDeath;
+
     // alert
     [SerializeField] private float alertRange;
     // attack
@@ -212,12 +216,8 @@ public class Tile : MonoBehaviour, IRuneReactor, IDamageable, IHitboxSource
     public void TakeDamage(int amount)
     {
         health -= amount;
-        return;
-    }
-
-    public void TakeDamage(int amount, IHitboxSource source)
-    {
-        health -= amount;
+        if (health <= 0)
+            OnTileDeath?.Invoke();
         return;
     }
     #endregion
@@ -228,14 +228,10 @@ public class Tile : MonoBehaviour, IRuneReactor, IDamageable, IHitboxSource
         return;
     }
 
-    public void CollisionedWith(PlayerCombatManager player)
-    {
-        player.TakeDamage(damage + rune.activationCount);
-    }
-
     public void CollisionedWith(IDamageable damageMe)
     {
-        return;
+        if (damageMe != this as IDamageable)
+            damageMe?.TakeDamage(damage);
     }
 
     public void CollisionedWith(IHittable hitMe)

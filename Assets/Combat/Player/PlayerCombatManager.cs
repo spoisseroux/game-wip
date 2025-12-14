@@ -3,10 +3,7 @@ using UnityEngine;
 
 public class PlayerCombatManager : MonoBehaviour, IDamageable
 {
-    // player context
-    // PlayerManager player;
-
-    // movement manager link?
+    // player/movement manager link?
 
     // health component here
     [SerializeField]
@@ -29,7 +26,7 @@ public class PlayerCombatManager : MonoBehaviour, IDamageable
     #region Monobehavior
     void Start()
     {
-        // player = GetComponent<PlayerManager>();
+        
     }
 
     void Update()
@@ -77,16 +74,6 @@ public class PlayerCombatManager : MonoBehaviour, IDamageable
         if (health <= 0)
         {
             Died?.Invoke();
-        }
-    }
-
-    public void TakeDamage(int damage, IHitboxSource source)
-    {
-        // JANK???
-        Weapon w = source as Weapon;
-        if (w != equippedWeapon)
-        {
-            health -= damage;
         }
     }
     #endregion

@@ -12,33 +12,22 @@ public class RuneHolder : MonoBehaviour
     [SerializeField]
     List<RuneDataSO> runes = new List<RuneDataSO>();
 
-    // position adjustment
-    public Vector3 Yadjustment;
-
-    // chanting
+    // configs
     public float chantRadius;
+    public float reactRadius;
+    public Vector3 Yadjustment;
 
     // chant piped in from UI
     [SerializeField]
     List<RuneDataSO> storedChant;
 
-    // reaction radius
-    public float reactRadius;
-
-    // status effect factory
-    StatusEffectFactory seFactory;
-
-    // rune db
-    // public RuneDatabaseLocator dbService;
-
     #region MonoBehaviour
     private void Awake()
     {
-        seFactory = new StatusEffectFactory();
-
         Yadjustment = new Vector3(0.0f, 1.0f, 0.0f);
     }
 
+    // NEED TO REFACTOR INTO THE INPUT REQUESTS
     private void Update()
     {
         // m key for quick testing
@@ -48,6 +37,17 @@ public class RuneHolder : MonoBehaviour
             Debug.Log("heyyy checking...");
             ExecuteChant(runes);
         }
+    }
+
+    // subscribe and unsubscribe to rune UI events
+    private void OnEnable()
+    {
+        
+    }
+
+    private void OnDisable()
+    {
+        
     }
 
     private void OnDrawGizmosSelected()
@@ -180,8 +180,10 @@ public class RuneHolder : MonoBehaviour
         Collider[] cols = Physics.OverlapSphere(transform.position, reactRadius);
         // check for rune reactors
         foreach (RuneDataSO rune in storedChant) {
-            rune.activationCount++;
-            ApplyRune(rune);
+            // increment
+            RuneDatabase.ActivateRune(rune.databaseID);
+            // activate rune
+            // ApplyRune(rune);
 
             foreach (var col in cols) {
                 if (col.TryGetComponent<IRuneReactor>(out IRuneReactor rr)) {
@@ -191,16 +193,16 @@ public class RuneHolder : MonoBehaviour
         }
     }
 
+    /*
     public void ApplyRune(RuneDataSO rune)
     {
-        /*
         foreach (IStatusEffect se in rune.effects)
         {
             se.ApplyStatus(this.gameObject);
         }
         return;
-        */
     }
+    */
     #endregion
 
 }

@@ -6,6 +6,9 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
 {
     // parent
     public PlayerCombatManager parent;
+
+    // source
+    IDamageable source;
     
 
     // transform of owner
@@ -32,6 +35,7 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
     private void Awake()
     {
         currentComboIndex = -1;
+        source = GetComponent<IDamageable>();
     }
 
     private void Start()
@@ -133,15 +137,11 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
         return;
     }
 
-    public void CollisionedWith(PlayerCombatManager player)
-    {
-        
-    }
-
     public void CollisionedWith(IDamageable damageMe)
     {
-        Debug.Log("doing damage: " + weaponData.basicAttackList[currentComboIndex].damage);
-        damageMe?.TakeDamage(weaponData.basicAttackList[currentComboIndex].damage);
+        // source resolution
+        if (damageMe != source)
+            damageMe?.TakeDamage(weaponData.basicAttackList[currentComboIndex].damage);
     }
 
     public void CollisionedWith(IHittable hitMe)
