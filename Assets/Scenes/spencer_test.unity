@@ -2336,6 +2336,81 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   CustomBlends: {fileID: 0}
+--- !u!1 &790363596
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 790363598}
+  - component: {fileID: 790363597}
+  m_Layer: 0
+  m_Name: LargeDoorsCamera
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &790363597
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 790363596}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9dfa5b682dcd46bda6128250e975f58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineCamera
+  Priority:
+    Enabled: 0
+    m_Value: 0
+  OutputChannel: 1
+  StandbyUpdate: 2
+  m_StreamingVersion: 20241001
+  m_LegacyPriority: 0
+  Target:
+    TrackingTarget: {fileID: 2881712942733290107}
+    LookAtTarget: {fileID: 0}
+    CustomLookAtTarget: 0
+  Lens:
+    FieldOfView: 50
+    OrthographicSize: 10
+    NearClipPlane: 0.1
+    FarClipPlane: 5000
+    Dutch: 0
+    ModeOverride: 0
+    PhysicalProperties:
+      GateFit: 2
+      SensorSize: {x: 21.946, y: 16.002}
+      LensShift: {x: 0, y: 0}
+      FocusDistance: 10
+      Iso: 200
+      ShutterSpeed: 0.005
+      Aperture: 16
+      BladeCount: 5
+      Curvature: {x: 2, y: 11}
+      BarrelClipping: 0.25
+      Anamorphism: 0
+  BlendHint: 0
+--- !u!4 &790363598
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 790363596}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.18304902, y: -0.42877752, z: 0.09019016, w: 0.88006175}
+  m_LocalPosition: {x: -76.27874, y: 21.287487, z: 10.519164}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!43 &823647600
 Mesh:
   m_ObjectHideFlags: 0
@@ -14491,11 +14566,38 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 2619086233303812490, guid: 602f01502d5f94a4d855c06cb7ff45d6, type: 3}
+--- !u!1 &1938241683 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3149926521581708428, guid: 6a34ab04b852f624da4979efdc39ffef, type: 3}
+  m_PrefabInstance: {fileID: 4996955161955476988}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1938241686 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2377084593318002230, guid: 6a34ab04b852f624da4979efdc39ffef, type: 3}
   m_PrefabInstance: {fileID: 4996955161955476988}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1938241687 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4879808780658413486, guid: 6a34ab04b852f624da4979efdc39ffef, type: 3}
+  m_PrefabInstance: {fileID: 4996955161955476988}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1938241683}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e52de21a22b6dd44c9cc19f810c65059, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Timeline::UnityEngine.Timeline.SignalReceiver
+--- !u!114 &1938241688 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3006701555642628098, guid: 6a34ab04b852f624da4979efdc39ffef, type: 3}
+  m_PrefabInstance: {fileID: 4996955161955476988}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1938241683}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8ff091b818e87f46bc5712039b3cbea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RuneFader
 --- !u!43 &1960234537
 Mesh:
   m_ObjectHideFlags: 0
@@ -14687,7 +14789,7 @@ GameObject:
   - component: {fileID: 2042263116}
   - component: {fileID: 2042263114}
   m_Layer: 0
-  m_Name: CameraManager
+  m_Name: MainVirtualCamera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14760,8 +14862,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineCamera
   Priority:
-    Enabled: 0
-    m_Value: 0
+    Enabled: 1
+    m_Value: 10
   OutputChannel: 1
   StandbyUpdate: 2
   m_StreamingVersion: 20241001
@@ -15510,13 +15612,26 @@ PlayableDirector:
   m_Enabled: 1
   serializedVersion: 3
   m_PlayableAsset: {fileID: 11400000, guid: 53e82ef36e53a654c8398f478905d1e7, type: 2}
-  m_InitialState: 1
+  m_InitialState: 0
   m_WrapMode: 2
   m_DirectorUpdateMode: 1
   m_InitialTime: 0
-  m_SceneBindings: []
+  m_SceneBindings:
+  - key: {fileID: 7065048070344862034, guid: 53e82ef36e53a654c8398f478905d1e7, type: 2}
+    value: {fileID: 2927158089973903777}
+  - key: {fileID: 3599545158567377115, guid: 53e82ef36e53a654c8398f478905d1e7, type: 2}
+    value: {fileID: 1938241687}
+  - key: {fileID: 1881444516476938789, guid: 53e82ef36e53a654c8398f478905d1e7, type: 2}
+    value: {fileID: 622561775}
+  - key: {fileID: -2920532815526964184, guid: 53e82ef36e53a654c8398f478905d1e7, type: 2}
+    value: {fileID: 7824450277101075132}
+  - key: {fileID: 2783994416206854997, guid: 53e82ef36e53a654c8398f478905d1e7, type: 2}
+    value: {fileID: 1938241683}
   m_ExposedReferences:
-    m_References: []
+    m_References:
+    - 05dfd6c4cc7fd9d4cbcacabb3ca981cf: {fileID: 2042263115}
+    - 61e7853acc59e434e85fa194266fab69: {fileID: 790363597}
+    - e59956237716b0c4d8aa8a0d064fa84e: {fileID: 2042263115}
 --- !u!222 &2980655933322269703
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -16428,6 +16543,46 @@ PrefabInstance:
     - target: {fileID: 3149926521581708428, guid: 6a34ab04b852f624da4979efdc39ffef, type: 3}
       propertyPath: m_Name
       value: RuneOnDoor
+      objectReference: {fileID: 0}
+    - target: {fileID: 4879808780658413486, guid: 6a34ab04b852f624da4979efdc39ffef, type: 3}
+      propertyPath: m_Events.m_Events.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4879808780658413486, guid: 6a34ab04b852f624da4979efdc39ffef, type: 3}
+      propertyPath: m_Events.m_Signals.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4879808780658413486, guid: 6a34ab04b852f624da4979efdc39ffef, type: 3}
+      propertyPath: 'm_Events.m_Signals.Array.data[1]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 5959361683e23ce4e84ffb352ec80da0, type: 2}
+    - target: {fileID: 4879808780658413486, guid: 6a34ab04b852f624da4979efdc39ffef, type: 3}
+      propertyPath: m_Events.m_Events.Array.data[1].m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4879808780658413486, guid: 6a34ab04b852f624da4979efdc39ffef, type: 3}
+      propertyPath: m_Events.m_Events.Array.data[1].m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4879808780658413486, guid: 6a34ab04b852f624da4979efdc39ffef, type: 3}
+      propertyPath: m_Events.m_Events.Array.data[1].m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1938241688}
+    - target: {fileID: 4879808780658413486, guid: 6a34ab04b852f624da4979efdc39ffef, type: 3}
+      propertyPath: m_Events.m_Events.Array.data[1].m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4879808780658413486, guid: 6a34ab04b852f624da4979efdc39ffef, type: 3}
+      propertyPath: m_Events.m_Events.Array.data[1].m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: FadeIn
+      objectReference: {fileID: 0}
+    - target: {fileID: 4879808780658413486, guid: 6a34ab04b852f624da4979efdc39ffef, type: 3}
+      propertyPath: m_Events.m_Events.Array.data[1].m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: RuneFader, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 4879808780658413486, guid: 6a34ab04b852f624da4979efdc39ffef, type: 3}
+      propertyPath: m_Events.m_Events.Array.data[1].m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -17788,3 +17943,4 @@ SceneRoots:
   - {fileID: 937582912}
   - {fileID: 1429534896}
   - {fileID: 2927158089973903776}
+  - {fileID: 790363598}
