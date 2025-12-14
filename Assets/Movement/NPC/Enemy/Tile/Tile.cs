@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -38,7 +39,7 @@ public class TileIdleState : TileState
 
     public override void Enter()
     {
-        // play animation
+        Debug.Log("Tile in idle state");
     }
 
     public override void Update()
@@ -62,6 +63,8 @@ public class TileAlertState : TileState
     public override void Enter()
     {
         // play animation
+        Debug.Log("Tile in alert state");
+
     }
 
     public override void Update()
@@ -91,7 +94,7 @@ public class TileAttackState : TileState
     public override void Enter()
     {
         // animator
-
+        Debug.Log("Tile in attack state");
         timer.Start();
     }
 
@@ -105,6 +108,7 @@ public class TileAttackState : TileState
         timer.Reset(duration);
     }
 
+    public float Progress => timer.progress;
     public bool Complete => timer.progress <= 0;
 }
 
@@ -117,6 +121,10 @@ public class Tile : MonoBehaviour, IRuneReactor, IDamageable, IHitboxSource
     [SerializeField] RuneDataSO rune;
     [SerializeField] Material runeReactionTexture;
     [SerializeField] private Transform player;
+
+    // death event
+    public delegate void TileDied();
+    public event TileDied OnTileDeath;
 
     // alert
     [SerializeField] private float alertRange;
@@ -147,7 +155,7 @@ public class Tile : MonoBehaviour, IRuneReactor, IDamageable, IHitboxSource
         health = 20;
 
         // get player
-        player = FindFirstObjectByType<PlayerManager>().transform;
+        player = FindFirstObjectByType<PlayerManager>().transform.Find("Eyes").transform;
 
         // fsm
         fsm = new StateMachine();
@@ -165,8 +173,8 @@ public class Tile : MonoBehaviour, IRuneReactor, IDamageable, IHitboxSource
         At(alertState, attackState, new FuncPredicate(() => CanAttackPlayer()));
 
         // attack transitions
-        At(attackState, alertState, new FuncPredicate(() => attackState.Complete && CanReactToPlayer()));
         At(attackState, idleState, new FuncPredicate(() => attackState.Complete && !CanReactToPlayer()));
+        At(attackState, alertState, new FuncPredicate(() => attackState.Complete));
 
         fsm.SetState(idleState);
     }
@@ -174,6 +182,19 @@ public class Tile : MonoBehaviour, IRuneReactor, IDamageable, IHitboxSource
     // Update is called once per frame
     void Update()
     {
+        // look at the scary player guy!
+        if (fsm.GetCurrentState() == alertState || fsm.GetCurrentState() == attackState) {
+            transform.LookAt(player);
+
+            if (fsm.GetCurrentState() == attackState)
+            {
+                if (attackState.Progress >= 0.97f)
+                {
+                    Attack();
+                }
+            }
+        }
+
         // tick hitboxes
         foreach (var hbox in activeHitboxes)
         {
@@ -212,12 +233,8 @@ public class Tile : MonoBehaviour, IRuneReactor, IDamageable, IHitboxSource
     public void TakeDamage(int amount)
     {
         health -= amount;
-        return;
-    }
-
-    public void TakeDamage(int amount, IHitboxSource source)
-    {
-        health -= amount;
+        if (health <= 0)
+            OnTileDeath?.Invoke();
         return;
     }
     #endregion
@@ -228,14 +245,10 @@ public class Tile : MonoBehaviour, IRuneReactor, IDamageable, IHitboxSource
         return;
     }
 
-    public void CollisionedWith(PlayerCombatManager player)
-    {
-        player.TakeDamage(damage + rune.activationCount);
-    }
-
     public void CollisionedWith(IDamageable damageMe)
     {
-        return;
+        if (damageMe != this as IDamageable)
+            damageMe?.TakeDamage(damage);
     }
 
     public void CollisionedWith(IHittable hitMe)
@@ -267,7 +280,7 @@ public class Tile : MonoBehaviour, IRuneReactor, IDamageable, IHitboxSource
         // wait a lil
         yield return new WaitForSeconds(0.3f);
         // create the hitbox and add it
-        Hitbox box = CreateHitbox(this.transform.position + new Vector3(0.0f, 0.5f, 0.0f), this.transform.rotation);
+        Hitbox box = CreateHitbox(this.transform.position + this.transform.forward * 0.3f, this.transform.rotation);
         activeHitboxes.Add(box);
     }
 

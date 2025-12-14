@@ -84,7 +84,7 @@ public class PlayerMovementManager : MonoBehaviour
     [Header("Physics Checks")]
     // Grounded Check, want the widest portion of sphere shown in DrawGizmosSelected to reach the edge of either foot
     [SerializeField] float groundCheckSphereRadius = 0.4f;
-    [SerializeField] Vector3 groundCheckTranslationAdjustment = new Vector3(0f, 0f, 0f);
+    [SerializeField] Vector3 groundCheckTranslationAdjustment = new Vector3(0f, 0f, -0.5f);
     [SerializeField] LayerMask groundLayer;
     public bool isGrounded = true;
 

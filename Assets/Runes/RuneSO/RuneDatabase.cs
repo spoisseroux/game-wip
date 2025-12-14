@@ -33,6 +33,11 @@ public class RuneDatabase : MonoBehaviour
         return instance.database[id];
     }
 
+    public static void ActivateRune(int id)
+    {
+        instance.database[id].activationCount++;
+    }
+
 #if UNITY_EDITOR
     [ContextMenu("Autofill DB")]
     private void Autofill()
