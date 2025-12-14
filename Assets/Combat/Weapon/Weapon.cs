@@ -2,13 +2,20 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // basically, the weapon 'holder' on our Player/Enemy/whatever... play round with inheritances
+/*
+    SOME TODOS:
+        - factor this out into a more generalizable weapon system
+        - better source resolution instead of (as ____) casting
+        - move the dependencies on parent PCM class away, 
+            - combo window timing, hitbox deployment timing, stuff like parent.GetAttackProgress() should not exist....
+        - add more general methods for weapons/attacks
+        - ways for dynamically anchoring weapon models, gameobjects etc...
+
+*/
 public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
 {
     // parent
     public PlayerCombatManager parent;
-
-    // source
-    IDamageable source;
     
 
     // transform of owner
@@ -35,7 +42,6 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
     private void Awake()
     {
         currentComboIndex = -1;
-        source = GetComponent<IDamageable>();
     }
 
     private void Start()
@@ -140,7 +146,7 @@ public class Weapon : MonoBehaviour, IWeapon, IHitboxSource
     public void CollisionedWith(IDamageable damageMe)
     {
         // source resolution
-        if (damageMe != source)
+        if (damageMe != parent as IDamageable)
             damageMe?.TakeDamage(weaponData.basicAttackList[currentComboIndex].damage);
     }
 
