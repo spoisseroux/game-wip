@@ -60,8 +60,14 @@ public class RuneDoor : SaveableObject, IChantReactor
             GetComponent<Renderer>().material = after;
         }
 
-        // link to event
+        // link to save event
         SaveGameManager.OnSave += SaveData;
+    }
+
+    private void OnDestroy()
+    {
+        // remove from save event
+        SaveGameManager.OnSave -= SaveData;
     }
     #endregion
 

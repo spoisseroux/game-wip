@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -9,7 +10,7 @@ public class RuneHolder : MonoBehaviour
 {
     // available runes
     [SerializeField]
-    List<RuneDataSO> runes = new List<RuneDataSO>(4);
+    List<RuneDataSO> runes = new List<RuneDataSO>();
 
     // position adjustment
     public Vector3 Yadjustment;
@@ -17,10 +18,11 @@ public class RuneHolder : MonoBehaviour
     // chanting
     public float chantRadius;
 
+    // chant piped in from UI
     [SerializeField]
     List<RuneDataSO> storedChant;
 
-    // reaction
+    // reaction radius
     public float reactRadius;
 
     // status effect factory
@@ -65,6 +67,27 @@ public class RuneHolder : MonoBehaviour
         // add to list
         if (!runes.Contains(rune))
             runes.Add(rune);
+    }
+
+    // load runes from save
+    public void LoadRunes(List<int> save)
+    {
+        for (int i = 0; i < save.Count; i++)
+        {
+            RuneDataSO loadedRune = RuneDatabase.GetRune(save[i]);
+            runes.Add(loadedRune);
+        }
+    }
+
+    public List<int> SetSavedRunes()
+    {
+        List<int> ids = new List<int>();
+        for (int i = 0; i < runes.Count; i++)
+        {
+            ids.Add(runes[i].databaseID);
+        }
+
+        return ids;
     }
     #endregion
 
@@ -179,4 +202,5 @@ public class RuneHolder : MonoBehaviour
         */
     }
     #endregion
+
 }

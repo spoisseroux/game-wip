@@ -36,7 +36,7 @@ public class Altar : SaveableObject, IInteractable
 
     #region MonoBehaviour
     private void Awake() {
-        // assign a GUID in the Awake of every SaveableObject inheritor?
+        // assign a GUID in the Awake of every SaveableObject inheritor
         if (string.IsNullOrEmpty(guid))
         {
             AssignID();
@@ -115,9 +115,9 @@ public class Altar : SaveableObject, IInteractable
         // visuals & data
         GetComponent<Renderer>().material = after;
         player.GetComponent<RuneHolder>().BestowRune(storedRune);
+        saveData.interactedBefore = true;
         yield return new WaitForSeconds(2.0f);
         // free player
-        saveData.interactedBefore = true;
         FreePlayer();
     }
     #endregion
