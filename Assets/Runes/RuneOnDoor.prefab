@@ -156,10 +156,66 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: dd8426dfea23b814093b86c967a32d79, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1293608482271134984}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: dd8426dfea23b814093b86c967a32d79, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3006701555642628098}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: dd8426dfea23b814093b86c967a32d79, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4879808780658413486}
   m_SourcePrefab: {fileID: 100100000, guid: dd8426dfea23b814093b86c967a32d79, type: 3}
 --- !u!4 &2377084593318002230 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: dd8426dfea23b814093b86c967a32d79, type: 3}
   m_PrefabInstance: {fileID: 2843918344388123101}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &3149926521581708428 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: dd8426dfea23b814093b86c967a32d79, type: 3}
+  m_PrefabInstance: {fileID: 2843918344388123101}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &3006701555642628098
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3149926521581708428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8ff091b818e87f46bc5712039b3cbea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RuneFader
+  speed: 1
+  echoMaterial: {fileID: 2100000, guid: 2728aaa4117e13647926b98c87f221b3, type: 2}
+  scrollMaterial: {fileID: 2100000, guid: e4537405d69820549a899174b277f0d3, type: 2}
+--- !u!114 &4879808780658413486
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3149926521581708428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e52de21a22b6dd44c9cc19f810c65059, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Timeline::UnityEngine.Timeline.SignalReceiver
+  m_Events:
+    m_Signals:
+    - {fileID: 11400000, guid: b924889b854c599448fe551e8e65c607, type: 2}
+    m_Events:
+    - m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 3006701555642628098}
+          m_TargetAssemblyTypeName: RuneFader, Assembly-CSharp
+          m_MethodName: FadeOut
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
