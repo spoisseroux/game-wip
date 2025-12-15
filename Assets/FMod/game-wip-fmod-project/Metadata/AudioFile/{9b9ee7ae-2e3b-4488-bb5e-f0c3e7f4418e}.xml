@@ -2,7 +2,7 @@
 <objects serializationModel="Studio.02.03.00">
 	<object class="AudioFile" id="{9b9ee7ae-2e3b-4488-bb5e-f0c3e7f4418e}">
 		<property name="assetPath">
-			<value>Interacts/Rune_Shimmer.wav</value>
+			<value>Interacts/Runes/Rune_Shimmer.wav</value>
 		</property>
 		<property name="frequencyInKHz">
 			<value>44.0999985</value>
