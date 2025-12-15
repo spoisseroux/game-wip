@@ -24,7 +24,7 @@ public class SceneTrigger : MonoBehaviour
     }
     #endregion
 
-    #region Scene Transition
+    #region IInteractible
 
     #endregion
 

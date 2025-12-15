@@ -23,8 +23,14 @@ public class FadeScreen : MonoBehaviour
 
     private void Awake()
     {
+        if (instance != null && instance != this)
+        {
+            Debug.Log("Destroying");
+            Destroy(this.gameObject);
+            return;
+        }
+
         instance = this;
-        FadeIn();
     }
 
     public void FadeIn() => StartCoroutine(interpolate(1, 0));

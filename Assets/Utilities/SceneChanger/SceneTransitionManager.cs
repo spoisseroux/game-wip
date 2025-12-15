@@ -40,6 +40,7 @@ public class SceneTransitionManager : MonoBehaviour
         Debug.Log("Instantiating");
         
         instance = this;
+        spawnID = NO_SPAWN_ID;
         player = GameObject.FindGameObjectWithTag("Player");
     }
 
@@ -76,11 +77,20 @@ public class SceneTransitionManager : MonoBehaviour
         pmm.SetState(NEUTRAL_STRING);
         pmm.enabled = false;
 
+        // fade out
+        FadeScreen.instance.FadeOut();
+
+        // wait a little
+        yield return new WaitForSeconds(1.0f);
+
         // load scene
         SceneManager.LoadScene(scene);
 
         // wait a little
         yield return new WaitForSeconds(1.0f);
+
+        // fade in
+        FadeScreen.instance.FadeIn();
 
         // reactivate player
         InputReader.ActivatePlayerControls();
@@ -93,6 +103,8 @@ public class SceneTransitionManager : MonoBehaviour
     {
         // find correct spawn location
         SetSpawnTransform(spawnID);
+        if (playerSpawnData == null)
+            return;
 
         // set player
         Debug.Log("Loading player at:" + playerSpawnData.position);
@@ -121,6 +133,8 @@ public class SceneTransitionManager : MonoBehaviour
                 return;
             }
         }
+
+        playerSpawnData = null;
     }
     #endregion
 }
