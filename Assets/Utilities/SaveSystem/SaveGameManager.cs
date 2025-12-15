@@ -34,7 +34,7 @@ public class SaveGameManager : MonoBehaviour
     FileSaveHandler fileHandler;
 
     // configs
-    public bool debugMode = false; 
+    public bool debugMode; 
     /* 
         if on debug mode, we'll want to forgo loading of player, possibly other objects as well
         we want to provide the option to set data manually and keep it maintained through debug testing
@@ -52,13 +52,14 @@ public class SaveGameManager : MonoBehaviour
     private void Awake()
     {
         // singleton call
-        if (instance != null)
+        if (instance == null)
         {
-            Debug.Log("More than one save game managers!");
-            Destroy(this.gameObject);
+            instance = this;
         }
-        //instance = this;
-        DontDestroyOnLoad(this.gameObject); // singleton instance takes care of multiple spawns, need fix this
+        else
+        {
+            Destroy(gameObject);
+        }
 
         
         save = new();
@@ -76,14 +77,16 @@ public class SaveGameManager : MonoBehaviour
     // CALLED BEFORE START
     public void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        if (debugMode)
+            return;
+        
         LoadGame();
     }
 
     // CALLED BEFORE START
     public void OnSceneUnloaded(Scene scene)
     {
-        Debug.Log("SaveGameManager::OnSceneUnloaded() --> called");
-        SaveGame();
+        // SaveGame();
     }
 
     private void OnEnable()
@@ -99,9 +102,19 @@ public class SaveGameManager : MonoBehaviour
     }
     #endregion
 
+    #region Debug Reader
+    public static bool GetSaveDebugMode()
+    {
+        return instance.debugMode;
+    }
+    #endregion
+
     #region Saving
     public void SaveGame()
     {
+        if (debugMode) 
+            return;
+
         Debug.Log("SaveGameManager::SaveGame() --> called");
         if (save == null)
         {
@@ -115,17 +128,11 @@ public class SaveGameManager : MonoBehaviour
 
         // save to file
         Debug.Log("SaveGameManager::SaveGame() --> Attempting to save to file...");
-        foreach (KeyValuePair<string, ISaveData> pair in save)
-        {
-            Debug.Log(pair.Key.ToString() + "\n");
-            Debug.Log(pair.Value);
-        }
         fileHandler.Save(1, save);
     }
 
     public static void SaveDataAtGUID(string guid, ISaveData data)
     {
-        Debug.Log(data);
         save[guid] = data;
     }
     #endregion
@@ -167,16 +174,10 @@ public class SaveGameManager : MonoBehaviour
         save = fileHandler.Load(1);
 
         // debug mode and null data
-        if (save == null && debugMode)
+        if (save == null)
         {
             Debug.Log("SaveGameManager::LoadData() --> no saved data from file, creating new file");
             NewGame(); // hmmm maybe not?
-        }
-
-        // just null data, need new game
-        if (save == null)
-        {
-            NewGame();
         }
     }
     #endregion

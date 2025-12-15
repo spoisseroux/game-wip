@@ -7,7 +7,7 @@ using static PlayerControls;
 public class InputReader : ScriptableObject, IPlayerActions, IUIActions
 {
     // reference controls of the Player
-    PlayerControls controls;
+    static PlayerControls controls;
 
     // TODO: Implement mode aware inputs! --> free moving & combat, menu/dialogue, card battle
     // maybe coupling too tightly, but it'd be cool to have a system that reads current game state, 
@@ -198,6 +198,19 @@ public class InputReader : ScriptableObject, IPlayerActions, IUIActions
                 break;
         }
     }
+    #endregion
+
+    #region Static Enable/Disable
+    public static void ActivatePlayerControls()
+    {
+        controls.Enable();
+    }
+
+    public static void DeactivatePlayerControls()
+    {
+        controls.Disable();
+    }
+
     #endregion
 }
 

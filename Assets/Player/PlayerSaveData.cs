@@ -19,8 +19,8 @@ public class PlayerData : ISaveData
     public PlayerData()
     {
         //scene = 0;
-        position = new SerializeableVector3(SceneTransitionManager.startPosition);
-        rotation = new SerializeableQuaternion(SceneTransitionManager.startRotation);
+        position = new SerializeableVector3(Vector3.zero);
+        rotation = new SerializeableQuaternion(Quaternion.identity);
         runeIDs = new List<int>();
         //weapon = null;
         health = 100;
@@ -62,14 +62,15 @@ public class PlayerSaveData : SaveableObject
             SaveGameManager.AddObject(guid, saveData);
         }
 
-        player.LoadData(saveData);
-        Debug.Log("Player save data: " + saveData + " " + saveData.health);
+        if (!SaveGameManager.GetSaveDebugMode())
+            LoadData(saveData);
+        
         SaveGameManager.OnSave += SaveData;
     }
 
     private void OnDestroy()
     {
-        SaveData();
+        // SaveData();
         SaveGameManager.OnSave -= SaveData;
     }
     #endregion
@@ -77,7 +78,6 @@ public class PlayerSaveData : SaveableObject
     #region Saveable Object
     public override void SaveData()
     {
-        Debug.Log("PlayerSaveData::SaveData() --> writing Player data to SaveGameManager");
         saveData = player.GatherSaveData();
         SaveGameManager.SaveDataAtGUID(this.guid, saveData);
     }

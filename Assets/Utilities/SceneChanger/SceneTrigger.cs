@@ -3,11 +3,15 @@ using UnityEngine.SceneManagement;
 
 public class SceneTrigger : MonoBehaviour
 {
-    // [SerializeField] DATA FOR WHERE IN WHICH SCENE TO TRANSITION!!!
-    // [SerializeField] DOOR ID
+    [Header("Spawn To")]
+    [SerializeField] SceneField sceneToLoad;
+    [SerializeField] int spawnTo; 
+    /*
+        notes the ID of the SpawnableLocation in the scene, counts up from 0
+    */
 
-    [SerializeField] int scene;
-    [SerializeField] private Transform destinationInTargetScene;
+    [Header("Spawn From")]
+    [SerializeField] SpawnableLocation spawnFrom;
 
     #region MonoBehaviour
     // THIS WILL TRIGGER WHEN PLAYER ENTERS, EVEN WITHOUT A CORRESPONDING RIGIDBODY COLLIDER
@@ -15,9 +19,13 @@ public class SceneTrigger : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            // change
-            SceneTransitionManager.Transition(scene, destinationInTargetScene);
+            SceneTransitionManager.Transition(sceneToLoad, spawnTo);
         }
     }
     #endregion
+
+    #region Scene Transition
+
+    #endregion
+
 }
