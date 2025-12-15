@@ -32,7 +32,8 @@ Shader "Custom/StarfieldDoor"
         LOD 100
 
         Blend SrcAlpha OneMinusSrcAlpha
-        ZWrite On
+        ZWrite Off  // CHANGED: Turn off depth writing for transparent objects
+        ZTest LEqual  // ADDED: Proper depth testing
         Cull [_Cull]
 
         Pass
@@ -197,107 +198,8 @@ Shader "Custom/StarfieldDoor"
             ENDHLSL
         }
 
-        Pass
-        {
-            Name "DepthOnly"
-            Tags { "LightMode" = "DepthOnly" }
-
-            ZWrite On
-            ColorMask R
-            Cull [_Cull]
-
-            HLSLPROGRAM
-            #pragma target 2.0
-            #pragma vertex DepthOnlyVertex
-            #pragma fragment DepthOnlyFragment
-
-            #pragma multi_compile_instancing
-            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-
-            struct Attributes
-            {
-                float4 position : POSITION;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-            };
-
-            struct Varyings
-            {
-                float4 positionCS : SV_POSITION;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-                UNITY_VERTEX_OUTPUT_STEREO
-            };
-
-            Varyings DepthOnlyVertex(Attributes input)
-            {
-                Varyings output = (Varyings)0;
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
-
-                output.positionCS = TransformObjectToHClip(input.position.xyz);
-                return output;
-            }
-
-            half4 DepthOnlyFragment(Varyings input) : SV_TARGET
-            {
-                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
-                return 0;
-            }
-            ENDHLSL
-        }
-
-        Pass
-        {
-            Name "DepthNormalsOnly"
-            Tags { "LightMode" = "DepthNormalsOnly" }
-
-            ZWrite On
-            Cull [_Cull]
-
-            HLSLPROGRAM
-            #pragma target 2.0
-            #pragma vertex DepthNormalsVertex
-            #pragma fragment DepthNormalsFragment
-
-            #pragma multi_compile_instancing
-            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
-
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-
-            struct Attributes
-            {
-                float4 positionOS : POSITION;
-                float3 normalOS : NORMAL;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-            };
-
-            struct Varyings
-            {
-                float4 positionCS : SV_POSITION;
-                float3 normalWS : TEXCOORD0;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-                UNITY_VERTEX_OUTPUT_STEREO
-            };
-
-            Varyings DepthNormalsVertex(Attributes input)
-            {
-                Varyings output = (Varyings)0;
-                UNITY_SETUP_INSTANCE_ID(input);
-                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
-
-                output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
-                output.normalWS = TransformObjectToWorldNormal(input.normalOS);
-                return output;
-            }
-
-            half4 DepthNormalsFragment(Varyings input) : SV_TARGET
-            {
-                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
-                return half4(normalize(input.normalWS), 0);
-            }
-            ENDHLSL
-        }
+        // DepthOnly and DepthNormalsOnly passes removed for transparent rendering
+        // These passes should not write depth for transparent objects
     }
 
     FallBack "Hidden/Universal Render Pipeline/FallbackError"

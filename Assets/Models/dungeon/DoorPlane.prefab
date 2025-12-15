@@ -316,5 +316,5 @@ MonoBehaviour:
   starfieldMaterial: {fileID: 2100000, guid: 34eeeb66b603b5c4eab85c7e6fb67f50, type: 2}
   targetObject1: {fileID: 0}
   targetObject2: {fileID: 0}
-  fadeOffset: 7
+  fadeOffset: 12
   updateEveryFrame: 1
