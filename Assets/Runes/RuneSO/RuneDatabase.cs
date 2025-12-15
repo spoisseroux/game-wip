@@ -2,7 +2,6 @@ using UnityEngine;
 using System.Collections.Generic;
 using System;
 
-
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -23,7 +22,8 @@ public class RuneDatabase : MonoBehaviour
         // add all runes
         foreach (RuneDataSO rune in runesList)
         {
-            database.Add(rune.databaseID, rune);
+            // check for existence
+            database.TryAdd(rune.databaseID, rune);
         }
     }
     #endregion

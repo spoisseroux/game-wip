@@ -33,7 +33,7 @@ public class StateMachine
 
     public void SetState(IState state)
     {
-        Debug.Log("setting state to: " + state.ToString());
+        //Debug.Log("setting state to: " + state.ToString());
         current = nodes[state.GetType()];
         current.state?.Enter();
     }
@@ -45,9 +45,9 @@ public class StateMachine
         var prevState = current.state;
         var nextState = nodes[newState.GetType()].state;
 
-        Debug.Log("exiting: " + prevState.ToString());
+        //Debug.Log("exiting: " + prevState.ToString());
         prevState?.Exit();
-        Debug.Log("entering: " + nextState.ToString());
+        //Debug.Log("entering: " + nextState.ToString());
         nextState?.Enter();
 
         current = nodes[newState.GetType()];

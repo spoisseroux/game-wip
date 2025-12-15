@@ -558,6 +558,19 @@ public class PlayerMovementManager : MonoBehaviour
     #region FSM
     void At(IState from, IState to, IPredicate condition) => fsm.AddTransition(from, to, condition);
     void Any(IState to, IPredicate condition) => fsm.AddAnyTransition(to, condition);
+
+    public void SetState(string state)
+    {
+        switch (state)
+        {
+            case "interact":
+                fsm.SetState(interactState);
+                break;
+            case "neutral":
+                fsm.SetState(neutralState);
+                break;
+        }
+    }
     #endregion
 
     #region StatusEffects

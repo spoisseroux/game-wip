@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
-using UnityEditor.Overlays;
 using UnityEngine;
 
-// require components
 public class PlayerManager : MonoBehaviour
 {
     // various system components
@@ -14,12 +10,6 @@ public class PlayerManager : MonoBehaviour
     #region Monobehavior
     private void Awake()
     {
-        /*
-            UNCOMMENT FOR WHEN ACTUALLY SWITCHING SCENES!!! OTHERWISE YOU SPAWN INTO OBLIVION LOL
-            UNCOMMENT FOR WHEN ACTUALLY SWITCHING SCENES!!! OTHERWISE YOU SPAWN INTO OBLIVION LOL
-            UNCOMMENT FOR WHEN ACTUALLY SWITCHING SCENES!!! OTHERWISE YOU SPAWN INTO OBLIVION LOL
-        */
-        // DontDestroyOnLoad(gameObject);
         movementManager = GetComponent<PlayerMovementManager>();
         combatManager = GetComponent<PlayerCombatManager>();
         runeHolder = GetComponent<RuneHolder>();
@@ -27,15 +17,7 @@ public class PlayerManager : MonoBehaviour
 
     private void Start()
     {
-        if (SceneTransitionManager.playerSpawnData != null)
-        {
-            // if so, read scene transition data
-            this.transform.position = SceneTransitionManager.playerSpawnData.position;
-            this.transform.rotation = SceneTransitionManager.playerSpawnData.rotation;
-
-            // reset
-            SceneTransitionManager.ResetSpawnTransform();
-        }
+        
     }
 
     // for camera, singleton call
