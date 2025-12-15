@@ -13939,6 +13939,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 602f01502d5f94a4d855c06cb7ff45d6, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1870032469}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 602f01502d5f94a4d855c06cb7ff45d6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1870032470}
   m_SourcePrefab: {fileID: 100100000, guid: 602f01502d5f94a4d855c06cb7ff45d6, type: 3}
 --- !u!1 &1482507946 stripped
 GameObject:
@@ -14758,6 +14761,37 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 2619086233303812490, guid: 602f01502d5f94a4d855c06cb7ff45d6, type: 3}
+--- !u!114 &1870032470
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1870032465}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioEventEmitter
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: -2028308531
+      Data2: 1101191884
+      Data3: 1394155660
+      Data4: 473058514
+    Path: event:/Interacts/Doors/Regular_Door_Open
+  Event: 
+  EventPlayTrigger: 0
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!1 &1938241683 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3149926521581708428, guid: 6a34ab04b852f624da4979efdc39ffef, type: 3}
@@ -17864,10 +17898,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3006701555642628098, guid: 6a34ab04b852f624da4979efdc39ffef, type: 3}
+      propertyPath: echoMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: d28b9cc8c1d265a429c8e2da17d71aeb, type: 2}
     - target: {fileID: 3149926521581708428, guid: 6a34ab04b852f624da4979efdc39ffef, type: 3}
       propertyPath: m_Name
       value: RuneOnDoor
       objectReference: {fileID: 0}
+    - target: {fileID: 3510051282248926553, guid: 6a34ab04b852f624da4979efdc39ffef, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: d28b9cc8c1d265a429c8e2da17d71aeb, type: 2}
     - target: {fileID: 4879808780658413486, guid: 6a34ab04b852f624da4979efdc39ffef, type: 3}
       propertyPath: m_Events.m_Events.Array.size
       value: 3

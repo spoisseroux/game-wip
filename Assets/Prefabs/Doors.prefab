@@ -347,6 +347,9 @@ GameObject:
   m_Component:
   - component: {fileID: 2610689341161438171}
   - component: {fileID: 4518012000631533969}
+  - component: {fileID: 7065740342435679050}
+  - component: {fileID: 8820766721443539340}
+  - component: {fileID: 8343887256452201406}
   m_Layer: 0
   m_Name: Doors
   m_TagString: Untagged
@@ -371,6 +374,8 @@ Transform:
   - {fileID: 3776218588883005751}
   - {fileID: 6151074716435452880}
   - {fileID: 5540635278654249439}
+  - {fileID: 7749741346798099749}
+  - {fileID: 3380377047945514569}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: -0.098, z: 0}
 --- !u!95 &4518012000631533969
@@ -381,7 +386,7 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3418470381363863905}
-  m_Enabled: 0
+  m_Enabled: 1
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: 647e874a1037c3542a3e351cb7ffcafc, type: 2}
   m_CullingMode: 0
@@ -395,6 +400,113 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!320 &7065740342435679050
+PlayableDirector:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3418470381363863905}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_PlayableAsset: {fileID: 11400000, guid: 50e776edb60379a4788de55067c0a7d7, type: 2}
+  m_InitialState: 0
+  m_WrapMode: 2
+  m_DirectorUpdateMode: 1
+  m_InitialTime: 0
+  m_SceneBindings:
+  - key: {fileID: 7065048070344862034, guid: 53e82ef36e53a654c8398f478905d1e7, type: 2}
+    value: {fileID: 0}
+  - key: {fileID: 3599545158567377115, guid: 53e82ef36e53a654c8398f478905d1e7, type: 2}
+    value: {fileID: 0}
+  - key: {fileID: 1881444516476938789, guid: 53e82ef36e53a654c8398f478905d1e7, type: 2}
+    value: {fileID: 0}
+  - key: {fileID: -2920532815526964184, guid: 53e82ef36e53a654c8398f478905d1e7, type: 2}
+    value: {fileID: 0}
+  - key: {fileID: 2783994416206854997, guid: 53e82ef36e53a654c8398f478905d1e7, type: 2}
+    value: {fileID: 0}
+  - key: {fileID: -3705038984947676273, guid: 53e82ef36e53a654c8398f478905d1e7, type: 2}
+    value: {fileID: 0}
+  - key: {fileID: 5615567966752357892, guid: 53e82ef36e53a654c8398f478905d1e7, type: 2}
+    value: {fileID: 0}
+  - key: {fileID: 946306827084010415, guid: 53e82ef36e53a654c8398f478905d1e7, type: 2}
+    value: {fileID: 0}
+  - key: {fileID: 7918653498377711811, guid: 4bf8f76c9d6c461448edb9e814acf5bc, type: 2}
+    value: {fileID: 0}
+  - key: {fileID: -3075760388530197850, guid: 4bf8f76c9d6c461448edb9e814acf5bc, type: 2}
+    value: {fileID: 0}
+  - key: {fileID: -1272493420881907944, guid: 50e776edb60379a4788de55067c0a7d7, type: 2}
+    value: {fileID: 8343887256452201406}
+  - key: {fileID: -2306596717769867828, guid: 50e776edb60379a4788de55067c0a7d7, type: 2}
+    value: {fileID: 0}
+  - key: {fileID: 2699221851419530324, guid: 50e776edb60379a4788de55067c0a7d7, type: 2}
+    value: {fileID: 4518012000631533969}
+  - key: {fileID: 2826638775697505992, guid: 50e776edb60379a4788de55067c0a7d7, type: 2}
+    value: {fileID: 8343887256452201406}
+  m_ExposedReferences:
+    m_References:
+    - e82beab4a263a674888e94e50758c919: {fileID: 380656760616270340}
+--- !u!114 &8820766721443539340
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3418470381363863905}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioEventEmitter
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: -1310858231
+      Data2: 1197121500
+      Data3: -1597483330
+      Data4: -1282228580
+    Path: event:/Interacts/Doors/Small_Door_Opening
+  Event: 
+  EventPlayTrigger: 0
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
+--- !u!114 &8343887256452201406
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3418470381363863905}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e52de21a22b6dd44c9cc19f810c65059, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Timeline::UnityEngine.Timeline.SignalReceiver
+  m_Events:
+    m_Signals:
+    - {fileID: 11400000, guid: 0c320de2e7e8dc5468633510d315001f, type: 2}
+    m_Events:
+    - m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 8820766721443539340}
+          m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+          m_MethodName: Play
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &3428502825720604048
 GameObject:
   m_ObjectHideFlags: 0
@@ -495,6 +607,354 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 53036f82fef50c048997144176ee5cdf, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &4896955931827617070
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7749741346798099749}
+  - component: {fileID: 380656760616270340}
+  m_Layer: 0
+  m_Name: RuneDoorCamera
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7749741346798099749
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4896955931827617070}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.14638096, y: 0.6942484, z: -0.14621446, w: -0.6893571}
+  m_LocalPosition: {x: -102.5, y: 91.7, z: 92.1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2610689341161438171}
+  m_LocalEulerAnglesHint: {x: 23.881, y: -90.427, z: -0.104}
+--- !u!114 &380656760616270340
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4896955931827617070}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9dfa5b682dcd46bda6128250e975f58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineCamera
+  Priority:
+    Enabled: 0
+    m_Value: 0
+  OutputChannel: 1
+  StandbyUpdate: 2
+  m_StreamingVersion: 20241001
+  m_LegacyPriority: 0
+  Target:
+    TrackingTarget: {fileID: 0}
+    LookAtTarget: {fileID: 0}
+    CustomLookAtTarget: 0
+  Lens:
+    FieldOfView: 60.000004
+    OrthographicSize: 10
+    NearClipPlane: 0.1
+    FarClipPlane: 5000
+    Dutch: 0
+    ModeOverride: 0
+    PhysicalProperties:
+      GateFit: 2
+      SensorSize: {x: 21.946, y: 16.002}
+      LensShift: {x: 0, y: 0}
+      FocusDistance: 10
+      Iso: 200
+      ShutterSpeed: 0.005
+      Aperture: 16
+      BladeCount: 5
+      Curvature: {x: 2, y: 11}
+      BarrelClipping: 0.25
+      Anamorphism: 0
+  BlendHint: 0
+--- !u!1 &5823728760050001854
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3380377047945514569}
+  - component: {fileID: 5944337839707975554}
+  - component: {fileID: 9022133736162951580}
+  - component: {fileID: 431205026377292940}
+  - component: {fileID: 5517097544856094834}
+  - component: {fileID: 7801673914651046406}
+  m_Layer: 0
+  m_Name: RuneOnDoor1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3380377047945514569
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5823728760050001854}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.00000001025121, y: 0.71419656, z: -0.000000019302444, w: 0.6999453}
+  m_LocalPosition: {x: -162.5, y: 31.681389, z: 91.3}
+  m_LocalScale: {x: 2949.861, y: 4216.4546, z: 2949.861}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 4555797500897736604}
+  m_Father: {fileID: 2610689341161438171}
+  m_LocalEulerAnglesHint: {x: 0, y: 91.057, z: 0}
+--- !u!33 &5944337839707975554
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5823728760050001854}
+  m_Mesh: {fileID: -462981019419857548, guid: dd8426dfea23b814093b86c967a32d79, type: 3}
+--- !u!23 &9022133736162951580
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5823728760050001854}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 2728aaa4117e13647926b98c87f221b3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &431205026377292940
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5823728760050001854}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e52de21a22b6dd44c9cc19f810c65059, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Timeline::UnityEngine.Timeline.SignalReceiver
+  m_Events:
+    m_Signals:
+    - {fileID: 11400000, guid: ea845410b7b448144bfd9b786d882dfe, type: 2}
+    - {fileID: 11400000, guid: 442d2d0c31c76054d9ab867d276c8fc2, type: 2}
+    m_Events:
+    - m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 5517097544856094834}
+          m_TargetAssemblyTypeName: RuneFader, Assembly-CSharp
+          m_MethodName: FadeOut
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+    - m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 7801673914651046406}
+          m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+          m_MethodName: Play
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+--- !u!114 &5517097544856094834
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5823728760050001854}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8ff091b818e87f46bc5712039b3cbea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RuneFader
+  speed: 1
+  echoMaterial: {fileID: 2100000, guid: 2728aaa4117e13647926b98c87f221b3, type: 2}
+  scrollMaterial: {fileID: 2100000, guid: e4537405d69820549a899174b277f0d3, type: 2}
+--- !u!114 &7801673914651046406
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5823728760050001854}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioEventEmitter
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: -1524751584
+      Data2: 1272169672
+      Data3: 790501002
+      Data4: 1932274709
+    Path: event:/Interacts/Rune/Rune_Accept
+  Event: 
+  EventPlayTrigger: 0
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
+--- !u!1 &7887389015482399482
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4555797500897736604}
+  - component: {fileID: 8263070642566077724}
+  - component: {fileID: 9173499316306256709}
+  m_Layer: 0
+  m_Name: RuneBand
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4555797500897736604
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7887389015482399482}
+  serializedVersion: 2
+  m_LocalRotation: {x: 1.3322676e-14, y: -0.026596904, z: 0.0000000011625838, w: 0.9996463}
+  m_LocalPosition: {x: 0.0005267659, y: -0.0007828983, z: -0.002090821}
+  m_LocalScale: {x: 0.21102393, y: 0.21102388, z: 0.21102393}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3380377047945514569}
+  m_LocalEulerAnglesHint: {x: 0, y: 104.459, z: 0}
+--- !u!33 &8263070642566077724
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7887389015482399482}
+  m_Mesh: {fileID: 4579454407841743219, guid: 4deb1169e4288b243b582f41fd108596, type: 3}
+--- !u!23 &9173499316306256709
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7887389015482399482}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: e4537405d69820549a899174b277f0d3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

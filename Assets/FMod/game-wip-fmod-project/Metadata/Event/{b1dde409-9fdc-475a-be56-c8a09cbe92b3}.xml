@@ -5,7 +5,7 @@
 			<value>Small_Door_Opening</value>
 		</property>
 		<property name="outputFormat">
-			<value>2</value>
+			<value>1</value>
 		</property>
 		<relationship name="folder">
 			<destination>{6919d8ea-3e58-4b5d-be9e-c30652a17d4e}</destination>
@@ -203,7 +203,6 @@
 	<object class="MixerBusEffectChain" id="{a6c068af-6b63-4b4c-b854-3b42152d9efd}">
 		<relationship name="effects">
 			<destination>{aa6d4916-65ff-4788-890d-ebc9513e813c}</destination>
-			<destination>{602462aa-30fb-4d3f-b02c-de2b8839cc59}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{388ef048-ac68-4208-8548-04e947bb95a3}" />
@@ -244,7 +243,6 @@
 	</object>
 	<object class="MixerBusPanner" id="{953d4f46-dd62-4e97-b9da-cf786694d0f1}" />
 	<object class="MixerBusFader" id="{aa6d4916-65ff-4788-890d-ebc9513e813c}" />
-	<object class="SpatialiserEffect" id="{602462aa-30fb-4d3f-b02c-de2b8839cc59}" />
 	<object class="MixerBusFader" id="{53a03982-90b2-4eed-8ea5-047e97a19c7d}" />
 	<object class="AutomationPoint" id="{b8acc04d-fa03-48ee-8ffe-4e7fa423e41a}">
 		<property name="position">

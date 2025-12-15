@@ -54,7 +54,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: b698db06c9d1d9d47a2c40176f08de09, type: 2}
     - target: {fileID: 919132149155446097, guid: ef8944ea2c27d804ba73ef60cb1c6f36, type: 3}
       propertyPath: m_Name
-      value: InteractOrbPlane4
+      value: InteractOrb
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -63,6 +63,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ef8944ea2c27d804ba73ef60cb1c6f36, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4282393582952018762}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ef8944ea2c27d804ba73ef60cb1c6f36, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3929426154755379993}
   m_SourcePrefab: {fileID: 100100000, guid: ef8944ea2c27d804ba73ef60cb1c6f36, type: 3}
 --- !u!1 &5160765722489671366 stripped
 GameObject:
@@ -85,3 +88,34 @@ MonoBehaviour:
   lockX: 1
   lockY: 0
   lockZ: 0
+--- !u!114 &3929426154755379993
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5160765722489671366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioEventEmitter
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: -1950307603
+      Data2: 1134411158
+      Data3: 60725687
+      Data4: -782579797
+    Path: event:/Interacts/Interact
+  Event: 
+  EventPlayTrigger: 0
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20

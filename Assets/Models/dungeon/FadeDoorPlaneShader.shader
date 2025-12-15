@@ -159,11 +159,22 @@ Shader "Custom/StarfieldDoor"
 
                 // Use _FadeTarget if set (w > 0.5), otherwise use camera position
                 float3 targetPos = _FadeTarget.w > 0.5 ? _FadeTarget.xyz : GetCameraPositionWS();
-                float dist = distance(targetPos, input.positionWS);
+                float3 cameraPos = GetCameraPositionWS();
+                
+                // Calculate distance along view direction (depth-based fade)
+                // This gives consistent results regardless of Y position
+                float3 toPixel = input.positionWS - cameraPos;
+                float3 toTarget = targetPos - cameraPos;
+                
+                // Project target position onto the view ray to get "depth" distance
+                float pixelDepth = length(toPixel);
+                float targetDepth = length(toTarget);
+                
+                // Use depth difference for fading
+                float depthDiff = abs(pixelDepth - targetDepth);
                 
                 // Subtract offset to make transparent area larger
-                // When dist is less than offset, fade should be 0 (fully transparent)
-                float adjustedDist = max(0, dist - _FadeOffset);
+                float adjustedDist = max(0, depthDiff - _FadeOffset);
                 
                 // Fade: 0 when close (transparent), 1 when far (opaque)
                 float fade = saturate(adjustedDist / _FadeDistance);
