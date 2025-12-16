@@ -14,6 +14,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/scene_transition_test.unity
     guid: 5aaa740e44055440c9be8868fa14cbd7
+  - enabled: 1
+    path: Assets/Scenes/spencer_test.unity
+    guid: f47d408f5d0e91e438a04e8650fce29a
+  - enabled: 1
+    path: Assets/Scenes/dungeon.unity
+    guid: 27dc61329c698a646b538d9354726844
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: dc88d5a3cab2442389c7966c9b65c355, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
