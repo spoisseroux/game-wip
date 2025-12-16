@@ -1,0 +1,29 @@
+:root {
+}
+
+.header {
+    font-size: 192px;
+    -unity-text-align: upper-left;
+    -unity-font-definition: url("project://database/Assets/Fonts/Jacquard24-Regular.ttf?fileID=12800000&guid=0de9b5010cd37b74a94fae04c6d7466e&type=3#Jacquard24-Regular");
+}
+
+.subheader {
+    font-size: 59px;
+    -unity-text-align: lower-left;
+}
+
+.button {
+    -unity-text-align: upper-center;
+    justify-content: flex-start;
+    font-size: 30px;
+    margin-top: 11px;
+    margin-right: 11px;
+    margin-bottom: 11px;
+    margin-left: 11px;
+    bottom: -147px;
+    width: 115%;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
