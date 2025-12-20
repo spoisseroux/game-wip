@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Playables;
 
 public class LeverSaveData : ISaveData
 {
@@ -14,7 +15,7 @@ public class LeverSaveData : ISaveData
 public class Lever : SaveableObject, IHittable
 {
     // components
-    [SerializeField] Animator animator;
+    [SerializeField] PlayableDirector director;
 
     // save data
     LeverSaveData saveData;
@@ -52,11 +53,14 @@ public class Lever : SaveableObject, IHittable
         if (saveData.switched)
         {
             // move lever down
+            director.time = director.duration;
+            director.Evaluate();
+            director.Stop();
 
             // move platforms
             foreach (Platform p in platforms)
             {
-                p.MoveToEndPosition();
+                p.ToggledLever();
             }
         }
 
@@ -72,6 +76,9 @@ public class Lever : SaveableObject, IHittable
     #region IHittable Interface
     public void Hit()
     {
+        // director
+        director.Play();
+
         // move platforms
         foreach (Platform p in platforms)
         {

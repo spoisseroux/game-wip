@@ -1,8 +1,11 @@
 using UnityEngine;
+using UnityEngine.Playables;
 
 // test object designed specifically to save the game upon player entering this object
-public class SaveTestCollider : MonoBehaviour, IHittable
+public class SaveGem : MonoBehaviour, IHittable
 {
+    [SerializeField] PlayableDirector director;
+
     #region MonoBehaviour
     // Enter this collider to save
     void OnTriggerEnter(Collider other)
@@ -21,6 +24,9 @@ public class SaveTestCollider : MonoBehaviour, IHittable
     #region IHittable Interface
     public void Hit()
     {
+        // play
+        director.Play();
+
         SaveGameManager yeah = GameObject.Find("SaveManager").GetComponent<SaveGameManager>();
         yeah.SaveGame();
     }

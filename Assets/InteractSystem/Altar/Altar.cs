@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Playables;
 
 // for saving
 [System.Serializable]
@@ -46,8 +47,6 @@ public class Altar : SaveableObject, IInteractable
     }
 
     private void Start() {
-        GetComponent<Renderer>().material = before;
-
         saveData = new AltarSaveData();
         // check if instantiated
         if (guid != null && guid != String.Empty)
@@ -65,7 +64,10 @@ public class Altar : SaveableObject, IInteractable
 
         if (saveData.interactedBefore)
         {
-            GetComponent<Renderer>().material = after;
+            PlayableDirector dir = GetComponent<PlayableDirector>();
+            dir.time = dir.duration;
+            dir.Evaluate();
+            dir.Stop();
         }
 
         SaveGameManager.OnSave += SaveData;
@@ -109,11 +111,13 @@ public class Altar : SaveableObject, IInteractable
     #region Coroutine
     public IEnumerator ExecuteInteraction()
     {
+        // play director
+        GetComponent<PlayableDirector>()?.Play();
+
         // flag to busy
         interacting = true;
         yield return new WaitForSeconds(1.0f);
         // visuals & data
-        GetComponent<Renderer>().material = after;
         player.GetComponent<RuneHolder>().BestowRune(storedRune);
         saveData.interactedBefore = true;
         yield return new WaitForSeconds(2.0f);
