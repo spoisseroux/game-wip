@@ -169,7 +169,7 @@ PlayableDirector:
   - key: {fileID: 7918653498377711811, guid: 4bf8f76c9d6c461448edb9e814acf5bc, type: 2}
     value: {fileID: 1410134117}
   - key: {fileID: -3075760388530197850, guid: 4bf8f76c9d6c461448edb9e814acf5bc, type: 2}
-    value: {fileID: 1410134116}
+    value: {fileID: 0}
   - key: {fileID: -98412397042016317, guid: 4bf8f76c9d6c461448edb9e814acf5bc, type: 2}
     value: {fileID: 1410134119}
   m_ExposedReferences:
@@ -13185,17 +13185,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d9d529fa8f60a41aeae43bfcde3cc857, type: 3}
---- !u!114 &1410134116 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7267061786799523355, guid: d9d529fa8f60a41aeae43bfcde3cc857, type: 3}
-  m_PrefabInstance: {fileID: 1410134115}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e52de21a22b6dd44c9cc19f810c65059, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Timeline::UnityEngine.Timeline.SignalReceiver
 --- !u!95 &1410134117 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 2704657668852771238, guid: d9d529fa8f60a41aeae43bfcde3cc857, type: 3}
@@ -15178,6 +15167,7 @@ GameObject:
   - component: {fileID: 2927158089973903778}
   - component: {fileID: 2927158089973903779}
   - component: {fileID: 2927158089973903780}
+  - component: {fileID: 2927158089973903781}
   m_Layer: 0
   m_Name: LargeDoors
   m_TagString: Untagged
@@ -15309,7 +15299,7 @@ PlayableDirector:
   - key: {fileID: 1881444516476938789, guid: 53e82ef36e53a654c8398f478905d1e7, type: 2}
     value: {fileID: 1163526052}
   - key: {fileID: -2920532815526964184, guid: 53e82ef36e53a654c8398f478905d1e7, type: 2}
-    value: {fileID: 1410134116}
+    value: {fileID: 0}
   - key: {fileID: 2783994416206854997, guid: 53e82ef36e53a654c8398f478905d1e7, type: 2}
     value: {fileID: 1938241683}
   - key: {fileID: -3705038984947676273, guid: 53e82ef36e53a654c8398f478905d1e7, type: 2}
@@ -15384,6 +15374,22 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
+--- !u!114 &2927158089973903781
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2581840677230766874}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55c66cda90ccf4bd19d4d82ddfd49c43, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RuneDoor
+  guid: 
+  before: {fileID: 0}
+  after: {fileID: 0}
+  code: 000000000200000001000000
 --- !u!222 &2980655933322269703
 CanvasRenderer:
   m_ObjectHideFlags: 0

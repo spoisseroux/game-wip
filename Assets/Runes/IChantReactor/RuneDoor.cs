@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
+using UnityEngine.Playables;
 
 [System.Serializable]
 public class RuneDoorSaveData : ISaveData
@@ -15,9 +16,6 @@ public class RuneDoorSaveData : ISaveData
 
 public class RuneDoor : SaveableObject, IChantReactor
 {
-    public Material before;
-    public Material after;
-
     // code for chanting door open
     [SerializeField]
     public List<RuneType> code;
@@ -42,8 +40,6 @@ public class RuneDoor : SaveableObject, IChantReactor
 
     private void Start()
     {
-        GetComponent<Renderer>().material = before;
-
         // check save
         saveData = new RuneDoorSaveData();
         if (guid != null && guid != String.Empty)
@@ -57,7 +53,8 @@ public class RuneDoor : SaveableObject, IChantReactor
 
         if (saveData.opened)
         {
-            GetComponent<Renderer>().material = after;
+            // open door manually
+            
         }
 
         // link to save event
@@ -113,9 +110,10 @@ public class RuneDoor : SaveableObject, IChantReactor
 
     public void OpenRoutine()
     {
-        // make noises
-        // make shader fx
-        GetComponent<Renderer>().material = after;
-        // open doors
+        // open door
+        PlayableDirector dir = GetComponent<PlayableDirector>();
+        dir.time = dir.duration;
+        dir.Evaluate();
+        dir.Stop();
     }
 }

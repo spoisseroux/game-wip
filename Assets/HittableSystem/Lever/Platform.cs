@@ -10,9 +10,11 @@ public class Platform : MonoBehaviour
 
     public void ToggledLever()
     {
-        StartCoroutine(MovePlatform());
+        //StartCoroutine(MovePlatform());
+        this.gameObject.SetActive(true);
     }
 
+    /*
     public void MoveToEndPosition()
     {
         this.transform.position = end.position;
@@ -36,4 +38,5 @@ public class Platform : MonoBehaviour
         transform.rotation = end.rotation;
         yield return null;
     }
+    */
 }

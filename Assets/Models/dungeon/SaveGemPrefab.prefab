@@ -136,6 +136,7 @@ GameObject:
   - component: {fileID: 1190746323464096338}
   - component: {fileID: 7362209766258411817}
   - component: {fileID: 3787728530263496541}
+  - component: {fileID: 2384734935228751159}
   m_Layer: 0
   m_Name: SaveGem
   m_TagString: Untagged
@@ -312,3 +313,16 @@ MonoBehaviour:
   OverrideAttenuation: 0
   OverrideMinDistance: 1
   OverrideMaxDistance: 20
+--- !u!114 &2384734935228751159
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7215698866325725316}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 276b0178b45a74e8db5737ecf4d0d55c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SaveGem
+  director: {fileID: 7362209766258411817}

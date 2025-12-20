@@ -84,7 +84,7 @@ public class PlayerMovementManager : MonoBehaviour
     [Header("Physics Checks")]
     // Grounded Check, want the widest portion of sphere shown in DrawGizmosSelected to reach the edge of either foot
     [SerializeField] float groundCheckSphereRadius = 0.4f;
-    [SerializeField] Vector3 groundCheckTranslationAdjustment = new Vector3(0f, 0f, -0.5f);
+    [SerializeField] Vector3 groundCheckTranslationAdjustment = new Vector3(0.0f, 0.2f, -0.4f);
     [SerializeField] LayerMask groundLayer;
     public bool isGrounded = true;
 
@@ -94,7 +94,7 @@ public class PlayerMovementManager : MonoBehaviour
     [Header("Interaction Check")]
     [SerializeField] float interactSphereRadius = 0.2f;
     [SerializeField] Vector3 interactCheckTranslationOffset = new Vector3(0f, 1f, 0f);
-    [SerializeField] float interactDistance = 2f;
+    [SerializeField] float interactDistance = 5f;
     [SerializeField] IInteractable currentInteraction;
 
     [Header("Dash")]
@@ -256,7 +256,10 @@ public class PlayerMovementManager : MonoBehaviour
     {
         // ground check
         Gizmos.color = Color.red;
-        Gizmos.DrawSphere(GetComponent<PlayerManager>().gameObject.transform.position + groundCheckTranslationAdjustment, groundCheckSphereRadius);
+        Vector3 adjustment = (gameObject.transform.right * groundCheckTranslationAdjustment.x) + 
+                             (Vector3.up * groundCheckTranslationAdjustment.y) + 
+                             (gameObject.transform.forward * groundCheckTranslationAdjustment.z);
+        Gizmos.DrawSphere(GetComponent<PlayerManager>().gameObject.transform.position + adjustment, groundCheckSphereRadius);
 
         // walljump raycast, isn't rly working anyways, bad linalg
         Gizmos.color = Color.blue;
@@ -397,7 +400,10 @@ public class PlayerMovementManager : MonoBehaviour
     #region Physics Checks 
     public void GroundedCheck()
     {
-        isGrounded = Physics.CheckSphere(player.transform.position + groundCheckTranslationAdjustment, groundCheckSphereRadius, groundLayer);
+        Vector3 adjustment = (player.transform.right * groundCheckTranslationAdjustment.x) + 
+                             (Vector3.up * groundCheckTranslationAdjustment.y) + 
+                             (player.transform.forward * groundCheckTranslationAdjustment.z);
+        isGrounded = Physics.CheckSphere(player.transform.position + adjustment, groundCheckSphereRadius, groundLayer);
     }
 
     public Tuple<bool, RaycastHit> WallContactCheck()
@@ -422,10 +428,10 @@ public class PlayerMovementManager : MonoBehaviour
                                        transform.forward, // could be camera forward too!
                                        out hit,
                                        interactDistance);
-        Debug.Log(cast);
         if (cast) {
             IInteractable interact = hit.collider.GetComponent<IInteractable>();
-            if (interact.CanInteract())
+            Debug.Log(interact);
+            if (interact != null && interact.CanInteract())
                 return interact;
         }
         return null;
