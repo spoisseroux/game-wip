@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 using Unity.Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 
 // maybe move all cases of enable/disable action maps back to trigger, only store the input
 public class DialogueManager : MonoBehaviour
@@ -16,13 +17,11 @@ public class DialogueManager : MonoBehaviour
     public Image portraitUI;
     public GameObject choicePanel;
 
-    [Header("Player References")]
-    public PlayerInput playerInput;
-    private InputActionMap playerActionMap;
-    public PlayerMovementManager player;
-
-    // edits
+    [Header("Input References")]
     [SerializeField] InputReader input;
+
+    [Header("Player References")]
+    [SerializeField] PlayerMovementManager player;
 
     [Header("Data")]
     public DialogueConversation currentConversation;
@@ -41,52 +40,16 @@ public class DialogueManager : MonoBehaviour
 
     private Coroutine zoomCoroutine;
 
-    protected class UIRequests
-    {
-        Dictionary<UIRequest, bool> req;
-
-        public UIRequests()
-        {
-            req = new Dictionary<UIRequest, bool>
-            {
-                {UIRequest.Exit, false},
-                {UIRequest.Select, false},
-                // this might just be solved by reading horizontal and vertical movement values
-                {UIRequest.MoveDown, false},
-                {UIRequest.MoveUp, false},
-                {UIRequest.MoveLeft, false},
-                {UIRequest.MoveRight, false}
-            };
-        }
-
-        public void SetRequest(UIRequest u, bool val)
-        {
-            req[u] = val;
-        }
-
-        public bool Check(UIRequest u)
-        {
-            bool isRequesting = req[u];
-            SetRequest(u, false); // reset our input
-            return isRequesting;
-        }
-    }
-    UIRequests inputRequests;
-
     #region Monobehaviors
     void Awake()
     {
-        // action requests holder
-        input.EnablePlayerActions();
-        inputRequests = new UIRequests();
-
-        // player, Serialize later
-        player = Object.FindFirstObjectByType<PlayerMovementManager>();
+        // player, should be serialized field
+        // player = Object.FindFirstObjectByType<PlayerMovementManager>();
 
         // typewriter
         typewriter = GetComponent<Typewriter>();
 
-        // camera
+        // need to fix this camera
         orbitalCamera = Object.FindFirstObjectByType<CinemachineOrbitalFollow>();
         zoomOutRadius = orbitalCamera.Radius;
     }
@@ -98,9 +61,14 @@ public class DialogueManager : MonoBehaviour
 
     void Update()
     {
-        if (!conversationStarted || currentNode == null) return;
+        /*
+
+            change to event based polling
+
+        */
 
         // wait for release of advance key before processing next input
+        /*
         if (waitingForRelease)
         {
             //TODO: Hardcoded inputs
@@ -114,29 +82,146 @@ public class DialogueManager : MonoBehaviour
         }
 
         ChooseNextNode();
-    }
-
-    void OnEnable()
-    {
-        input.PollUIRequest += OnInputRequest;
-    }
-
-    void OnDisable()
-    {
-        input.PollUIRequest += OnInputRequest;
+        */
     }
     #endregion
 
-    #region Misc. Helpers
-    private void OnInputRequest(UIRequest action, bool performed)
+    #region UI Requests    
+    private void AttemptSelect()
     {
-        inputRequests.SetRequest(action, performed);
+        if (!conversationStarted || currentNode == null) return;
+        
+        // what states do we have here?
+        // 1. Typing --> if (typewriter.isTyping) --> typewriter.Skip()
+        // 2. Ready for Next --> else ChooseNode(currentOptionNumber)
+    }
 
-        // could just do switch on action
-    } 
+    private void AttemptExit()
+    {
+        // anything to do here besides EndConversation()?
+    }
+
+
+    // for all of these, just change index based on.... yeah
+    // decide whether we do up/down or left/right for dialogue options
+    // left/right for menus like runeUI? up/down for dialogue options? idk think on it baby
+    private void AttemptUpMove()
+    {
+        
+    }
+
+    private void AttemptDownMove()
+    {
+        
+    }
+
+    private void AttemptLeftMove()
+    {
+        return;
+    }
+
+    private void AttemptRightMove()
+    {
+        return;
+    }
+
+    // need a mouse click event??
+
+    // need a speed up dialogue type key!!!! --> Typewriter.SpeedUp() --> line63 delay *= 0.25f;
 
     #endregion
 
+    #region Event Link
+    private void LinkToInputEvents()
+    {
+        input.EnableActionMapByName("UI");
+
+        // hook up events
+        input.OnSelectInput += AttemptSelect;
+        input.OnExitInput += AttemptExit;
+        input.OnMoveUpInput += AttemptUpMove;
+        input.OnMoveDownInput += AttemptDownMove;
+        input.OnMoveLeftInput += AttemptLeftMove;
+        input.OnMoveRightInput += AttemptRightMove;
+
+        // mouse input is public Vector2 input.mouseInput;
+    }
+
+    private void DisconnectFromInputEvents()
+    {
+        input.OnSelectInput -= AttemptSelect;
+        input.OnExitInput -= AttemptExit;
+        input.OnMoveUpInput -= AttemptUpMove;
+        input.OnMoveDownInput -= AttemptDownMove;
+        input.OnMoveLeftInput -= AttemptLeftMove;
+        input.OnMoveRightInput -= AttemptRightMove;
+
+        input.DisableActionMapByName("UI");
+    }
+    #endregion
+
+    #region Conversation Management
+    public void StartConversation(DialogueConversation conversation, Transform npc)
+    {
+        // state
+        conversationStarted = true;
+        
+        // change to inputReader
+        input.EnableActionMapByName("UI");
+
+        // camera routine
+        DialogueZoomIn();
+
+        // set conversation and dialogue
+        currentConversation = conversation;
+        currentNode = conversation.nodes[0];
+        dialogueUI.SetActive(true);
+        ShowNode(currentNode);
+        waitingForRelease = true;
+
+        // link inputs later so no janky skip
+        LinkToInputEvents();
+    }
+
+    void ShowNode(DialogueNode node)
+    {
+        currentNode = node;
+        speakerNameUI.text = node.speakerId;
+        portraitUI.sprite = node.portrait;
+
+        node.text.StringChanged += (localized) =>
+        {
+            typewriter.StartTyping(dialogueTextUI, localized);
+        };
+
+        choicePanel.SetActive(node.nextNodes != null && node.nextNodes.Length > 1);
+        waitingForRelease = true;
+    }
+
+    public void NextNode(int choiceIndex = 0)
+    {
+        choicePanel.SetActive(false);
+
+        if (currentNode.nextNodes != null && currentNode.nextNodes.Length > 0)
+        {
+            if (choiceIndex < currentNode.nextNodes.Length)
+            {
+                currentNode = currentNode.nextNodes[choiceIndex];
+                ShowNode(currentNode);
+                waitingForRelease = true;
+            }
+            else
+            {
+                EndConversation();
+            }
+        }
+        else
+        {
+            EndConversation();
+        }
+    }
+
+    // should unnecessary because of how option selection works now with up/down/left/right move and select
     void ChooseNextNode()
     {
         if (currentNode == null) return;
@@ -184,59 +269,6 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-    public void StartConversation(DialogueConversation conversation, Transform npc)
-    {
-        conversationStarted = true;
-        // change to inputReader
-        playerActionMap?.Disable();
-
-        DialogueZoomIn();
-
-        currentConversation = conversation;
-        currentNode = conversation.nodes[0];
-        dialogueUI.SetActive(true);
-        ShowNode(currentNode);
-        waitingForRelease = true;
-    }
-
-    void ShowNode(DialogueNode node)
-    {
-        currentNode = node;
-        speakerNameUI.text = node.speakerId;
-        portraitUI.sprite = node.portrait;
-
-        node.text.StringChanged += (localized) =>
-        {
-            typewriter.StartTyping(dialogueTextUI, localized);
-        };
-
-        choicePanel.SetActive(node.nextNodes != null && node.nextNodes.Length > 1);
-        waitingForRelease = true;
-    }
-
-    public void NextNode(int choiceIndex = 0)
-    {
-        choicePanel.SetActive(false);
-
-        if (currentNode.nextNodes != null && currentNode.nextNodes.Length > 0)
-        {
-            if (choiceIndex < currentNode.nextNodes.Length)
-            {
-                currentNode = currentNode.nextNodes[choiceIndex];
-                ShowNode(currentNode);
-                waitingForRelease = true;
-            }
-            else
-            {
-                EndConversation();
-            }
-        }
-        else
-        {
-            EndConversation();
-        }
-    }
-
     void EndConversation()
     {
         conversationStarted = false;
@@ -251,13 +283,15 @@ public class DialogueManager : MonoBehaviour
 
         DialogueZoomOut();
 
-        // change to inputReader
-        playerActionMap?.Enable();
         // free player
         player.ResetInteract();
 
-        StartCoroutine(WaitForKeyRelease());
+        // change to inputReader
+        input.EnableActionMapByName("Player");
+
+        StartCoroutine(WaitForKeyRelease()); // ???
     }
+    #endregion
 
     private IEnumerator WaitForKeyRelease()
     {

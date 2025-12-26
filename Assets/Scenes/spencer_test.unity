@@ -13056,6 +13056,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2728046430541815553, guid: d9d529fa8f60a41aeae43bfcde3cc857, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 1410134116}
     - target: {fileID: 3050894825261633232, guid: d9d529fa8f60a41aeae43bfcde3cc857, type: 3}
       propertyPath: field of view
       value: 50
@@ -13185,6 +13189,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d9d529fa8f60a41aeae43bfcde3cc857, type: 3}
+--- !u!114 &1410134116 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6117323402357907360, guid: d9d529fa8f60a41aeae43bfcde3cc857, type: 3}
+  m_PrefabInstance: {fileID: 1410134115}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d624a575bcc746069fcd09d21471b8b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMovementManager
 --- !u!95 &1410134117 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 2704657668852771238, guid: d9d529fa8f60a41aeae43bfcde3cc857, type: 3}
@@ -15387,8 +15402,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RuneDoor
   guid: 
-  before: {fileID: 0}
-  after: {fileID: 0}
   code: 000000000200000001000000
 --- !u!222 &2980655933322269703
 CanvasRenderer:
