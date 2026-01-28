@@ -73,7 +73,7 @@ public class SceneTransitionManager : MonoBehaviour
     {
         // deactivate player and force animation
         PlayerMovementManager pmm = player.GetComponent<PlayerMovementManager>();
-        InputReader.DeactivatePlayerControls();
+        InputReader.DeactivateControls();
         pmm.SetState(NEUTRAL_STRING);
         pmm.enabled = false;
 
@@ -93,7 +93,7 @@ public class SceneTransitionManager : MonoBehaviour
         FadeScreen.instance.FadeIn();
 
         // reactivate player
-        InputReader.ActivatePlayerControls();
+        InputReader.ActivateControls();
         pmm.enabled = true;
         // pmm.SetState(NEUTRAL_STRING);
         

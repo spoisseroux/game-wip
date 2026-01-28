@@ -4,8 +4,6 @@ using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using Unity.Cinemachine;
 using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 
 // maybe move all cases of enable/disable action maps back to trigger, only store the input
 public class DialogueManager : MonoBehaviour
@@ -28,6 +26,7 @@ public class DialogueManager : MonoBehaviour
     private DialogueNode currentNode;
     public bool conversationStarted = false;
     public bool waitingForRelease = false;
+    private int choiceIndex;
 
     [Header("Dependencies")]
     private Typewriter typewriter;
@@ -52,6 +51,9 @@ public class DialogueManager : MonoBehaviour
         // need to fix this camera
         orbitalCamera = Object.FindFirstObjectByType<CinemachineOrbitalFollow>();
         zoomOutRadius = orbitalCamera.Radius;
+
+        // default data
+        choiceIndex = 0;
     }
 
     void Start()
@@ -93,7 +95,10 @@ public class DialogueManager : MonoBehaviour
         
         // what states do we have here?
         // 1. Typing --> if (typewriter.isTyping) --> typewriter.Skip()
+        if (typewriter.IsTyping) 
+            typewriter.Skip();
         // 2. Ready for Next --> else ChooseNode(currentOptionNumber)
+
     }
 
     private void AttemptExit()
@@ -144,7 +149,7 @@ public class DialogueManager : MonoBehaviour
         input.OnMoveLeftInput += AttemptLeftMove;
         input.OnMoveRightInput += AttemptRightMove;
 
-        // mouse input is public Vector2 input.mouseInput;
+        // mouse input is public Vector2 input.mouseInput; do we even need?
     }
 
     private void DisconnectFromInputEvents()
@@ -165,18 +170,19 @@ public class DialogueManager : MonoBehaviour
     {
         // state
         conversationStarted = true;
+        choiceIndex = 0;
         
         // change to inputReader
         input.EnableActionMapByName("UI");
 
-        // camera routine
+        // camera routine, give camera control to dialogue cam
         DialogueZoomIn();
 
         // set conversation and dialogue
         currentConversation = conversation;
         currentNode = conversation.nodes[0];
         dialogueUI.SetActive(true);
-        ShowNode(currentNode);
+        ShowNode(currentNode); // shows everything in UI for this given node --> portrait, dialogue, next choice panel, etc.
         waitingForRelease = true;
 
         // link inputs later so no janky skip
@@ -195,6 +201,13 @@ public class DialogueManager : MonoBehaviour
         };
 
         choicePanel.SetActive(node.nextNodes != null && node.nextNodes.Length > 1);
+        /*
+            have to edit choice panel to display either... 
+            1. dialogue options
+            2. continue/exit
+        */
+
+        // is this the speed-up option, what do wit dis?
         waitingForRelease = true;
     }
 
@@ -225,17 +238,6 @@ public class DialogueManager : MonoBehaviour
     void ChooseNextNode()
     {
         if (currentNode == null) return;
-
-        // prevent advancing if still typing & handle skipping
-        if (typewriter.IsTyping)
-        {
-            //TODO: Hardcoded skip dialogue key press
-            if (Keyboard.current.eKey.wasPressedThisFrame)
-            {
-                typewriter.Skip();
-            }
-            return;
-        }
 
         // if this node has multiple choices
         if (currentNode.nextNodes != null && currentNode.nextNodes.Length > 1)
@@ -272,6 +274,7 @@ public class DialogueManager : MonoBehaviour
     void EndConversation()
     {
         conversationStarted = false;
+        choiceIndex = 0;
 
         // Hide UI
         choicePanel.SetActive(false);
@@ -281,15 +284,19 @@ public class DialogueManager : MonoBehaviour
         currentNode = null;
         currentConversation = null;
 
+        // return camera control to player
         DialogueZoomOut();
 
         // free player
         player.ResetInteract();
 
+        // unlink actions 
+        DisconnectFromInputEvents();
+
         // change to inputReader
         input.EnableActionMapByName("Player");
 
-        StartCoroutine(WaitForKeyRelease()); // ???
+        // StartCoroutine(WaitForKeyRelease()); // ???
     }
     #endregion
 

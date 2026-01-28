@@ -206,13 +206,13 @@ public class InputReader : ScriptableObject, IPlayerActions, IUIActions
     }
     #endregion
 
-    #region Static Enable/Disable
-    public static void ActivatePlayerControls()
+    #region Static Enable/Disable For Entire Object
+    public static void ActivateControls()
     {
         controls.Enable();
     }
 
-    public static void DeactivatePlayerControls()
+    public static void DeactivateControls()
     {
         controls.Disable();
     }
