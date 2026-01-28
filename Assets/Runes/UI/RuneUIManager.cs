@@ -90,7 +90,7 @@ public class RuneUIManager : MonoBehaviour
 
     private void OnEnable()
     {
-        // disable player
+        // disable player, maybe this call happens somewhere else
 
         carouselIndex = 0;
 
@@ -182,9 +182,10 @@ public class RuneUIManager : MonoBehaviour
         if (moveCoroutine != null)
             return;
 
+        if (carouselIndex == 0)
+            return;
+
         carouselIndex--;
-        if (carouselIndex < 0)
-            carouselIndex = runeCarousel.Length - 1;
         ShiftMenu(carouselIndex);
     }
 
@@ -193,9 +194,11 @@ public class RuneUIManager : MonoBehaviour
         if (moveCoroutine != null)
             return;
 
+        // no rotating carousel, block right move if at highest index
+        if (carouselIndex == runeCarousel.Length - 1)
+            return
+
         carouselIndex++;
-        if (carouselIndex > runeCarousel.Length - 1)
-            carouselIndex = 0;
         ShiftMenu(carouselIndex);
     }
 
@@ -225,7 +228,7 @@ public class RuneUIManager : MonoBehaviour
 
     private void ShiftMenu(int index)
     {
-        // move to index
+        // physically move the carousel to the chosen index
     }
 
     // add rune to chant
