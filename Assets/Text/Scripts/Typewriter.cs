@@ -57,7 +57,7 @@ public class Typewriter : MonoBehaviour
                 }
             }
 
-            //handle ff (reduce delay)
+            //handle ff (reduce delay) CHANGE THIS TO SELECT KEY ON PRESS
             if (Keyboard.current[fastForwardKey].isPressed)
             {
                 delay *= 0.25f;

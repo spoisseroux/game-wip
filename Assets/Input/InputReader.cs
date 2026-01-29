@@ -3,6 +3,12 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using static PlayerControls;
 
+
+// individual interfaces for type of receiver, NEED TO FIGURE OUT STRUCTURE FOR THIS
+public abstract class InputReceiver {}
+public interface IWantsInput {}
+
+
 [CreateAssetMenu(fileName = "NewInputSO", menuName = "Custom/InputSO")]
 public class InputReader : ScriptableObject, IPlayerActions, IUIActions
 {
@@ -15,23 +21,37 @@ public class InputReader : ScriptableObject, IPlayerActions, IUIActions
     // have a thinky later
     // the above probably will have to do with "button" actions, rather than actions mapping to buttons...
 
+    [Header("Player")]
     // movement vars
     [SerializeField] Vector2 movementInput;
     public float horizontalInput; // x
     public float verticalInput; // z
     public float moveAmount; // basically, is there input?
-
     // camera vars
     [SerializeField] Vector2 cameraInput;
     public float cameraHorizontalInput;
     public float cameraVerticalInput;
-
     // action request event
     public event Action<ActionRequest, bool> PollInputRequest = delegate { };
+
+
+    [Header("UI")]
+    public Vector2 mouseInput;
     // ui request event
-    public event Action<UIRequest, bool> PollUIRequest = delegate { };
+    public event Action OnSelectInput;
+    public event Action OnExitInput;
+    public event Action OnMoveUpInput;
+    public event Action OnMoveDownInput;
+    public event Action OnMoveLeftInput;
+    public event Action OnMoveRightInput;
 
     #region Enable Disable
+    // a fine default to have is EnablePlayerActions() i guess, but think about how to do this ig
+    /*
+        Either 1 or 2
+        1: Separate call to disable by name, then another call to enable by name
+        2: Enable by name, cycles through all, disabling every other map, enabling name passed in
+    */
     public void EnablePlayerActions()
     {
         if (controls == null)
@@ -40,11 +60,10 @@ public class InputReader : ScriptableObject, IPlayerActions, IUIActions
             controls.Player.SetCallbacks(this);
             controls.UI.SetCallbacks(this);
         }
-        controls.Enable();
-        controls.UI.Disable();
+        controls.Player.Enable();
     }
 
-    public void EnableActionMap(string mapName)
+    public void EnableActionMapByName(string mapName)
     {
         var maps = controls.asset.actionMaps;
         foreach (var aMap in maps)
@@ -53,6 +72,18 @@ public class InputReader : ScriptableObject, IPlayerActions, IUIActions
                 aMap.Enable();
             else
                 aMap.Disable();
+        }
+    }
+
+    public void DisableActionMapByName(string name)
+    {
+        var maps = controls.asset.actionMaps;
+        foreach (var map in maps)
+        {
+            if (map.name == name) {
+                map.Disable();
+                return;
+            }
         }
     }
     #endregion
@@ -141,72 +172,47 @@ public class InputReader : ScriptableObject, IPlayerActions, IUIActions
 
     public void OnSelect(InputAction.CallbackContext context)
     {
-        switch (context.phase)
-        {
-            case InputActionPhase.Started:
-                PollUIRequest?.Invoke(UIRequest.Select, true);
-                break;
-        }
+        OnSelectInput?.Invoke();
     }
 
     public void OnExit(InputAction.CallbackContext context)
     {
-        switch (context.phase)
-        {
-            case InputActionPhase.Started:
-                PollUIRequest?.Invoke(UIRequest.Exit, true);
-                break;
-        }
+        OnExitInput?.Invoke();
     }
 
     public void OnMoveUp(InputAction.CallbackContext context)
     {
-        switch (context.phase)
-        {
-            case InputActionPhase.Started:
-                PollUIRequest?.Invoke(UIRequest.MoveUp, true);
-                break;
-        }
+        OnMoveUpInput?.Invoke();
     }
 
     public void OnMoveDown(InputAction.CallbackContext context)
     {
-        switch (context.phase)
-        {
-            case InputActionPhase.Started:
-                PollUIRequest?.Invoke(UIRequest.MoveDown, true);
-                break;
-        }
+        OnMoveDownInput?.Invoke();
     }
     
     public void OnMoveLeft(InputAction.CallbackContext context)
     {
-        switch (context.phase)
-        {
-            case InputActionPhase.Started:
-                PollUIRequest?.Invoke(UIRequest.MoveLeft, true);
-                break;
-        }
+        OnMoveLeftInput?.Invoke();
     }
     
     public void OnMoveRight(InputAction.CallbackContext context)
     {
-        switch (context.phase)
-        {
-            case InputActionPhase.Started:
-                PollUIRequest?.Invoke(UIRequest.MoveRight, true);
-                break;
-        }
+        OnMoveRightInput?.Invoke();
+    }
+
+    public void OnMouse(InputAction.CallbackContext context)
+    {
+        mouseInput = context.ReadValue<Vector2>();
     }
     #endregion
 
-    #region Static Enable/Disable
-    public static void ActivatePlayerControls()
+    #region Static Enable/Disable For Entire Object
+    public static void ActivateControls()
     {
         controls.Enable();
     }
 
-    public static void DeactivatePlayerControls()
+    public static void DeactivateControls()
     {
         controls.Disable();
     }

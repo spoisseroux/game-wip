@@ -17,9 +17,8 @@ public class RuneHolder : MonoBehaviour
     public float reactRadius;
     public Vector3 Yadjustment;
 
-    // chant piped in from UI
-    [SerializeField]
-    List<RuneDataSO> storedChant;
+    // UI Data
+    [SerializeField] List<RuneDataSO> storedChant;
 
     #region MonoBehaviour
     private void Awake()
@@ -31,23 +30,25 @@ public class RuneHolder : MonoBehaviour
     private void Update()
     {
         // m key for quick testing
+        /*
         var keyboard = Keyboard.current;
         if (keyboard.mKey.wasPressedThisFrame)
         {
             Debug.Log("heyyy checking...");
             ExecuteChant(runes);
         }
+        */
     }
 
     // subscribe and unsubscribe to rune UI events
     private void OnEnable()
     {
-        
+        // ui.OnChantSelected += ExecuteChant;
     }
 
     private void OnDisable()
     {
-        
+        // ui.OnChantSelected -= ExecuteChant;
     }
 
     private void OnDrawGizmosSelected()
