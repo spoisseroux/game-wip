@@ -1,0 +1,37 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+
+// authority flags, essentially does any specific action control this axis of movement currently
+public enum MovementAxis
+{
+    None = 0,
+    Horizontal = 1,
+    Vertical = 2, // vertical separate for complete control
+    Gravity = 3, // gravity separate for wonky aerial movement
+    Rotation = 4
+}
+
+public abstract class Mover : MonoBehaviour
+{
+    // buff system
+    // [SerializeableField] BuffSystem buffStore;
+
+    protected Dictionary<MovementAxis, object> movementAxisOwners = new();
+
+    #region CharacterController API
+    public abstract void SetVelocity(Vector3 dir, object source);
+    public abstract void AddRotation(Quaternion target, object source);
+    public abstract void SetNewRotation(Vector3 targetDir, object source);
+    #endregion
+
+    #region Transform API
+    #endregion
+
+    #region Authority Set & Release
+    public abstract void TryClaimAxis(MovementAxis axis, object affector);
+    public abstract void ForceClaimAxis(MovementAxis axis, object affector);
+    public abstract void ReleaseAxis(MovementAxis axis);
+    #endregion
+}

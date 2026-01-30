@@ -1,19 +1,20 @@
 using UnityEngine;
 using System;
 
-// All states have a protected PlayerMovementManager component set in their BaseState predecessor. Use this to call movement logic
+// All states have a protected PlayerMotor component set in their BaseState predecessor. Use this to call movement logic
 public class NeutralState : BasePlayerState
 {
     string walkAnim = "Run_Full";
     string idleAnim = "Idle";
 
     // maybe split this into Idle && Walk states?
-    public NeutralState(PlayerMovementManager f, AnimationController a) : base(f, a) { }
+    public NeutralState(PlayerMotor m, AnimationController a) : base(m, a) { }
 
     public override void Enter() { return; }
     public override void Exit() { return; }
     public override void Update()
     {
+        /*
         motor.HandleRotation();
         if (motor.CheckIfMoving())
         {
@@ -24,6 +25,7 @@ public class NeutralState : BasePlayerState
             animator.Play(animBase + idleAnim);
         }
         motor.Walk();
+        */
     }
 
     public override void Interrupt(BasePlayerState newState) { return; }
@@ -43,14 +45,14 @@ public class JumpingState : BasePlayerState
     // float 
     float animatorAdjustment = 7.5f;
 
-    public JumpingState(PlayerMovementManager f, AnimationController a) : base(f, a)
+    public JumpingState(PlayerMotor m, AnimationController a) : base(m, a)
     {
         cooldownTimer = new CountdownTimer(cooldown);
     }
 
     public override void Enter()
     {
-        motor.ApplyJumpingVelocity();
+        // motor.ApplyJumpingVelocity();
         cooldownTimer.Start();
         animator.SetAnimatorSpeed(animatorAdjustment);
         animator.Play(animBase + jumpBase + jumpStart);
@@ -66,8 +68,8 @@ public class JumpingState : BasePlayerState
 
     public override void Update()
     {
-        motor.Walk();
-        motor.HandleRotation();
+        //motor.Walk();
+        //motor.HandleRotation();
         cooldownTimer.Tick(Time.deltaTime);
     }
 
@@ -85,7 +87,7 @@ public class JumpingState : BasePlayerState
 
 public class RisingState : BasePlayerState
 {
-    public RisingState(PlayerMovementManager m, AnimationController a) : base(m, a) {}
+    public RisingState(PlayerMotor m, AnimationController a) : base(m, a) {}
 
     public override void Enter()
     {
@@ -94,8 +96,8 @@ public class RisingState : BasePlayerState
 
     public override void Update()
     {
-        motor.Walk();
-        motor.HandleRotation();
+        //motor.Walk();
+        //motor.HandleRotation();
     }
 
     public override void Exit()
@@ -114,7 +116,7 @@ public class FallingState : BasePlayerState
     string jumpBase = "Jump_";
     string jumpFalling = "Falling";
 
-    public FallingState(PlayerMovementManager m, AnimationController a) : base(m, a) {}
+    public FallingState(PlayerMotor m, AnimationController a) : base(m, a) {}
 
     public override void Enter()
     {
@@ -123,8 +125,8 @@ public class FallingState : BasePlayerState
 
     public override void Update()
     {
-        motor.Walk();
-        motor.HandleRotation();
+        //motor.Walk();
+        //motor.HandleRotation();
     }
 
     public override void Exit()
@@ -150,7 +152,7 @@ public class LandingState : BasePlayerState
     // adjustment
     float animatorAdjustment = 7.5f;
 
-    public LandingState(PlayerMovementManager m, AnimationController a) : base(m, a)
+    public LandingState(PlayerMotor m, AnimationController a) : base(m, a)
     {
         cooldownTimer = new CountdownTimer(cooldown);
     }
@@ -165,7 +167,7 @@ public class LandingState : BasePlayerState
     public override void Update()
     {
         cooldownTimer.Tick(Time.deltaTime);
-        motor.Walk();
+        //motor.Walk();
     }
 
     public override void Exit()
@@ -198,7 +200,7 @@ public class DashingState : BasePlayerState
     string dashAnim = "Dash_Forward";
     string idleAnim = "Idle";
 
-    public DashingState(PlayerMovementManager f, AnimationController a) : base(f, a)
+    public DashingState(PlayerMotor m, AnimationController a) : base(m, a)
     {
         // length of state
         cooldownTimer = new CountdownTimer(dashCDTime);
@@ -209,7 +211,7 @@ public class DashingState : BasePlayerState
 
     public override void Enter()
     {
-        motor.SetDashDirection();
+        //motor.SetDashDirection();
         cooldownTimer.Start();
         activeTimer.Start();
         animator.Play(animBase + dashAnim);
@@ -228,11 +230,11 @@ public class DashingState : BasePlayerState
         // move if active
         if (!activeTimer.lapComplete)
         {
-            motor.Dash();
+            //motor.Dash();
         }
         else
         {
-            motor.Walk();
+            //motor.Walk();
             animator.CrossFade(animBase + idleAnim, 0.1f);
         }
     }
@@ -267,7 +269,7 @@ public class WallJumpState : BasePlayerState
     private float bounceLength = 0.2f;
 
 
-    public WallJumpState(PlayerMovementManager f, AnimationController a) : base(f, a)
+    public WallJumpState(PlayerMotor m, AnimationController a) : base(m, a)
     {
         // timers
         seekTimer = new CountdownTimer(seekLength);
@@ -278,9 +280,9 @@ public class WallJumpState : BasePlayerState
 
     public override void Enter()
     {
-        motor.SetSeekingDirection();
+        //motor.SetSeekingDirection();
         phase = WallJumpPhase.Seeking;
-        motor.WallJumpBoost();
+        //motor.WallJumpBoost();
         seekTimer.Start();
     }
 
@@ -303,6 +305,7 @@ public class WallJumpState : BasePlayerState
 
     public override void Update()
     {
+        /*
         // seeking phase update
         if (phase == WallJumpPhase.Seeking)
         {
@@ -341,7 +344,7 @@ public class WallJumpState : BasePlayerState
             bounceTimer.Tick(Time.deltaTime);
             motor.BounceOffWall();
         }
-
+        */
     }
 
     public bool IsFinished()
@@ -366,7 +369,7 @@ public class InteractState : BasePlayerState
     string interactUse = "";
     string interactGeneral = "Interact_Generic";
 
-    public InteractState(PlayerMovementManager m, AnimationController a) : base(m, a)
+    public InteractState(PlayerMotor m, AnimationController a) : base(m, a)
     {
         
     }
@@ -407,7 +410,7 @@ public class AttackState : BasePlayerState
     // anim adjust
     float animatorAdjustment = 2f;
 
-    public AttackState(PlayerMovementManager m, PlayerCombatManager c, AnimationController a) : base(m, a)
+    public AttackState(PlayerMotor m, PlayerCombatManager c, AnimationController a) : base(m, a)
     {
         combat = c;
         attackAnim = "";
@@ -433,7 +436,7 @@ public class AttackState : BasePlayerState
     public override void Update()
     {
         timer.Tick(Time.deltaTime);
-        motor.Walk();
+        // motor.Walk();
     }
 
     public override void Interrupt(BasePlayerState newState)
@@ -478,7 +481,7 @@ public class ChantState : BasePlayerState
     // animation?
     string chantAnim = "";
 
-    public ChantState(PlayerMovementManager m, AnimationController a) : base(m, a)
+    public ChantState(PlayerMotor m, AnimationController a) : base(m, a)
     {
         timer = new CountdownTimer(duration);
     }
@@ -499,7 +502,7 @@ public class ChantState : BasePlayerState
     public override void Update()
     {
         timer.Tick(Time.deltaTime);
-        motor.Walk();
+        // motor.Walk();
     }
 
     public override void Interrupt(BasePlayerState newState)

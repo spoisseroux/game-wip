@@ -9,6 +9,7 @@ public class PlayerMovementManager : MonoBehaviour
     PlayerManager player;
 
     // components
+    [SerializeField] PlayerMotor motor;
     [SerializeField] public CharacterController characterController;
     [SerializeField] InputReader input;
     [SerializeField] PlayerCombatManager combat;
@@ -26,6 +27,11 @@ public class PlayerMovementManager : MonoBehaviour
     public InteractState interactState;
     public AttackState attackState;
     public ChantState chantState;
+
+    // movement settings
+    // base settings --> walk speed, rotation, jump height
+    // states then request a movement Vector3 based on these base settings and internal modifiers
+
 
     // polling input vals
     [HideInInspector] public float horizontalMovement;
@@ -62,9 +68,6 @@ public class PlayerMovementManager : MonoBehaviour
         }
     }
     ActionRequests inputRequests;
-
-    // Status fx??
-    public MovementStatusHandler moveBuffHandler { get; private set;}
 
     [Header("Movement Settings")]
     public Vector3 yVel;
@@ -128,16 +131,16 @@ public class PlayerMovementManager : MonoBehaviour
         fsm = new StateMachine();
 
         // states
-        neutralState = new NeutralState(this, animationController);
-        jumpingState = new JumpingState(this, animationController);
-        risingState = new RisingState(this, animationController);
-        fallingState = new FallingState(this, animationController);
-        landingState = new LandingState(this, animationController);
-        dashState = new DashingState(this, animationController);
-        walljumpState = new WallJumpState(this, animationController);
-        interactState = new InteractState(this, animationController);
-        attackState = new AttackState(this, combat, animationController);
-        chantState = new ChantState(this, animationController);
+        neutralState = new NeutralState(motor, animationController);
+        jumpingState = new JumpingState(motor, animationController);
+        risingState = new RisingState(motor, animationController);
+        fallingState = new FallingState(motor, animationController);
+        landingState = new LandingState(motor, animationController);
+        dashState = new DashingState(motor, animationController);
+        walljumpState = new WallJumpState(motor, animationController);
+        interactState = new InteractState(motor, animationController);
+        attackState = new AttackState(motor, combat, animationController);
+        chantState = new ChantState(motor, animationController);
 
         // neutral state transitions
         At(neutralState, jumpingState, new FuncPredicate(() =>
@@ -154,7 +157,7 @@ public class PlayerMovementManager : MonoBehaviour
         At(jumpingState, attackState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Attack) && RequestAttack()));
         At(jumpingState, walljumpState, new FuncPredicate(() =>
                                         inputRequests.Check(ActionRequest.WallJump)
-                                        && !isGrounded));
+                                        && !motor.Grounded));
 
         // rising state transitions
         At(risingState, jumpingState, new FuncPredicate(() =>
@@ -169,7 +172,7 @@ public class PlayerMovementManager : MonoBehaviour
         At(fallingState, jumpingState, new FuncPredicate(() =>
                                         inputRequests.Check(ActionRequest.Jump)
                                         && !bonusJumpTaken));
-        At(fallingState, landingState, new FuncPredicate(() => isGrounded));
+        At(fallingState, landingState, new FuncPredicate(() => motor.Grounded));
         At(fallingState, dashState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Dash)));
         At(fallingState, attackState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Attack) && RequestAttack()));
         At(fallingState, walljumpState, new FuncPredicate(() => inputRequests.Check(ActionRequest.WallJump)));
@@ -181,33 +184,33 @@ public class PlayerMovementManager : MonoBehaviour
         At(landingState, attackState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Attack) && RequestAttack()));
 
         // dashing state transitions
-        At(dashState, neutralState, new FuncPredicate(() => dashState.GetProgress() <= 0 && isGrounded));
+        At(dashState, neutralState, new FuncPredicate(() => dashState.GetProgress() <= 0 && motor.Grounded));
         At(dashState, risingState, new FuncPredicate(() => dashState.GetProgress() <= 0 
-                                                           && !isGrounded 
+                                                           && !motor.Grounded 
                                                            && GetVerticalMovementComponent().y > 0.0f));
         At(dashState, fallingState, new FuncPredicate(() => dashState.GetProgress() <= 0 
-                                                           && !isGrounded 
+                                                           && !motor.Grounded 
                                                            && GetVerticalMovementComponent().y <= 0.0f));
 
         // wall jump state transitions
         At(walljumpState, landingState, new FuncPredicate(() =>
-                                        isGrounded));
+                                        motor.Grounded));
         At(walljumpState, risingState, new FuncPredicate(() =>
-                                        !isGrounded && GetVerticalMovementComponent().y > 0.0f &&
+                                        !motor.Grounded && GetVerticalMovementComponent().y > 0.0f &&
                                         walljumpState.IsFinished()));
         At(walljumpState, fallingState, new FuncPredicate(() =>
-                                        !isGrounded && GetVerticalMovementComponent().y <= 0.0f &&
+                                        !motor.Grounded && GetVerticalMovementComponent().y <= 0.0f &&
                                         walljumpState.IsFinished()));
 
         // interaction state transitions
         At(interactState, neutralState, new FuncPredicate(() => currentInteraction == null)); // need to figure out how to do this!!!
 
         // attack state transitions
-        At(attackState, neutralState, new FuncPredicate(() => isGrounded && attackState.GetProgress() <= 0));
-        At(attackState, risingState, new FuncPredicate(() => !isGrounded 
+        At(attackState, neutralState, new FuncPredicate(() => motor.Grounded && attackState.GetProgress() <= 0));
+        At(attackState, risingState, new FuncPredicate(() => !motor.Grounded 
                                                              && attackState.GetProgress() <= 0
                                                              && GetVerticalMovementComponent().y > 0.0f));
-        At(attackState, fallingState, new FuncPredicate(() => !isGrounded 
+        At(attackState, fallingState, new FuncPredicate(() => !motor.Grounded 
                                                              && attackState.GetProgress() <= 0 
                                                              && GetVerticalMovementComponent().y <= 0.0f));
 
@@ -224,18 +227,21 @@ public class PlayerMovementManager : MonoBehaviour
 
     private void Start()
     {
-        // maybe move states and transitions here
-        moveBuffHandler = new MovementStatusHandler();
+        
     }
 
     private void Update()
     {
         // tick status effects
+
+        // do physics checks in motor
         
         // read input
         SetMovementValues();
+
         // checks
         HandleGravity();
+
         // state machine
         fsm.Update();
     }
@@ -376,9 +382,8 @@ public class PlayerMovementManager : MonoBehaviour
 
     public void Walk()
     {
-        float finalSpeed = moveBuffHandler.ApplyBonuses(walkSpeed);
         moveDirection = SetWalkMovementDir();
-        characterController.Move(finalSpeed * Time.deltaTime * moveDirection);
+        characterController.Move(walkSpeed * Time.deltaTime * moveDirection);
     }
 
     public void Dash()
@@ -578,18 +583,4 @@ public class PlayerMovementManager : MonoBehaviour
         }
     }
     #endregion
-
-    #region StatusEffects
-    public void ChangeAdditiveBonus(float input)
-    {
-        moveBuffHandler.ChangeAdditiveBonus(input);
-    }
-
-    public void ChangeMultBonus(float input)
-    {
-        moveBuffHandler.ChangeMultiplicativeBonus(input);
-    }
-
-    #endregion
-
 }
