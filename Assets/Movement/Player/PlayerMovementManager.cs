@@ -17,7 +17,8 @@ public class PlayerMovementManager : MonoBehaviour
 
     // fsm & states
     [SerializeField] StateMachine fsm;
-    public NeutralState neutralState;
+    public IdleState idleState;
+    public WalkState walkState;
     public JumpingState jumpingState;
     public RisingState risingState;
     public FallingState fallingState;
@@ -131,25 +132,35 @@ public class PlayerMovementManager : MonoBehaviour
         fsm = new StateMachine();
 
         // states
-        neutralState = new NeutralState(motor, animationController);
-        jumpingState = new JumpingState(motor, animationController);
-        risingState = new RisingState(motor, animationController);
-        fallingState = new FallingState(motor, animationController);
+        idleState = new IdleState(motor, animationController);
+        walkState = new WalkState(motor, animationController, this); // this for rotation handling!
+        jumpingState = new JumpingState(motor, animationController, this);
+        risingState = new RisingState(motor, animationController, this);
+        fallingState = new FallingState(motor, animationController, this);
         landingState = new LandingState(motor, animationController);
         dashState = new DashingState(motor, animationController);
         walljumpState = new WallJumpState(motor, animationController);
-        interactState = new InteractState(motor, animationController);
+        interactState = new InteractState(motor, animationController, this);
         attackState = new AttackState(motor, combat, animationController);
         chantState = new ChantState(motor, animationController);
 
-        // neutral state transitions
-        At(neutralState, jumpingState, new FuncPredicate(() =>
-                                        inputRequests.Check(ActionRequest.Jump)));
-        At(neutralState, dashState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Dash)));
-        At(neutralState, interactState, new FuncPredicate(() => currentInteraction != null && currentInteraction.IsTrigger()
+        // idle state transitions
+        At(idleState, walkState, new FuncPredicate(() => CheckIfMoving()));
+        At(idleState, jumpingState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Jump)));
+        At(idleState, interactState, new FuncPredicate(() => currentInteraction != null && currentInteraction.IsTrigger()
                                         && isGrounded));
-        At(neutralState, attackState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Attack) && RequestAttack()));
-        At(neutralState, chantState, new FuncPredicate(() => false)); // how to fire an event to pipe into here?
+        At(idleState, attackState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Attack) && RequestAttack()));
+        At(idleState, chantState, new FuncPredicate(() => false)); // how to fire an event to pipe into here?
+
+        // walk state transitions
+        At(walkState, jumpingState, new FuncPredicate(() =>
+                                        inputRequests.Check(ActionRequest.Jump)));
+        At(walkState, dashState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Dash)));
+        At(walkState, interactState, new FuncPredicate(() => currentInteraction != null && currentInteraction.IsTrigger()
+                                        && isGrounded));
+        At(walkState, attackState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Attack) && RequestAttack()));
+        At(walkState, chantState, new FuncPredicate(() => false)); // how to fire an event to pipe into here?
+        At(walkState, idleState, new FuncPredicate(() => !CheckIfMoving()));
 
         // jumping state transitions
         At(jumpingState, risingState, new FuncPredicate(() => jumpingState.GetProgress() <= 0));
@@ -178,13 +189,15 @@ public class PlayerMovementManager : MonoBehaviour
         At(fallingState, walljumpState, new FuncPredicate(() => inputRequests.Check(ActionRequest.WallJump)));
 
         // landing state transitions
+        At(landingState, idleState, new FuncPredicate(() => landingState.GetProgress() <= 0 && !CheckIfMoving()));
+        At(landingState, walkState, new FuncPredicate(() => landingState.GetProgress() <= 0 && CheckIfMoving()));
         At(landingState, jumpingState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Jump)));
-        At(landingState, neutralState, new FuncPredicate(() => landingState.GetProgress() <= 0));
         At(landingState, dashState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Dash)));
         At(landingState, attackState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Attack) && RequestAttack()));
 
         // dashing state transitions
-        At(dashState, neutralState, new FuncPredicate(() => dashState.GetProgress() <= 0 && motor.Grounded));
+        At(dashState, idleState, new FuncPredicate(() => dashState.GetProgress() <= 0 && motor.Grounded && !CheckIfMoving()));
+        At(dashState, walkState, new FuncPredicate(() => dashState.GetProgress() <= 0 && motor.Grounded && CheckIfMoving()));
         At(dashState, risingState, new FuncPredicate(() => dashState.GetProgress() <= 0 
                                                            && !motor.Grounded 
                                                            && GetVerticalMovementComponent().y > 0.0f));
@@ -203,10 +216,12 @@ public class PlayerMovementManager : MonoBehaviour
                                         walljumpState.IsFinished()));
 
         // interaction state transitions
-        At(interactState, neutralState, new FuncPredicate(() => currentInteraction == null)); // need to figure out how to do this!!!
+        At(interactState, idleState, new FuncPredicate(() => currentInteraction == null && !CheckIfMoving())); // need to figure out how to do this!!!
+        At(interactState, walkState, new FuncPredicate(() => currentInteraction == null && CheckIfMoving())); // need to figure out how to do this!!!
 
         // attack state transitions
-        At(attackState, neutralState, new FuncPredicate(() => motor.Grounded && attackState.GetProgress() <= 0));
+        At(attackState, idleState, new FuncPredicate(() => motor.Grounded && attackState.GetProgress() <= 0 && !CheckIfMoving()));
+        At(attackState, walkState, new FuncPredicate(() => motor.Grounded && attackState.GetProgress() <= 0 && CheckIfMoving()));
         At(attackState, risingState, new FuncPredicate(() => !motor.Grounded 
                                                              && attackState.GetProgress() <= 0
                                                              && GetVerticalMovementComponent().y > 0.0f));
@@ -215,10 +230,11 @@ public class PlayerMovementManager : MonoBehaviour
                                                              && GetVerticalMovementComponent().y <= 0.0f));
 
         // chant state transitions
-        At(chantState, neutralState, new FuncPredicate(() => chantState.GetProgress() <= 0));
+        At(chantState, idleState, new FuncPredicate(() => chantState.GetProgress() <= 0 && !CheckIfMoving()));
+        At(chantState, walkState, new FuncPredicate(() => chantState.GetProgress() <= 0 && CheckIfMoving()));
 
         // set initial state
-        fsm.SetState(neutralState);
+        fsm.SetState(idleState);
 
         // action requests holder
         input.EnablePlayerActions();
@@ -290,6 +306,11 @@ public class PlayerMovementManager : MonoBehaviour
         return mD;
     }
 
+    public Vector3 GetWalkMovementDirection()
+    {
+        return SetWalkMovementDir();
+    }
+
     private Vector3 NormalizeAndCutY(Vector3 input)
     {
         input.Normalize();
@@ -315,7 +336,7 @@ public class PlayerMovementManager : MonoBehaviour
     #endregion
 
     #region Movement Logic
-    public void HandleRotation()
+    public Vector3 HandleRotation()
     {
         targetRotationDirection = Vector3.zero;
         targetRotationDirection = PlayerCamera.instance.playerCam.transform.forward * verticalMovement;
@@ -329,9 +350,7 @@ public class PlayerMovementManager : MonoBehaviour
             targetRotationDirection = transform.forward;
         }
 
-        Quaternion newRotation = Quaternion.LookRotation(targetRotationDirection);
-        Quaternion targetRotation = Quaternion.Slerp(transform.rotation, newRotation, rotationSpeed * Time.deltaTime);
-        transform.rotation = targetRotation;
+        return targetRotationDirection;
     }
 
     public void HandleGravity()
@@ -578,7 +597,7 @@ public class PlayerMovementManager : MonoBehaviour
                 fsm.SetState(interactState);
                 break;
             case "neutral":
-                fsm.SetState(neutralState);
+                fsm.SetState(walkState);
                 break;
         }
     }

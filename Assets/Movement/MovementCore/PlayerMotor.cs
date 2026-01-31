@@ -1,10 +1,39 @@
 using System.Collections.Generic;
-using System;
 using UnityEngine;
+
+/*
+    Ok, the ~object~, let's make it... it could end up just being a BasePlayerState object
+
+    Every one of these Commands has:
+        - a priority value 
+            --> defines what Actions it can interrupt
+            --> what Actions it can be interrupted by
+            --> what Actions it executes simultaneously with, etc.
+
+        - List<MovementPhase>
+            --> executed in owning object, i.e. an attack or dash etc.
+            --> full list added 
+
+        - a routine flag (HMMMM, CAN THIS GO IN ACTIONS AND THE COMMAND JUST ORCHESTRATES ACCORDINGLY???)
+            --> does this just trigger in a single moment? only check priority and execute accordingly
+            --> is there a temporal element to this? try claim authority, then execute accordingly
+
+    Realistically, the corresponding state should be responsible for the timing, storage and orchestrating of these Commands
+
+    Every MovementAction has:
+        - a routine flag 
+            --> does this just trigger in a single moment? only check priority and execute accordingly
+            --> is there a temporal element to this? try claim authority, then execute accordingly
+        - a duration
+            --> maybe just == 0 if trigger only, read and react?
+*/
+
+
 
 public class PlayerMotor : Mover
 {
     [SerializeField] CharacterController cc;
+    [SerializeField] Transform owner;
 
     // requested movement
     private Vector3 accumulatedMovement;
@@ -30,6 +59,11 @@ public class PlayerMotor : Mover
     public bool CeilingTouch { get => Physics.CheckSphere(ceilingCheck.position, groundCheckRadius); }
     #endregion
 
+    // fix l8r :3
+    #region Constant Base Values
+    public float rotationSpeed;
+    #endregion
+
     // gravity component
 
     // buff system --> check for movement buffs
@@ -49,14 +83,17 @@ public class PlayerMotor : Mover
 
     private void Update()
     {
-        // check which authority values run out?
+        // check logic stuff? which authority values run out? which routines are ending?
     } 
 
     private void LateUpdate()
     {
         ResolveVerticalMovement(); // --> check Vertical first, then Gravity
 
-        // add rotation
+        // add rotation, PMM returns transform.forward if 0.0f, 0.0f, 0.0f
+        Quaternion newRotation = Quaternion.LookRotation(targetRotationDirection);
+        Quaternion targetRotation = Quaternion.Slerp(transform.rotation, newRotation, rotationSpeed * Time.deltaTime);
+        owner.rotation = targetRotation;
 
         // move
         if (accumulatedMovement != Vector3.zero)
@@ -79,18 +116,30 @@ public class PlayerMotor : Mover
         accumulatedMovement += dir * Time.deltaTime;
     }
 
-    public override void AddRotation(Quaternion target, object source)
+    public override void AddVelocity(Vector3 dir, object source)
     {
         
     }
-
-    public override void SetNewRotation(Vector3 targetDir, object source) { }
     #endregion
 
     /*
         For altering the Transform component directly
     */
     #region Transform API
+    /*
+        This function in normal routines (walk, rotate to interact, airborne, etc.) is called from each individual state
+        But provided a value from the PlayerMovementManager's HandleRotation function 
+        It has current camera positioning and facing direction info that is necessary to compute the target rotation
+    */
+    public override void AddRotation(Vector3 target, object source)
+    {
+        // check authority???
+
+        // player movement manager call
+        targetRotationDirection = target;
+    }
+
+    public override void SetNewRotation(Vector3 targetDir, object source) { }
     #endregion
 
     #region Authority Set & Release
@@ -101,7 +150,7 @@ public class PlayerMotor : Mover
 
     public override void ForceClaimAxis(MovementAxis axis, object affector)
     {
-        
+        movementAxisOwners[axis] = affector;
     }
 
     public override void ReleaseAxis(MovementAxis axis)

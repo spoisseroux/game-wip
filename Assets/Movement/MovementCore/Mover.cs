@@ -22,11 +22,12 @@ public abstract class Mover : MonoBehaviour
 
     #region CharacterController API
     public abstract void SetVelocity(Vector3 dir, object source);
-    public abstract void AddRotation(Quaternion target, object source);
-    public abstract void SetNewRotation(Vector3 targetDir, object source);
+    public abstract void AddVelocity(Vector3 dir, object source);
     #endregion
 
     #region Transform API
+    public abstract void AddRotation(Vector3 target, object source);
+    public abstract void SetNewRotation(Vector3 targetDir, object source);
     #endregion
 
     #region Authority Set & Release

@@ -1,34 +1,55 @@
 using UnityEngine;
 using System;
+using System.Collections;
 
 // All states have a protected PlayerMotor component set in their BaseState predecessor. Use this to call movement logic
-public class NeutralState : BasePlayerState
+public class IdleState : BasePlayerState
+{
+    string idle = "Idle";
+
+    Coroutine idleAnimRoutine; // silly idle anim re-queue routine
+    float refresh; // regen randomly, val between 20-30seconds
+    string sillyIdle;
+
+    public IdleState(PlayerMotor m, AnimationController a) : base(m, a) { }
+    
+    public override void Enter() { animator.Play(animBase + idle); }
+    public override void Exit() { return; }
+
+    public override void Update()
+    {
+        // count timer, if done queue silly anim
+    }
+}
+
+
+
+public class WalkState : BasePlayerState
 {
     string walkAnim = "Run_Full";
-    string idleAnim = "Idle";
+
+    private float walkSpeed;
 
     // maybe split this into Idle && Walk states?
-    public NeutralState(PlayerMotor m, AnimationController a) : base(m, a) { }
+    public WalkState(PlayerMotor m, AnimationController a, PlayerMovementManager p) : base(m, a, p) { }
 
     public override void Enter() { return; }
     public override void Exit() { return; }
     public override void Update()
     {
-        /*
-        motor.HandleRotation();
-        if (motor.CheckIfMoving())
+        if (manager.CheckIfMoving())
         {
+            // anim
             animator.Play(animBase + walkAnim);
-        }
-        else
-        {
-            animator.Play(animBase + idleAnim);
-        }
-        motor.Walk();
-        */
-    }
 
-    public override void Interrupt(BasePlayerState newState) { return; }
+            // rotation
+            motor.AddRotation(manager.HandleRotation(), null);
+
+            // walk logic
+            Vector3 walkDir = manager.GetWalkMovementDirection();
+            motor.AddVelocity(walkSpeed * walkDir, null);
+        }
+    }
 }
 
 public class JumpingState : BasePlayerState
@@ -45,7 +66,7 @@ public class JumpingState : BasePlayerState
     // float 
     float animatorAdjustment = 7.5f;
 
-    public JumpingState(PlayerMotor m, AnimationController a) : base(m, a)
+    public JumpingState(PlayerMotor m, AnimationController a, PlayerMovementManager p) : base(m, a, p)
     {
         cooldownTimer = new CountdownTimer(cooldown);
     }
@@ -69,14 +90,8 @@ public class JumpingState : BasePlayerState
     public override void Update()
     {
         //motor.Walk();
-        //motor.HandleRotation();
+        motor.AddRotation(manager.HandleRotation(), null);
         cooldownTimer.Tick(Time.deltaTime);
-    }
-
-    public override void Interrupt(BasePlayerState newState)
-    {
-        // pause timers
-        cooldownTimer.Pause();
     }
 
     public float GetProgress()
@@ -87,7 +102,7 @@ public class JumpingState : BasePlayerState
 
 public class RisingState : BasePlayerState
 {
-    public RisingState(PlayerMotor m, AnimationController a) : base(m, a) {}
+    public RisingState(PlayerMotor m, AnimationController a, PlayerMovementManager p) : base(m, a, p) {}
 
     public override void Enter()
     {
@@ -97,15 +112,10 @@ public class RisingState : BasePlayerState
     public override void Update()
     {
         //motor.Walk();
-        //motor.HandleRotation();
+        motor.AddRotation(manager.HandleRotation(), null);;
     }
 
     public override void Exit()
-    {
-        
-    }
-
-    public override void Interrupt(BasePlayerState newState)
     {
         
     }
@@ -116,7 +126,7 @@ public class FallingState : BasePlayerState
     string jumpBase = "Jump_";
     string jumpFalling = "Falling";
 
-    public FallingState(PlayerMotor m, AnimationController a) : base(m, a) {}
+    public FallingState(PlayerMotor m, AnimationController a, PlayerMovementManager p) : base(m, a, p) {}
 
     public override void Enter()
     {
@@ -126,15 +136,10 @@ public class FallingState : BasePlayerState
     public override void Update()
     {
         //motor.Walk();
-        //motor.HandleRotation();
+        motor.AddRotation(manager.HandleRotation(), null);
     }
 
     public override void Exit()
-    {
-        
-    }
-
-    public override void Interrupt(BasePlayerState newState)
     {
         
     }
@@ -175,11 +180,6 @@ public class LandingState : BasePlayerState
         cooldownTimer.Pause();
         cooldownTimer.Reset(cooldown);
         animator.SetDefaultAnimatorSpeed();
-    }
-
-    public override void Interrupt(BasePlayerState newState)
-    {
-        
     }
 
     public float GetProgress()
@@ -239,13 +239,6 @@ public class DashingState : BasePlayerState
         }
     }
 
-    public override void Interrupt(BasePlayerState newState)
-    {
-        // pause timers
-        activeTimer.Pause();
-        cooldownTimer.Pause();
-    }
-
     public float GetProgress()
     {
         return cooldownTimer.progress;
@@ -296,11 +289,6 @@ public class WallJumpState : BasePlayerState
 
         // edit internals
         phase = WallJumpPhase.Seeking;
-    }
-
-    public override void Interrupt(BasePlayerState newState)
-    {
-        throw new System.NotImplementedException();
     }
 
     public override void Update()
@@ -369,7 +357,7 @@ public class InteractState : BasePlayerState
     string interactUse = "";
     string interactGeneral = "Interact_Generic";
 
-    public InteractState(PlayerMotor m, AnimationController a) : base(m, a)
+    public InteractState(PlayerMotor m, AnimationController a, PlayerMovementManager p) : base(m, a, p)
     {
         
     }
@@ -386,12 +374,7 @@ public class InteractState : BasePlayerState
 
     public override void Update()
     {
-        
-    }
-
-    public override void Interrupt(BasePlayerState newState)
-    {
-        throw new NotImplementedException();
+        // motor.AddRotation(manager.HandleRotation(), null);
     }
 }
 
@@ -439,11 +422,6 @@ public class AttackState : BasePlayerState
         // motor.Walk();
     }
 
-    public override void Interrupt(BasePlayerState newState)
-    {
-        throw new NotImplementedException();
-    }
-
     public void SetAttackInternals(AttackSO attackData)
     {
         bool active = timer != null;
@@ -481,6 +459,9 @@ public class ChantState : BasePlayerState
     // animation?
     string chantAnim = "";
 
+    // speed modifier
+
+
     public ChantState(PlayerMotor m, AnimationController a) : base(m, a)
     {
         timer = new CountdownTimer(duration);
@@ -503,11 +484,6 @@ public class ChantState : BasePlayerState
     {
         timer.Tick(Time.deltaTime);
         // motor.Walk();
-    }
-
-    public override void Interrupt(BasePlayerState newState)
-    {
-        throw new NotImplementedException();
     }
 
     public float GetProgress()
