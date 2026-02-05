@@ -174,7 +174,7 @@ public class PlayerMovementManager : MonoBehaviour
         At(risingState, jumpingState, new FuncPredicate(() =>
                                         inputRequests.Check(ActionRequest.Jump)
                                         && !bonusJumpTaken));
-        At(risingState, fallingState, new FuncPredicate(() => !isGrounded && GetVerticalMovementComponent().y <= 0.0f));
+        At(risingState, fallingState, new FuncPredicate(() => !isGrounded && motor.currVelocity.y <= 0.0f));
         At(risingState, dashState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Dash)));
         At(risingState, attackState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Attack) && RequestAttack()));
         At(risingState, walljumpState, new FuncPredicate(() => inputRequests.Check(ActionRequest.WallJump)));
@@ -200,19 +200,19 @@ public class PlayerMovementManager : MonoBehaviour
         At(dashState, walkState, new FuncPredicate(() => dashState.GetProgress() <= 0 && motor.Grounded && CheckIfMoving()));
         At(dashState, risingState, new FuncPredicate(() => dashState.GetProgress() <= 0 
                                                            && !motor.Grounded 
-                                                           && GetVerticalMovementComponent().y > 0.0f));
+                                                           && motor.currVelocity.y > 0.0f));
         At(dashState, fallingState, new FuncPredicate(() => dashState.GetProgress() <= 0 
                                                            && !motor.Grounded 
-                                                           && GetVerticalMovementComponent().y <= 0.0f));
+                                                           && motor.currVelocity.y <= 0.0f));
 
         // wall jump state transitions
         At(walljumpState, landingState, new FuncPredicate(() =>
                                         motor.Grounded));
         At(walljumpState, risingState, new FuncPredicate(() =>
-                                        !motor.Grounded && GetVerticalMovementComponent().y > 0.0f &&
+                                        !motor.Grounded && motor.currVelocity.y > 0.0f &&
                                         walljumpState.IsFinished()));
         At(walljumpState, fallingState, new FuncPredicate(() =>
-                                        !motor.Grounded && GetVerticalMovementComponent().y <= 0.0f &&
+                                        !motor.Grounded && motor.currVelocity.y <= 0.0f &&
                                         walljumpState.IsFinished()));
 
         // interaction state transitions
@@ -224,10 +224,10 @@ public class PlayerMovementManager : MonoBehaviour
         At(attackState, walkState, new FuncPredicate(() => motor.Grounded && attackState.GetProgress() <= 0 && CheckIfMoving()));
         At(attackState, risingState, new FuncPredicate(() => !motor.Grounded 
                                                              && attackState.GetProgress() <= 0
-                                                             && GetVerticalMovementComponent().y > 0.0f));
+                                                             && motor.currVelocity.y > 0.0f));
         At(attackState, fallingState, new FuncPredicate(() => !motor.Grounded 
                                                              && attackState.GetProgress() <= 0 
-                                                             && GetVerticalMovementComponent().y <= 0.0f));
+                                                             && motor.currVelocity.y <= 0.0f));
 
         // chant state transitions
         At(chantState, idleState, new FuncPredicate(() => chantState.GetProgress() <= 0 && !CheckIfMoving()));
@@ -481,6 +481,19 @@ public class PlayerMovementManager : MonoBehaviour
                           + PlayerCamera.instance.transform.right * horizontalMovement;
 
         moveDirection = NormalizeAndCutY(moveDirection);
+    }
+
+    public Vector3 GetDashDirection()
+    {
+        Vector3 dashDir = new Vector3();
+        // if no input, dash forward
+        if (input.moveAmount <= 0.0)
+            dashDir = gameObject.transform.forward;
+        else
+            dashDir = PlayerCamera.instance.transform.forward * verticalMovement
+                          + PlayerCamera.instance.transform.right * horizontalMovement;
+
+        return NormalizeAndCutY(dashDir);
     }
     #endregion
 

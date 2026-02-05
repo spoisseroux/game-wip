@@ -100,6 +100,10 @@ public class PlayerMotor : Mover
         {
             cc.Move(accumulatedMovement * Time.deltaTime);
         }
+
+        // clear
+        accumulatedMovement = Vector3.zero;
+        targetRotationDirection = Vector3.zero;
     }
     #endregion
 
@@ -113,12 +117,12 @@ public class PlayerMotor : Mover
         // check authority, bail out if not the owned object
 
         // add movement
-        accumulatedMovement += dir * Time.deltaTime;
+        accumulatedMovement = dir * Time.deltaTime;
     }
 
     public override void AddVelocity(Vector3 dir, object source)
     {
-        
+        accumulatedMovement += dir * Time.deltaTime;
     }
     #endregion
 
