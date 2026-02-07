@@ -36,7 +36,7 @@ public class PlayerMovementManager : MonoBehaviour
 
     // polling input vals
     [HideInInspector] public float horizontalMovement;
-    [HideInInspector] public float verticalMovement;
+    [HideInInspector] public float verticalMovement; // forward???
     [HideInInspector] public float moveAmount;
 
     // ActionRequests class
@@ -131,14 +131,14 @@ public class PlayerMovementManager : MonoBehaviour
         // state machine
         fsm = new StateMachine();
 
-        // states
+        // states, this for rotation handling or other direct transform manipulation
         idleState = new IdleState(motor, animationController);
-        walkState = new WalkState(motor, animationController, this); // this for rotation handling!
+        walkState = new WalkState(motor, animationController, this);
         jumpingState = new JumpingState(motor, animationController, this);
         risingState = new RisingState(motor, animationController, this);
         fallingState = new FallingState(motor, animationController, this);
-        landingState = new LandingState(motor, animationController);
-        dashState = new DashingState(motor, animationController);
+        landingState = new LandingState(motor, animationController, this);
+        dashState = new DashingState(motor, animationController, this);
         walljumpState = new WallJumpState(motor, animationController);
         interactState = new InteractState(motor, animationController, this);
         attackState = new AttackState(motor, combat, animationController);
@@ -148,7 +148,7 @@ public class PlayerMovementManager : MonoBehaviour
         At(idleState, walkState, new FuncPredicate(() => CheckIfMoving()));
         At(idleState, jumpingState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Jump)));
         At(idleState, interactState, new FuncPredicate(() => currentInteraction != null && currentInteraction.IsTrigger()
-                                        && isGrounded));
+                                        && motor.Grounded));
         At(idleState, attackState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Attack) && RequestAttack()));
         At(idleState, chantState, new FuncPredicate(() => false)); // how to fire an event to pipe into here?
 
@@ -157,7 +157,7 @@ public class PlayerMovementManager : MonoBehaviour
                                         inputRequests.Check(ActionRequest.Jump)));
         At(walkState, dashState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Dash)));
         At(walkState, interactState, new FuncPredicate(() => currentInteraction != null && currentInteraction.IsTrigger()
-                                        && isGrounded));
+                                        && motor.Grounded));
         At(walkState, attackState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Attack) && RequestAttack()));
         At(walkState, chantState, new FuncPredicate(() => false)); // how to fire an event to pipe into here?
         At(walkState, idleState, new FuncPredicate(() => !CheckIfMoving()));
@@ -174,7 +174,7 @@ public class PlayerMovementManager : MonoBehaviour
         At(risingState, jumpingState, new FuncPredicate(() =>
                                         inputRequests.Check(ActionRequest.Jump)
                                         && !bonusJumpTaken));
-        At(risingState, fallingState, new FuncPredicate(() => !isGrounded && motor.currVelocity.y <= 0.0f));
+        At(risingState, fallingState, new FuncPredicate(() => !motor.Grounded && motor.currVelocity.y <= 0.0f));
         At(risingState, dashState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Dash)));
         At(risingState, attackState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Attack) && RequestAttack()));
         At(risingState, walljumpState, new FuncPredicate(() => inputRequests.Check(ActionRequest.WallJump)));
@@ -256,7 +256,7 @@ public class PlayerMovementManager : MonoBehaviour
         SetMovementValues();
 
         // checks
-        HandleGravity();
+        // HandleGravity();
 
         // state machine
         fsm.Update();
@@ -276,17 +276,7 @@ public class PlayerMovementManager : MonoBehaviour
     #region Gizmos
     private void OnDrawGizmosSelected()
     {
-        // ground check
-        Gizmos.color = Color.red;
-        Vector3 adjustment = (gameObject.transform.right * groundCheckTranslationAdjustment.x) + 
-                             (Vector3.up * groundCheckTranslationAdjustment.y) + 
-                             (gameObject.transform.forward * groundCheckTranslationAdjustment.z);
-        Gizmos.DrawSphere(GetComponent<PlayerManager>().gameObject.transform.position + adjustment, groundCheckSphereRadius);
-
-        // walljump raycast, isn't rly working anyways, bad linalg
-        Gizmos.color = Color.blue;
-        Gizmos.DrawSphere(transform.position + castPosOffset,
-                            wallJumpSphereRaycastRadius);
+        
     }
     #endregion
 
@@ -338,14 +328,14 @@ public class PlayerMovementManager : MonoBehaviour
     #region Movement Logic
     public Vector3 HandleRotation()
     {
-        targetRotationDirection = Vector3.zero;
+        //targetRotationDirection = Vector3.zero;
         targetRotationDirection = PlayerCamera.instance.playerCam.transform.forward * verticalMovement;
         targetRotationDirection = targetRotationDirection + PlayerCamera.instance.playerCam.transform.right * horizontalMovement;
         targetRotationDirection.Normalize();
         targetRotationDirection.y = 0;
 
         // if unchanged based on input
-        if (targetRotationDirection == Vector3.zero)
+        if (targetRotationDirection.sqrMagnitude <= 0.01f)
         {
             targetRotationDirection = transform.forward;
         }

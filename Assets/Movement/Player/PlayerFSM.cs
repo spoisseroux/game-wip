@@ -39,7 +39,7 @@ public class WalkState : BasePlayerState
     float walkSpeed = 15f; // have to init somewhere!!
 
     float speedMultiplierStart = 0.5f;
-    float accelerationDuration = 0.75f;
+    float accelerationDuration = 0.5f;
     float timeElapsed = 0.0f;
     AnimationCurve accelCurve;
 
@@ -53,7 +53,6 @@ public class WalkState : BasePlayerState
         animator.Play(animBase + walkAnim);
         // init animation curve
         accelCurve = AnimationCurve.EaseInOut(0.0f, speedMultiplierStart, accelerationDuration, 1.0f);
-        return; 
     }
 
     public override void Exit()
@@ -114,16 +113,16 @@ public class JumpingState : BasePlayerState
         if (!motor.Grounded)
             manager.bonusJumpTaken = true;
         
-        // add jump velocity
-        motor.AddVelocity(new Vector3(0.0f, Mathf.Sqrt(jumpHeight * -2 * risingGravityForce), 0.0f), null);
-        /*
-        // applying rising force at jump starts
-        yVel.y = Mathf.Sqrt(jumpHeight * -2 * risingGravityForce);
-        */
+        // get jump velocity
+        Vector3 jump = new Vector3(0.0f, Mathf.Sqrt(jumpHeight * -2 * risingGravityForce), 0.0f);
 
         cooldownTimer.Start();
         animator.SetAnimatorSpeed(animatorAdjustment);
         animator.Play(animBase + jumpBase + jumpStart);
+
+        // apply movement
+        motor.AddVelocity(moveSpeed * manager.GetWalkMovementDirection(), null);
+        motor.SetVerticalVelocity(jump, null);
         
     }
 
@@ -212,7 +211,7 @@ public class LandingState : BasePlayerState
     // anim adjustment
     float animatorAdjustment = 7.5f;
 
-    public LandingState(PlayerMotor m, AnimationController a) : base(m, a)
+    public LandingState(PlayerMotor m, AnimationController a, PlayerMovementManager p) : base(m, a, p)
     {
         cooldownTimer = new CountdownTimer(cooldown);
     }
@@ -273,7 +272,7 @@ public class DashingState : BasePlayerState
     string dashAnim = "Dash_Forward";
     string idleAnim = "Idle";
 
-    public DashingState(PlayerMotor m, AnimationController a) : base(m, a)
+    public DashingState(PlayerMotor m, AnimationController a, PlayerMovementManager p) : base(m, a, p)
     {
         // length of state
         cooldownTimer = new CountdownTimer(dashCDTime);
@@ -288,6 +287,7 @@ public class DashingState : BasePlayerState
 
     public override void Enter()
     {
+        Debug.Log("enter dash state");
         dashDirection = manager.GetDashDirection();
         cooldownTimer.Start();
         activeTimer.Start();
@@ -296,6 +296,7 @@ public class DashingState : BasePlayerState
 
     public override void Exit()
     {
+        Debug.Log("exit dash State");
         cooldownTimer.Reset(dashCDTime);
         activeTimer.Reset();
     }

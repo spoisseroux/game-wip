@@ -3599,6 +3599,7 @@ GameObject:
   - component: {fileID: 3958805940879060660}
   - component: {fileID: 4038718262244649591}
   - component: {fileID: 4230000272080931834}
+  - component: {fileID: 7238453413278229850}
   - component: {fileID: 6494552986643004073}
   - component: {fileID: 4183517276607411500}
   - component: {fileID: 8059638282921325233}
@@ -3636,6 +3637,7 @@ Transform:
   - {fileID: 2690789850461078753}
   - {fileID: 3536748806230812567}
   - {fileID: 2881883522388317675}
+  - {fileID: 7147385428124523893}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: -22.267, z: 0}
 --- !u!143 &3958805940879060660
@@ -3690,7 +3692,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d624a575bcc746069fcd09d21471b8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovementManager
-  characterController: {fileID: 0}
+  motor: {fileID: 7238453413278229850}
+  characterController: {fileID: 3958805940879060660}
   input: {fileID: 11400000, guid: 9e11a5ba4c4484a3c85199a6afe3bc90, type: 2}
   combat: {fileID: 6494552986643004073}
   animationController: {fileID: 8059638282921325233}
@@ -3727,6 +3730,30 @@ MonoBehaviour:
   detectionRange: 1
   wallJumpSphereRaycastRadius: 0.4
   castPosOffset: {x: 0, y: -0.2, z: 0}
+--- !u!114 &7238453413278229850
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5669406454974335711}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4941199b582d845bc881aee7ddbb5cbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMotor
+  cc: {fileID: 3958805940879060660}
+  owner: {fileID: 5802613055510859818}
+  groundCheck: {fileID: 7147385428124523893}
+  groundCheckRadius: 0.5
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 8
+  wallCheck: {fileID: 0}
+  wallCheckRadius: 0
+  ceilingCheck: {fileID: 0}
+  rotationSpeed: 25
+  gravity: {fileID: 11400000, guid: ef6d52913418a46199ec19b5a9b71ed9, type: 2}
 --- !u!114 &6494552986643004073
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5505,6 +5532,37 @@ Transform:
   - {fileID: 3825462908539554815}
   m_Father: {fileID: 7626613285962929868}
   m_LocalEulerAnglesHint: {x: -89.98021, y: -0.0000033717179, z: 0}
+--- !u!1 &7345386630269928458
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7147385428124523893}
+  m_Layer: 0
+  m_Name: GroundCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7147385428124523893
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7345386630269928458}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.89432377, z: -0, w: -0.44742036}
+  m_LocalPosition: {x: -0.148, y: 0.25, z: -0.537}
+  m_LocalScale: {x: 1.0000001, y: 1, z: 1.0000001}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5802613055510859818}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7472314035136194174
 GameObject:
   m_ObjectHideFlags: 0

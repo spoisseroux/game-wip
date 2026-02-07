@@ -20,12 +20,12 @@ public abstract class Mover : MonoBehaviour
 
     protected Dictionary<MovementAxis, object> movementAxisOwners = new();
 
-    #region CharacterController API
+    #region Horizontal Movement
     public abstract void SetVelocity(Vector3 dir, object source);
     public abstract void AddVelocity(Vector3 dir, object source);
     #endregion
 
-    #region Transform API
+    #region Rotation
     public abstract void AddRotation(Vector3 target, object source);
     public abstract void SetNewRotation(Vector3 targetDir, object source);
     #endregion
@@ -34,5 +34,9 @@ public abstract class Mover : MonoBehaviour
     public abstract void TryClaimAxis(MovementAxis axis, object affector);
     public abstract void ForceClaimAxis(MovementAxis axis, object affector);
     public abstract void ReleaseAxis(MovementAxis axis);
+    #endregion
+
+    #region Vertical Movement
+    public abstract void SetVerticalVelocity(Vector3 newYVel, object affector);
     #endregion
 }

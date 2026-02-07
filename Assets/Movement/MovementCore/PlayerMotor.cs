@@ -36,11 +36,13 @@ public class PlayerMotor : Mover
     [SerializeField] Transform owner;
 
     // requested movement
-    private Vector3 accumulatedMovement;
+    private Vector3 accumulatedHorizontalMovement;
     private Vector3 targetRotationDirection;
+    [SerializeField] private Vector3 yVel;
 
     // current vals
-    public Vector3 currVelocity => accumulatedMovement;
+    public Vector3 currVelocity => accumulatedHorizontalMovement + yVel; // hmm
+    public float minimumYVelocity = -20f;
 
     #region Physics Check Transforms
     // ground check
@@ -61,16 +63,23 @@ public class PlayerMotor : Mover
 
     // fix l8r :3
     #region Constant Base Values
-    public float rotationSpeed;
+    public float rotationSpeed = 25f;
     #endregion
 
     // gravity component
+    [SerializeField] Gravity gravity;
 
     // buff system --> check for movement buffs
     // weapon system --> check for weapon movement effects
     // apply after receiving SetVelocity logic from other components to move the player
 
-    private Dictionary<MovementAxis, object> movementAxisOwners = new();
+    private Dictionary<MovementAxis, object> movementAxisOwners = new Dictionary<MovementAxis, object> {
+        {MovementAxis.None, null},
+        {MovementAxis.Horizontal, null},
+        {MovementAxis.Vertical, null},
+        {MovementAxis.Gravity, null},
+        {MovementAxis.Rotation, null}
+    };
     // maybe change object type into a MoveCommand type? 
     // then we can assign priority and compare for authority
     // maybe move the ticking and curves into this component for reference?
@@ -79,57 +88,77 @@ public class PlayerMotor : Mover
     private void Awake()
     {
         cc = GetComponent<CharacterController>();
+        yVel = Vector3.zero; // fresh start?
     }
 
     private void Update()
     {
         // check logic stuff? which authority values run out? which routines are ending?
+
+        // add gravity
+        HandleGravity(); // directly edit yVal
+
+        // add vertical control routines (should be in state? i think.)
+
+        // adjust rotation
+        if (targetRotationDirection.sqrMagnitude <= 0.001f)
+        {
+            targetRotationDirection = transform.forward;
+        }
     } 
 
     private void LateUpdate()
     {
-        ResolveVerticalMovement(); // --> check Vertical first, then Gravity
+        /*
+            Do we move all of this into FixedUpdate and then clear our values in LateUpdate????
+        */
 
-        // add rotation, PMM returns transform.forward if 0.0f, 0.0f, 0.0f
+        // rotation
         Quaternion newRotation = Quaternion.LookRotation(targetRotationDirection);
         Quaternion targetRotation = Quaternion.Slerp(transform.rotation, newRotation, rotationSpeed * Time.deltaTime);
-        owner.rotation = targetRotation;
+        transform.rotation = targetRotation; // have to set the transform directly
 
-        // move
-        if (accumulatedMovement != Vector3.zero)
-        {
-            cc.Move(accumulatedMovement * Time.deltaTime);
-        }
+        // combine XZ and Y dirs, then move
+        Debug.Log(yVel);
+        Debug.Log(accumulatedHorizontalMovement);
+        cc.Move(currVelocity * Time.deltaTime);
 
         // clear
-        accumulatedMovement = Vector3.zero;
+        accumulatedHorizontalMovement = Vector3.zero;
         targetRotationDirection = Vector3.zero;
     }
     #endregion
 
+    private void OnDrawGizmos()
+    {
+        // walljump raycast, isn't rly working anyways, bad linalg
+        Gizmos.color = Color.blue;
+        Gizmos.DrawSphere(groundCheck.position,
+                            groundCheckRadius);
+    }
     /*
         For procedures that are specifically for affecting the CharacterController component
     */
-    #region CharacterController API
+    #region Horizontal Movement
     // the controlling actions calls SetVelocity(magnitude * directionNormal)
     public override void SetVelocity(Vector3 dir, object source)
     {
         // check authority, bail out if not the owned object
 
         // add movement
-        accumulatedMovement = dir * Time.deltaTime;
+        accumulatedHorizontalMovement = dir;
     }
 
     public override void AddVelocity(Vector3 dir, object source)
     {
-        accumulatedMovement += dir * Time.deltaTime;
+        accumulatedHorizontalMovement += dir;
     }
     #endregion
 
     /*
         For altering the Transform component directly
     */
-    #region Transform API
+    #region Rotation
     /*
         This function in normal routines (walk, rotate to interact, airborne, etc.) is called from each individual state
         But provided a value from the PlayerMovementManager's HandleRotation function 
@@ -142,7 +171,11 @@ public class PlayerMotor : Mover
         // player movement manager call
         targetRotationDirection = target;
     }
-
+     
+    /*
+        Used to force a unit to a specific rotation immediately or much more quickly
+        Usually to be used by an interaction or a cutscene
+    */
     public override void SetNewRotation(Vector3 targetDir, object source) { }
     #endregion
 
@@ -163,18 +196,50 @@ public class PlayerMotor : Mover
     }
     #endregion
 
-    #region Vertical Helpers
-    private void ResolveVerticalMovement()
+    #region Vertical Movement
+    public override void SetVerticalVelocity(Vector3 newYVel, object affector)
     {
-        // if vertical is not owned, then we apply gravity
-        if (movementAxisOwners[MovementAxis.Vertical] == null)
+        yVel = newYVel;
+    }
+
+    // directly edit yVel
+    private void HandleGravity()
+    {
+        Vector3 addedGravity = Vector3.zero;
+        // gravity
+        if (Grounded)
         {
-            // essentially, given the current y velocity value, return the next value of y based on gravity
-            // gravity stores the previous frame's calculated y value internally
-            // it wants to affect y differently based on where player is in jump height 
-            
-            // accumulatedMovement.y = gravity.Tick(accumulatedMovement.y);
+            // not attempting to jump, stick to the ground and reset jump counter
+            if (yVel.y <= 0.0f) {
+                yVel = gravity.ApplyGroundedGravity();
+                Debug.Log("PlayerMotor::HandleGravity() --> applied grounded gravity");
+            }
         }
+        else
+            yVel += gravity.ApplyAirborneGravity(yVel.y);
+        
+        // clamp
+        yVel.y = Mathf.Max(yVel.y, minimumYVelocity);
+    }
+
+    private Vector3 ResolveVerticalMovement()
+    {
+        Vector3 verticalMovement = yVel;
+
+        /*
+            Need to fix the logic on this, but essentially there should be some determination on whether the following occurs
+            1. Vertical takes over Gravity completely
+            2. Vertical applies and then Gravity applies
+            3. Only gravity applies
+
+            Need to make some authority stuff and assign priorities to objects, then maybe it'll be clearer
+
+            For now, we just apply Gravity and let everything else do as it wants
+
+
+            For Gravity --> essentially, we have some sort of object owning it, and then on ApplyGravity call we augment it???
+        */ 
+        return Vector3.zero;
     }
 
     #endregion
