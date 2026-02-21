@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -41,7 +42,7 @@ public class PlayerMotor : Mover
     [SerializeField] private Vector3 yVel;
 
     // current vals
-    public Vector3 currVelocity => accumulatedHorizontalMovement + yVel; // hmm
+    public Vector3 currVelocity => accumulatedHorizontalMovement + yVel;
     public float minimumYVelocity = -20f;
 
     #region Physics Check Transforms
@@ -51,10 +52,16 @@ public class PlayerMotor : Mover
     [SerializeField] private LayerMask groundMask; // hmmmm maybe too much terrain to manually do this. maybe leave untouched?
     public bool Grounded { get => Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundMask); }
     
-    // wall jump check
-    [SerializeField] private Transform wallCheck;
+    // wall jump check, boxcast 
+    [SerializeField] private Transform wallCheck; // position, rotation
+    [SerializeField] private Vector3 wallJumpHalfExtents; // width, height, length
     [SerializeField] private float wallCheckRadius;
-    public bool WallTouch { get => Physics.CheckSphere(wallCheck.position, wallCheckRadius); }
+    [SerializeField] private LayerMask layersToIgnore;
+    public Tuple<bool, RaycastHit> WallContact(Vector3 direction, float dist) { 
+        RaycastHit hit;
+        bool foundHit = Physics.BoxCast(wallCheck.position, wallJumpHalfExtents, direction, out hit, wallCheck.rotation, dist, ~layersToIgnore);
+        return new Tuple<bool, RaycastHit>(foundHit, hit);
+    }
 
     // ceiling check
     [SerializeField] private Transform ceilingCheck;
@@ -73,13 +80,6 @@ public class PlayerMotor : Mover
     // weapon system --> check for weapon movement effects
     // apply after receiving SetVelocity logic from other components to move the player
 
-    private Dictionary<MovementAxis, object> movementAxisOwners = new Dictionary<MovementAxis, object> {
-        {MovementAxis.None, null},
-        {MovementAxis.Horizontal, null},
-        {MovementAxis.Vertical, null},
-        {MovementAxis.Gravity, null},
-        {MovementAxis.Rotation, null}
-    };
     // maybe change object type into a MoveCommand type? 
     // then we can assign priority and compare for authority
     // maybe move the ticking and curves into this component for reference?
@@ -129,18 +129,28 @@ public class PlayerMotor : Mover
     }
     #endregion
 
+    #region Gizmos
     private void OnDrawGizmos()
     {
-        // walljump raycast, isn't rly working anyways, bad linalg
+        // ground check
         Gizmos.color = Color.blue;
         Gizmos.DrawSphere(groundCheck.position,
                             groundCheckRadius);
+        
+        // wall jump
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawCube(wallCheck.position, wallJumpHalfExtents);
+
+        // ceiling check
     }
+    #endregion
+
     /*
         For procedures that are specifically for affecting the CharacterController component
     */
     #region Horizontal Movement
     // the controlling actions calls SetVelocity(magnitude * directionNormal)
+    // any delta-time is handled in final call to CharacterController.Move(...)
     public override void SetVelocity(Vector3 dir, object source)
     {
         // check authority, bail out if not the owned object
@@ -202,7 +212,7 @@ public class PlayerMotor : Mover
         yVel = newYVel;
     }
 
-    // directly edit yVel
+    // directly edits yVel value
     private void HandleGravity()
     {
         Vector3 addedGravity = Vector3.zero;

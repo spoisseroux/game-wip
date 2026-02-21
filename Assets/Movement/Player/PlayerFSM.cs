@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 
 /*
     Some general notes:
@@ -73,10 +74,10 @@ public class WalkState : BasePlayerState
             float finalAdjustedSpeed = walkSpeed * curveValue;
 
             // rotation
-            motor.AddRotation(manager.HandleRotation(), null);
+            motor.AddRotation(manager.GetTargetRotation(), null);
 
             // walk logic
-            Vector3 walkDir = manager.GetWalkMovementDirection();
+            Vector3 walkDir = manager.GetMovementDirection();
             motor.AddVelocity(finalAdjustedSpeed * walkDir, null);
         }
     }
@@ -91,8 +92,8 @@ public class JumpingState : BasePlayerState
     float cooldown = 0.5f;
 
     // stats
-    float jumpHeight = 4f;
-    float moveSpeed = 12f; // have to init somewhere!!
+    float jumpHeight = 8f; // exact difference in height between start and end Y values
+    float moveSpeed = 12f; // different param value for jumping speeds
 
     // gravity
     float risingGravityForce = -40f;
@@ -121,7 +122,7 @@ public class JumpingState : BasePlayerState
         animator.Play(animBase + jumpBase + jumpStart);
 
         // apply movement
-        motor.AddVelocity(moveSpeed * manager.GetWalkMovementDirection(), null);
+        motor.AddVelocity(moveSpeed * manager.GetMovementDirection(), null);
         motor.SetVerticalVelocity(jump, null);
         
     }
@@ -135,8 +136,8 @@ public class JumpingState : BasePlayerState
 
     public override void Update()
     {
-        motor.AddRotation(manager.HandleRotation(), null);
-        motor.AddVelocity(moveSpeed * manager.GetWalkMovementDirection(), null);
+        motor.AddRotation(manager.GetTargetRotation(), null);
+        motor.AddVelocity(moveSpeed * manager.GetMovementDirection(), null);
         cooldownTimer.Tick(Time.deltaTime);
     }
 
@@ -160,8 +161,8 @@ public class RisingState : BasePlayerState
 
     public override void Update()
     {
-        motor.AddVelocity(moveSpeed * manager.GetWalkMovementDirection(), null);
-        motor.AddRotation(manager.HandleRotation(), null);
+        motor.AddVelocity(moveSpeed * manager.GetMovementDirection(), null);
+        motor.AddRotation(manager.GetTargetRotation(), null);
     }
 
     public override void Exit()
@@ -186,8 +187,8 @@ public class FallingState : BasePlayerState
 
     public override void Update()
     {
-        motor.AddVelocity(moveSpeed * manager.GetWalkMovementDirection(), null);
-        motor.AddRotation(manager.HandleRotation(), null);
+        motor.AddVelocity(moveSpeed * manager.GetMovementDirection(), null);
+        motor.AddRotation(manager.GetTargetRotation(), null);
     }
 
     public override void Exit()
@@ -226,7 +227,7 @@ public class LandingState : BasePlayerState
     public override void Update()
     {
         cooldownTimer.Tick(Time.deltaTime);
-        motor.AddVelocity(moveSpeed * manager.GetWalkMovementDirection(), null);
+        motor.AddVelocity(moveSpeed * manager.GetMovementDirection(), null);
     }
 
     public override void Exit()
@@ -318,7 +319,7 @@ public class DashingState : BasePlayerState
             elapsedDownCurve += Time.deltaTime;
             float speed = decelCurve.Evaluate(elapsedDownCurve);
             
-            motor.AddVelocity(speed * manager.GetWalkMovementDirection(), null);
+            motor.AddVelocity(speed * manager.GetMovementDirection(), null);
             animator.CrossFade(animBase + idleAnim, 0.1f);
         }
     }
@@ -342,14 +343,24 @@ public class WallJumpState : BasePlayerState
     }
     WallJumpPhase phase;
 
+    // configs
+    float checkDistance = 0.5f;
+    float seekSpeed;
+    float bounceSpeed;
+    float yVelBoost;
+
     // timers
     private CountdownTimer seekTimer;
     private float seekLength = 0.3f;
     private CountdownTimer bounceTimer;
     private float bounceLength = 0.2f;
 
+    // directions
+    Vector3 seekDir;
+    Vector3 bounceDir;
 
-    public WallJumpState(PlayerMotor m, AnimationController a) : base(m, a)
+
+    public WallJumpState(PlayerMotor m, AnimationController a, PlayerMovementManager p) : base(m, a, p)
     {
         // timers
         seekTimer = new CountdownTimer(seekLength);
@@ -360,7 +371,7 @@ public class WallJumpState : BasePlayerState
 
     public override void Enter()
     {
-        //motor.SetSeekingDirection();
+        seekDir = manager.GetSeekingDirection();
         phase = WallJumpPhase.Seeking;
         //motor.WallJumpBoost();
         seekTimer.Start();
@@ -376,50 +387,23 @@ public class WallJumpState : BasePlayerState
 
         // edit internals
         phase = WallJumpPhase.Seeking;
+
+        // fix vectors
+        seekDir = Vector3.zero;
+        bounceDir = Vector3.zero;
     }
 
     public override void Update()
     {
-        /*
-        // seeking phase update
         if (phase == WallJumpPhase.Seeking)
         {
-            // tick timer
-            seekTimer.Tick(Time.deltaTime);
-            // check for wall contact
-            Tuple<bool, RaycastHit> hitCheck = motor.WallContactCheck();
-            Debug.Log(hitCheck.Item1.ToString() + " " + hitCheck.Item2.ToString());
-
-            // if yes, transition to bouncing
-            if (hitCheck.Item1)
-            {
-                Debug.Log("transition to bounce");
-                phase = WallJumpPhase.Bouncing;
-                motor.WallJumpBoost();
-
-                seekTimer.Pause();
-                seekTimer.Reset(seekLength);
-
-                bounceTimer.Start();
-                motor.SetBounceDirection(hitCheck.Item2);
-            }
-            // if no, move
-            else
-            {
-                Debug.Log("moving");
-                seekTimer.Tick(Time.deltaTime);
-                motor.SeekWall();
-            }
+            SeekWall();
         }
 
-        // bounce phase update
         else
         {
-            Debug.Log("bouncing NOW!");
-            bounceTimer.Tick(Time.deltaTime);
-            motor.BounceOffWall();
+            BounceOffWall();
         }
-        */
     }
 
     public bool IsFinished()
@@ -435,6 +419,40 @@ public class WallJumpState : BasePlayerState
                 break;
         }
         return inProgress;
+    }
+
+    private void SeekWall()
+    {
+        seekTimer.Tick(Time.deltaTime);
+        
+        Tuple<bool, RaycastHit> hitCheck = motor.WallContact(seekDir, checkDistance);
+
+        // if yes, transition to bouncing
+        if (hitCheck.Item1)
+        {
+            phase = WallJumpPhase.Bouncing;
+
+            seekTimer.Pause();
+            seekTimer.Reset(seekLength);
+
+            // set bounce dir and change rotation
+            bounceDir = manager.GetBounceDirection(seekDir, hitCheck.Item2);
+            motor.SetNewRotation(bounceDir, null);
+            //motor.WallJumpBoost();
+            bounceTimer.Start();
+        }
+        // if no, move
+        else
+        {
+            seekTimer.Tick(Time.deltaTime);
+            motor.AddVelocity(seekDir * seekSpeed, null); // FIX
+        }
+    }
+
+    private void BounceOffWall()
+    {
+        bounceTimer.Tick(Time.deltaTime);
+        motor.AddVelocity(bounceSpeed * bounceDir, null); // FIX
     }
 }
 
@@ -465,8 +483,12 @@ public class InteractState : BasePlayerState
     }
 }
 
+/*
+    THIS SHOULD ONLY NEED MOVEMENT PHASES!!!
+    COMBAT LINK IDEALLY SHOULD NOT BE HERE WHEN REFACTOR IS DONE
+*/
 public class AttackState : BasePlayerState
-{   
+{
     // combat link
     PlayerCombatManager combat;
 

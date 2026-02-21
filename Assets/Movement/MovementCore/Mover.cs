@@ -18,7 +18,13 @@ public abstract class Mover : MonoBehaviour
     // buff system
     // [SerializeableField] BuffSystem buffStore;
 
-    protected Dictionary<MovementAxis, object> movementAxisOwners = new();
+    protected Dictionary<MovementAxis, object> movementAxisOwners = new Dictionary<MovementAxis, object> {
+        {MovementAxis.None, null},
+        {MovementAxis.Horizontal, null},
+        {MovementAxis.Vertical, null},
+        {MovementAxis.Gravity, null},
+        {MovementAxis.Rotation, null}
+    };
 
     #region Horizontal Movement
     public abstract void SetVelocity(Vector3 dir, object source);

@@ -139,7 +139,7 @@ public class PlayerMovementManager : MonoBehaviour
         fallingState = new FallingState(motor, animationController, this);
         landingState = new LandingState(motor, animationController, this);
         dashState = new DashingState(motor, animationController, this);
-        walljumpState = new WallJumpState(motor, animationController);
+        walljumpState = new WallJumpState(motor, animationController, this);
         interactState = new InteractState(motor, animationController, this);
         attackState = new AttackState(motor, combat, animationController);
         chantState = new ChantState(motor, animationController);
@@ -247,17 +247,9 @@ public class PlayerMovementManager : MonoBehaviour
     }
 
     private void Update()
-    {
-        // tick status effects
-
-        // do physics checks in motor
-        
+    {        
         // read input
         SetMovementValues();
-
-        // checks
-        // HandleGravity();
-
         // state machine
         fsm.Update();
     }
@@ -288,7 +280,7 @@ public class PlayerMovementManager : MonoBehaviour
         // clamp for animations (???)
     }
 
-    private Vector3 SetWalkMovementDir()
+    private Vector3 SetMovementDirection()
     {
         Vector3 mD = PlayerCamera.instance.transform.forward * verticalMovement;
         mD = mD + PlayerCamera.instance.transform.right * horizontalMovement;
@@ -296,9 +288,9 @@ public class PlayerMovementManager : MonoBehaviour
         return mD;
     }
 
-    public Vector3 GetWalkMovementDirection()
+    public Vector3 GetMovementDirection()
     {
-        return SetWalkMovementDir();
+        return SetMovementDirection();
     }
 
     private Vector3 NormalizeAndCutY(Vector3 input)
@@ -326,7 +318,7 @@ public class PlayerMovementManager : MonoBehaviour
     #endregion
 
     #region Movement Logic
-    public Vector3 HandleRotation()
+    public Vector3 GetTargetRotation()
     {
         //targetRotationDirection = Vector3.zero;
         targetRotationDirection = PlayerCamera.instance.playerCam.transform.forward * verticalMovement;
@@ -343,37 +335,6 @@ public class PlayerMovementManager : MonoBehaviour
         return targetRotationDirection;
     }
 
-    public void HandleGravity()
-    {
-        GroundedCheck();
-        if (isGrounded)
-        {
-            // not attempting to jump, stick to the ground and reset jump counter
-            if (yVel.y <= 0)
-            {
-                yVel.y = startingYVel;
-                bonusJumpTaken = false;
-            }
-        }
-        else
-        {
-            // rising gravity
-            if (yVel.y > 0)
-            {
-                yVel.y += risingGravityForce * Time.deltaTime;
-            }
-            // falling gravity
-            else
-            {
-                yVel.y += fallingGravityForce * Time.deltaTime;
-            }
-        }
-        // clamp to -20f
-        yVel.y = Mathf.Max(yVel.y, minYVel);
-        // apply
-        characterController.Move(yVel * Time.deltaTime);
-    }
-
     public void SetNewRotation(Vector3 targetDir)
     {
         targetDir.Normalize();
@@ -387,17 +348,6 @@ public class PlayerMovementManager : MonoBehaviour
     {
         moveAmount = input.moveAmount;
         return moveAmount > 0;
-    }
-
-    public void Walk()
-    {
-        moveDirection = SetWalkMovementDir();
-        characterController.Move(walkSpeed * Time.deltaTime * moveDirection);
-    }
-
-    public void Dash()
-    {
-        characterController.Move(dashSpeed * Time.deltaTime * moveDirection);
     }
 
     public void SeekWall()
@@ -450,32 +400,14 @@ public class PlayerMovementManager : MonoBehaviour
         }
         return null;
     }
-    
-    // check vertical velocity
-    public Vector3 GetVerticalMovementComponent()
-    {
-        return yVel;
-    }
     #endregion
 
     #region Actions
     // DASH
     #region Dash
-    public void SetDashDirection()
-    {
-        // if no input, dash forward
-        if (input.moveAmount <= 0.0)
-            moveDirection = gameObject.transform.forward;
-        else
-            moveDirection = PlayerCamera.instance.transform.forward * verticalMovement
-                          + PlayerCamera.instance.transform.right * horizontalMovement;
-
-        moveDirection = NormalizeAndCutY(moveDirection);
-    }
-
     public Vector3 GetDashDirection()
     {
-        Vector3 dashDir = new Vector3();
+        Vector3 dashDir;
         // if no input, dash forward
         if (input.moveAmount <= 0.0)
             dashDir = gameObject.transform.forward;
@@ -487,28 +419,8 @@ public class PlayerMovementManager : MonoBehaviour
     }
     #endregion
 
-    // JUMP
-    #region Jump
-    public void ApplyJumpingVelocity()
-    {
-        if (!isGrounded)
-        {
-            bonusJumpTaken = true;
-        }
-
-        // applying rising force at jump starts
-        yVel.y = Mathf.Sqrt(jumpHeight * -2 * risingGravityForce);
-    }
-    #endregion
-
     // WALL BOUND
     #region Wall Jump
-
-    public void SetSeekingDirection()
-    {
-        moveDirection = FindSeekingDirection();
-    }
-
     private Vector3 FindSeekingDirection()
     {
         Vector3 dir;
@@ -528,13 +440,15 @@ public class PlayerMovementManager : MonoBehaviour
         return dir;
     }
 
-    public void SetBounceDirection(RaycastHit hit)
+    public Vector3 GetSeekingDirection()
     {
-        Vector3 b = Vector3.Reflect(moveDirection, hit.normal);
-        b = NormalizeAndCutY(b);
-        moveDirection = b;
-        // edit rotation too
-        SetNewRotation(moveDirection);
+        return FindSeekingDirection();
+    }
+
+    public Vector3 GetBounceDirection(Vector3 seekDir, RaycastHit hit)
+    {
+        // reflect traveling direction over hit normal, then normalize and remove Y value
+        return NormalizeAndCutY(Vector3.Reflect(seekDir, hit.normal)); 
     }
 
     public void WallJumpBoost()
