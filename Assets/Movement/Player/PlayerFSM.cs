@@ -8,7 +8,9 @@ using System;
     could trigger a jump coroutine cooldown in manager but eh we'll see
 
     need to actually come back and edit that MovementSettings variable 
-    maybe make it a scriptableobject and then inherit, or just create specific instance for each Actor like usual workflow
+    maybe make it a scriptableobject and have a specific instance for each generic Actor like usual workflow
+
+    then reference through motor.movementValues.walkSpeed; or something
 
     uhhhh more soon
 */
@@ -37,12 +39,10 @@ public class WalkState : BasePlayerState
 {
     string walkAnim = "Run_Full";
 
-    float walkSpeed = 15f; // have to init somewhere!!
-
+    AnimationCurve accelCurve;
     float speedMultiplierStart = 0.5f;
     float accelerationDuration = 0.5f;
     float timeElapsed = 0.0f;
-    AnimationCurve accelCurve;
 
 
     // maybe split this into Idle && Walk states?
@@ -71,7 +71,7 @@ public class WalkState : BasePlayerState
 
             // calc anim curve
             float curveValue = accelCurve.Evaluate(timeElapsed);
-            float finalAdjustedSpeed = walkSpeed * curveValue;
+            float finalAdjustedSpeed = motor.moveSettings.walkSpeed * curveValue;
 
             // rotation
             motor.AddRotation(manager.GetTargetRotation(), null);
@@ -92,11 +92,10 @@ public class JumpingState : BasePlayerState
     float cooldown = 0.5f;
 
     // stats
-    float jumpHeight = 8f; // exact difference in height between start and end Y values
-    float moveSpeed = 12f; // different param value for jumping speeds
+    float moveSpeedMultiplier = 0.75f; // MAKE THIS A MULTIPLIER OF WALKSPEED WHEN PARENT MOVEMENTSETTINGS OBJECT IS COMPLETE
 
     // gravity
-    float risingGravityForce = -40f;
+    float risingGravityForce = -40f; // how can i factor this out... and make it something we only grab from gravity object?
 
     // animations
     string jumpBase = "Jump_";
@@ -115,14 +114,14 @@ public class JumpingState : BasePlayerState
             manager.bonusJumpTaken = true;
         
         // get jump velocity
-        Vector3 jump = new Vector3(0.0f, Mathf.Sqrt(jumpHeight * -2 * risingGravityForce), 0.0f);
+        Vector3 jump = new Vector3(0.0f, Mathf.Sqrt(motor.moveSettings.jumpHeight * -2 * risingGravityForce), 0.0f);
 
         cooldownTimer.Start();
         animator.SetAnimatorSpeed(animatorAdjustment);
         animator.Play(animBase + jumpBase + jumpStart);
 
         // apply movement
-        motor.AddVelocity(moveSpeed * manager.GetMovementDirection(), null);
+        motor.AddVelocity(motor.moveSettings.walkSpeed * moveSpeedMultiplier * manager.GetMovementDirection(), null);
         motor.SetVerticalVelocity(jump, null);
         
     }
@@ -137,7 +136,7 @@ public class JumpingState : BasePlayerState
     public override void Update()
     {
         motor.AddRotation(manager.GetTargetRotation(), null);
-        motor.AddVelocity(moveSpeed * manager.GetMovementDirection(), null);
+        motor.AddVelocity(motor.moveSettings.walkSpeed * moveSpeedMultiplier * manager.GetMovementDirection(), null);
         cooldownTimer.Tick(Time.deltaTime);
     }
 
@@ -150,25 +149,19 @@ public class JumpingState : BasePlayerState
 public class RisingState : BasePlayerState
 {
     // stats
-    float moveSpeed = 12f;
+    float moveSpeedMultiplier = 0.75f;
 
     public RisingState(PlayerMotor m, AnimationController a, PlayerMovementManager p) : base(m, a, p) {}
 
-    public override void Enter()
-    {
-        
-    }
+    public override void Enter() { }
 
     public override void Update()
     {
-        motor.AddVelocity(moveSpeed * manager.GetMovementDirection(), null);
+        motor.AddVelocity(motor.moveSettings.walkSpeed * moveSpeedMultiplier * manager.GetMovementDirection(), null);
         motor.AddRotation(manager.GetTargetRotation(), null);
     }
 
-    public override void Exit()
-    {
-        
-    }
+    public override void Exit() { }
 }
 
 public class FallingState : BasePlayerState
@@ -176,7 +169,7 @@ public class FallingState : BasePlayerState
     string jumpBase = "Jump_";
     string jumpFalling = "Falling";
 
-    float moveSpeed = 12f;
+    float moveSpeedMultiplier = 0.75f; // again, multiplier of parent movementsettingsSO walkspeed var!
 
     public FallingState(PlayerMotor m, AnimationController a, PlayerMovementManager p) : base(m, a, p) {}
 
@@ -187,7 +180,7 @@ public class FallingState : BasePlayerState
 
     public override void Update()
     {
-        motor.AddVelocity(moveSpeed * manager.GetMovementDirection(), null);
+        motor.AddVelocity(motor.moveSettings.walkSpeed * moveSpeedMultiplier * manager.GetMovementDirection(), null);
         motor.AddRotation(manager.GetTargetRotation(), null);
     }
 
@@ -203,7 +196,7 @@ public class LandingState : BasePlayerState
     string jumpLand = "Landing";
 
     // stats
-    float moveSpeed = 7.5f;
+    float moveSpeedMultiplier = 0.5f;
 
     // timer
     CountdownTimer cooldownTimer;
@@ -227,7 +220,7 @@ public class LandingState : BasePlayerState
     public override void Update()
     {
         cooldownTimer.Tick(Time.deltaTime);
-        motor.AddVelocity(moveSpeed * manager.GetMovementDirection(), null);
+        motor.AddVelocity(motor.moveSettings.walkSpeed * moveSpeedMultiplier * manager.GetMovementDirection(), null);
     }
 
     public override void Exit()
@@ -246,8 +239,7 @@ public class LandingState : BasePlayerState
 public class DashingState : BasePlayerState
 {
     // stats 
-    float dashSpeed = 30f;
-    float moveSpeed = 15f;
+    float dashSpeedMultplier = 2f; // make a multiplier of walkspeed??
 
     // timers
     CountdownTimer cooldownTimer;
@@ -259,15 +251,15 @@ public class DashingState : BasePlayerState
     Vector3 dashDirection;
 
     // anim curve for speed up
+    AnimationCurve accelCurve;
     float elapsed = 0.0f;
     float initialDashSpeedMultiplier = 0.5f;
     float dashAccelDuration = 0.1f; 
-    AnimationCurve accelCurve;
 
     // anim curve for slow down
+    AnimationCurve decelCurve;
     float elapsedDownCurve = 0.0f;
     float decelDuration = 0.4f;
-    AnimationCurve decelCurve;
 
     // animation
     string dashAnim = "Dash_Forward";
@@ -283,7 +275,7 @@ public class DashingState : BasePlayerState
 
         // anim curve
         accelCurve = AnimationCurve.Linear(0.0f, initialDashSpeedMultiplier, dashAccelDuration, 1.0f);
-        decelCurve = AnimationCurve.EaseInOut(0.0f, dashSpeed, decelDuration, moveSpeed);
+        decelCurve = AnimationCurve.EaseInOut(0.0f, motor.moveSettings.walkSpeed * dashSpeedMultplier, decelDuration, motor.moveSettings.walkSpeed);
     }
 
     public override void Enter()
@@ -311,7 +303,7 @@ public class DashingState : BasePlayerState
         {
             elapsed += Time.deltaTime;
             float curveVal = accelCurve.Evaluate(elapsed);
-            float dashMult = curveVal * dashSpeed;
+            float dashMult = curveVal * (motor.moveSettings.walkSpeed * dashSpeedMultplier);
             motor.AddVelocity(dashMult * dashDirection, null);
         }
         else
@@ -330,9 +322,6 @@ public class DashingState : BasePlayerState
     }
 }
 
-
-
-
 public class WallJumpState : BasePlayerState
 {
     // phase enum
@@ -345,8 +334,8 @@ public class WallJumpState : BasePlayerState
 
     // configs
     float checkDistance = 0.5f;
-    float seekSpeed;
-    float bounceSpeed;
+    float seekSpeed = 5f;
+    float bounceSpeed = 7.5f;
     float yVelBoost;
 
     // timers
@@ -358,6 +347,8 @@ public class WallJumpState : BasePlayerState
     // directions
     Vector3 seekDir;
     Vector3 bounceDir;
+
+    // Anim curves for seeking and bouncing! ADD LATER!!!
 
 
     public WallJumpState(PlayerMotor m, AnimationController a, PlayerMovementManager p) : base(m, a, p)
@@ -445,7 +436,7 @@ public class WallJumpState : BasePlayerState
         else
         {
             seekTimer.Tick(Time.deltaTime);
-            motor.AddVelocity(seekDir * seekSpeed, null); // FIX
+            motor.AddVelocity(seekSpeed * seekDir, null); // FIX
         }
     }
 

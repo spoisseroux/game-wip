@@ -1,6 +1,7 @@
 public abstract class BasePlayerState : IState
 {
-    // protected MovementSettings moveSettings;
+    // protected MovementSettings moveSettings; 
+    // MOVED THIS TO MOTOR CAUSE SCRIPTABLE OBJECT DRAG/INIT ISSUES IN A PURE C# OBJECT
 
     protected readonly PlayerMotor motor;
     protected readonly AnimationController animator;

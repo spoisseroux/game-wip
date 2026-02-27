@@ -13,7 +13,7 @@ public class Gravity : ScriptableObject
     // given current downward velocity of an airborne unit, returns next value given one tick of gravity
     public Vector3 ApplyAirborneGravity(float curr)
     {
-        float updated = 0.0f;
+        float updated;
         // rising
         if (curr > 0f)
             updated = risingGravityForce * Time.deltaTime;

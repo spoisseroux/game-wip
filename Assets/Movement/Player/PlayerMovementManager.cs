@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-// TODO: eventually abstract this out into generic entity logic, moving grounded/airborne/actionflags into a generic movement manager
 public class PlayerMovementManager : MonoBehaviour
 {
-    // parent
+    // parent... is this even gunna be necessary?
     PlayerManager player;
 
+    [Header("Script Components")]
     // components
     [SerializeField] PlayerMotor motor;
     [SerializeField] public CharacterController characterController;
@@ -16,7 +16,7 @@ public class PlayerMovementManager : MonoBehaviour
     [SerializeField] AnimationController animationController;
 
     // fsm & states
-    [SerializeField] StateMachine fsm;
+    StateMachine fsm;
     public IdleState idleState;
     public WalkState walkState;
     public JumpingState jumpingState;
@@ -29,15 +29,10 @@ public class PlayerMovementManager : MonoBehaviour
     public AttackState attackState;
     public ChantState chantState;
 
-    // movement settings
-    // base settings --> walk speed, rotation, jump height
-    // states then request a movement Vector3 based on these base settings and internal modifiers
-
-
     // polling input vals
-    [HideInInspector] public float horizontalMovement;
-    [HideInInspector] public float verticalMovement; // forward???
-    [HideInInspector] public float moveAmount;
+    [HideInInspector] public float horizontalMovement; // A + D keys
+    [HideInInspector] public float verticalMovement; // W + S keys
+    [HideInInspector] public float moveAmount; // magnitude value of req'd movement
 
     // ActionRequests class
     protected class ActionRequests
@@ -71,26 +66,7 @@ public class PlayerMovementManager : MonoBehaviour
     ActionRequests inputRequests;
 
     [Header("Movement Settings")]
-    public Vector3 yVel;
     public Vector3 moveDirection;
-    public Vector3 targetRotationDirection; // camera & rotation
-    [SerializeField] float walkSpeed = 15f;
-    [SerializeField] float rotationSpeed;
-
-
-    [Header("Gravity")]
-    [SerializeField] private float minYVel = -20f; // maximum speed player can fall at
-    [SerializeField] private float startingYVel = -5f;
-    [SerializeField] public float risingGravityForce = -40f;
-    [SerializeField] public float fallingGravityForce = -25f;
-
-
-    [Header("Physics Checks")]
-    // Grounded Check, want the widest portion of sphere shown in DrawGizmosSelected to reach the edge of either foot
-    [SerializeField] float groundCheckSphereRadius = 0.4f;
-    [SerializeField] Vector3 groundCheckTranslationAdjustment = new Vector3(0.0f, 0.2f, -0.4f);
-    [SerializeField] LayerMask groundLayer;
-    public bool isGrounded = true;
 
     // probably a good idea to separate this out into a separate script, maybe even a monobehavior 
     // then it could store the InteractTrigger it is involved with and reset itself
@@ -101,20 +77,12 @@ public class PlayerMovementManager : MonoBehaviour
     [SerializeField] float interactDistance = 5f;
     [SerializeField] IInteractable currentInteraction;
 
-    [Header("Dash")]
-    [SerializeField] public float dashSpeed = 30f;
-
     [Header("Jump")]
     // TODO: grace periods, coyote time (after leaving platform) && jump buffer (input buffering sorta deal)
     public bool bonusJumpTaken = false;
-    [SerializeField] float jumpHeight = 4f;
 
-    [Header("WallJump")]
+    [Header("Wall Jump")]
     [SerializeField] LayerMask wallLayer;
-    [SerializeField] float seekingSpeed;
-    [SerializeField] float bouncingSpeed;
-    [SerializeField] float wallJumpY; // play around with making this a formula to calc based on current yVel.y, or Min(5, yVel.y + 15);
-    // detection
     [SerializeField] float detectionRange = 10f;
     [SerializeField] float wallJumpSphereRaycastRadius = 0.4f;
     [SerializeField] Vector3 castPosOffset = new Vector3(0.0f, -0.4f, 0.0f);
@@ -234,22 +202,18 @@ public class PlayerMovementManager : MonoBehaviour
         At(chantState, walkState, new FuncPredicate(() => chantState.GetProgress() <= 0 && CheckIfMoving()));
 
         // set initial state
-        fsm.SetState(idleState);
+        fsm.SetState(idleState); // need to make a more robust way or "setting" or "forcing" this
+        // Would be helpful for cutscenes, scene changes, etc.
 
         // action requests holder
         input.EnablePlayerActions();
         inputRequests = new ActionRequests();
     }
 
-    private void Start()
-    {
-        
-    }
-
     private void Update()
     {        
         // read input
-        SetMovementValues();
+        SetMovementInputValues();
         // state machine
         fsm.Update();
     }
@@ -273,31 +237,11 @@ public class PlayerMovementManager : MonoBehaviour
     #endregion
 
     #region Input Handling
-    private void SetMovementValues()
+    private void SetMovementInputValues()
     {
         horizontalMovement = input.horizontalInput;
         verticalMovement = input.verticalInput;
         // clamp for animations (???)
-    }
-
-    private Vector3 SetMovementDirection()
-    {
-        Vector3 mD = PlayerCamera.instance.transform.forward * verticalMovement;
-        mD = mD + PlayerCamera.instance.transform.right * horizontalMovement;
-        mD = NormalizeAndCutY(mD);
-        return mD;
-    }
-
-    public Vector3 GetMovementDirection()
-    {
-        return SetMovementDirection();
-    }
-
-    private Vector3 NormalizeAndCutY(Vector3 input)
-    {
-        input.Normalize();
-        input.y = 0;
-        return input;
     }
 
     private void OnInputRequest(ActionRequest action, bool performed)
@@ -321,7 +265,7 @@ public class PlayerMovementManager : MonoBehaviour
     public Vector3 GetTargetRotation()
     {
         //targetRotationDirection = Vector3.zero;
-        targetRotationDirection = PlayerCamera.instance.playerCam.transform.forward * verticalMovement;
+        Vector3 targetRotationDirection = PlayerCamera.instance.playerCam.transform.forward * verticalMovement;
         targetRotationDirection = targetRotationDirection + PlayerCamera.instance.playerCam.transform.right * horizontalMovement;
         targetRotationDirection.Normalize();
         targetRotationDirection.y = 0;
@@ -335,53 +279,34 @@ public class PlayerMovementManager : MonoBehaviour
         return targetRotationDirection;
     }
 
-    public void SetNewRotation(Vector3 targetDir)
-    {
-        targetDir.Normalize();
-        targetDir.y = 0;
-
-        Quaternion newRotation = Quaternion.LookRotation(targetDir);
-        transform.rotation = newRotation;
-    }
-
     public bool CheckIfMoving()
     {
         moveAmount = input.moveAmount;
         return moveAmount > 0;
     }
-
-    public void SeekWall()
+    
+    private Vector3 SetMovementDirection()
     {
-        characterController.Move(seekingSpeed * Time.deltaTime * moveDirection);
+        Vector3 mD = PlayerCamera.instance.transform.forward * verticalMovement;
+        mD = mD + PlayerCamera.instance.transform.right * horizontalMovement;
+        mD = NormalizeAndCutY(mD);
+        return mD;
     }
 
-    public void BounceOffWall()
+    public Vector3 GetMovementDirection()
     {
-        characterController.Move(bouncingSpeed * Time.deltaTime * moveDirection);
+        return SetMovementDirection();
+    }
+
+    private Vector3 NormalizeAndCutY(Vector3 input)
+    {
+        input.Normalize();
+        input.y = 0;
+        return input;
     }
     #endregion
 
-    #region Physics Checks 
-    public void GroundedCheck()
-    {
-        Vector3 adjustment = (player.transform.right * groundCheckTranslationAdjustment.x) + 
-                             (Vector3.up * groundCheckTranslationAdjustment.y) + 
-                             (player.transform.forward * groundCheckTranslationAdjustment.z);
-        isGrounded = Physics.CheckSphere(player.transform.position + adjustment, groundCheckSphereRadius, groundLayer);
-    }
-
-    public Tuple<bool, RaycastHit> WallContactCheck()
-    {
-        RaycastHit hitData;
-        bool hitVal = Physics.SphereCast(transform.position + castPosOffset, // THIS IS WRONG IN SPACE!! FORWARD * OFFSET
-                            wallJumpSphereRaycastRadius,
-                            moveDirection,
-                            out hitData,
-                            detectionRange,
-                            wallLayer);
-        return new Tuple<bool, RaycastHit>(hitVal, hitData);
-    }
-
+    #region Interaction Check 
     // probably makes sense to return an IInteractable 
     private IInteractable GetClosestInteract()
     {
@@ -413,7 +338,7 @@ public class PlayerMovementManager : MonoBehaviour
             dashDir = gameObject.transform.forward;
         else
             dashDir = PlayerCamera.instance.transform.forward * verticalMovement
-                          + PlayerCamera.instance.transform.right * horizontalMovement;
+                    + PlayerCamera.instance.transform.right * horizontalMovement;
 
         return NormalizeAndCutY(dashDir);
     }
@@ -432,8 +357,8 @@ public class PlayerMovementManager : MonoBehaviour
         }
         else
         {
-            dir = PlayerCamera.instance.transform.forward * verticalMovement;
-            dir += PlayerCamera.instance.transform.right * horizontalMovement;
+            dir = PlayerCamera.instance.transform.forward * verticalMovement
+                + PlayerCamera.instance.transform.right * horizontalMovement;
         }
 
         dir = NormalizeAndCutY(dir);
@@ -449,11 +374,6 @@ public class PlayerMovementManager : MonoBehaviour
     {
         // reflect traveling direction over hit normal, then normalize and remove Y value
         return NormalizeAndCutY(Vector3.Reflect(seekDir, hit.normal)); 
-    }
-
-    public void WallJumpBoost()
-    {
-        yVel.y += wallJumpY;
     }
     #endregion
 

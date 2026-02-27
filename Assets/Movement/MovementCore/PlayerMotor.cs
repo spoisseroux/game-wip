@@ -33,26 +33,29 @@ using UnityEngine;
 
 public class PlayerMotor : Mover
 {
+    [Header("Components")]
     [SerializeField] CharacterController cc;
     [SerializeField] Transform owner;
 
     // requested movement
+    [Header("Stored Vectors")]
     private Vector3 accumulatedHorizontalMovement;
     private Vector3 targetRotationDirection;
     [SerializeField] private Vector3 yVel;
 
     // current vals
     public Vector3 currVelocity => accumulatedHorizontalMovement + yVel;
-    public float minimumYVelocity = -20f;
 
     #region Physics Check Transforms
-    // ground check
+    [Header("Ground Check")]
+    // want the widest portion of sphere shown in DrawGizmosSelected to reach the edge of either foot
     [SerializeField] private Transform groundCheck;
     [SerializeField] private float groundCheckRadius;
     [SerializeField] private LayerMask groundMask; // hmmmm maybe too much terrain to manually do this. maybe leave untouched?
     public bool Grounded { get => Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundMask); }
     
     // wall jump check, boxcast 
+    [Header("Wall Jump Check")]
     [SerializeField] private Transform wallCheck; // position, rotation
     [SerializeField] private Vector3 wallJumpHalfExtents; // width, height, length
     [SerializeField] private float wallCheckRadius;
@@ -64,13 +67,15 @@ public class PlayerMotor : Mover
     }
 
     // ceiling check
+    [Header("Ceiling Check")]
     [SerializeField] private Transform ceilingCheck;
     public bool CeilingTouch { get => Physics.CheckSphere(ceilingCheck.position, groundCheckRadius); }
     #endregion
 
     // fix l8r :3
     #region Constant Base Values
-    public float rotationSpeed = 25f;
+    [Header("Base Movement Values")]
+    public MovementSettings moveSettings;
     #endregion
 
     // gravity component
@@ -115,13 +120,13 @@ public class PlayerMotor : Mover
 
         // rotation
         Quaternion newRotation = Quaternion.LookRotation(targetRotationDirection);
-        Quaternion targetRotation = Quaternion.Slerp(transform.rotation, newRotation, rotationSpeed * Time.deltaTime);
+        Quaternion targetRotation = Quaternion.Slerp(transform.rotation, newRotation, Time.deltaTime * moveSettings.rotationSpeed);
         transform.rotation = targetRotation; // have to set the transform directly
 
         // combine XZ and Y dirs, then move
         Debug.Log(yVel);
         Debug.Log(accumulatedHorizontalMovement);
-        cc.Move(currVelocity * Time.deltaTime);
+        cc.Move(Time.deltaTime * currVelocity);
 
         // clear
         accumulatedHorizontalMovement = Vector3.zero;
@@ -229,7 +234,7 @@ public class PlayerMotor : Mover
             yVel += gravity.ApplyAirborneGravity(yVel.y);
         
         // clamp
-        yVel.y = Mathf.Max(yVel.y, minimumYVelocity);
+        yVel.y = Mathf.Max(yVel.y, moveSettings.minimumYVelocity);
     }
 
     private Vector3 ResolveVerticalMovement()
