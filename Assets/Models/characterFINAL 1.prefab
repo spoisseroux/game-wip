@@ -2246,6 +2246,37 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!1 &3215222596818675501
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2291624673205436626}
+  m_Layer: 7
+  m_Name: WallCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2291624673205436626
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3215222596818675501}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.148, y: 0.924, z: 0.06}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5802613055510859818}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3256407238206452268
 GameObject:
   m_ObjectHideFlags: 0
@@ -3638,6 +3669,7 @@ Transform:
   - {fileID: 3536748806230812567}
   - {fileID: 2881883522388317675}
   - {fileID: 7147385428124523893}
+  - {fileID: 2291624673205436626}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: -22.267, z: 0}
 --- !u!143 &3958805940879060660
@@ -3700,36 +3732,16 @@ MonoBehaviour:
   horizontalMovement: 0
   verticalMovement: 0
   moveAmount: 0
-  yVel: {x: 0, y: 0, z: 0}
   moveDirection: {x: 0, y: 0, z: 0}
-  targetRotationDirection: {x: 0, y: 0, z: 0}
-  walkSpeed: 15
-  rotationSpeed: 25
-  minYVel: -20
-  startingYVel: -5
-  risingGravityForce: -40
-  fallingGravityForce: -25
-  groundCheckSphereRadius: 0.4
-  groundCheckTranslationAdjustment: {x: 0, y: 0.2, z: -0.4}
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 8
-  isGrounded: 1
   interactSphereRadius: 0.2
   interactCheckTranslationOffset: {x: 0, y: 1, z: 0}
   interactDistance: 5
-  dashSpeed: 30
   bonusJumpTaken: 0
-  jumpHeight: 10
   wallLayer:
     serializedVersion: 2
     m_Bits: 64
-  seekingSpeed: 20
-  bouncingSpeed: 20
-  wallJumpY: 10
   detectionRange: 1
   wallJumpSphereRaycastRadius: 0.4
-  castPosOffset: {x: 0, y: -0.2, z: 0}
 --- !u!114 &7238453413278229850
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3744,15 +3756,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMotor
   cc: {fileID: 3958805940879060660}
   owner: {fileID: 5802613055510859818}
+  yVel: {x: 0, y: 0, z: 0}
   groundCheck: {fileID: 7147385428124523893}
   groundCheckRadius: 0.5
   groundMask:
     serializedVersion: 2
     m_Bits: 8
-  wallCheck: {fileID: 0}
-  wallCheckRadius: 0
+  wallCheck: {fileID: 2291624673205436626}
+  wallJumpHalfExtents: {x: 1.5, y: 1.5, z: 0.1}
+  layersToIgnore:
+    serializedVersion: 2
+    m_Bits: 160
   ceilingCheck: {fileID: 0}
-  rotationSpeed: 25
+  moveSettings: {fileID: 11400000, guid: b564e070d620d489ba0d74be60b27150, type: 2}
   gravity: {fileID: 11400000, guid: ef6d52913418a46199ec19b5a9b71ed9, type: 2}
 --- !u!114 &6494552986643004073
 MonoBehaviour:

@@ -58,11 +58,11 @@ public class PlayerMotor : Mover
     [Header("Wall Jump Check")]
     [SerializeField] private Transform wallCheck; // position, rotation
     [SerializeField] private Vector3 wallJumpHalfExtents; // width, height, length
-    [SerializeField] private float wallCheckRadius;
     [SerializeField] private LayerMask layersToIgnore;
     public Tuple<bool, RaycastHit> WallContact(Vector3 direction, float dist) { 
         RaycastHit hit;
         bool foundHit = Physics.BoxCast(wallCheck.position, wallJumpHalfExtents, direction, out hit, wallCheck.rotation, dist, ~layersToIgnore);
+        Debug.Log("hit val: " + foundHit);
         return new Tuple<bool, RaycastHit>(foundHit, hit);
     }
 
@@ -124,11 +124,11 @@ public class PlayerMotor : Mover
         transform.rotation = targetRotation; // have to set the transform directly
 
         // combine XZ and Y dirs, then move
-        Debug.Log(yVel);
-        Debug.Log(accumulatedHorizontalMovement);
+        //Debug.Log(yVel);
+        //Debug.Log(accumulatedHorizontalMovement);
         cc.Move(Time.deltaTime * currVelocity);
 
-        // clear
+        // clear rotational & horizontal ONLY
         accumulatedHorizontalMovement = Vector3.zero;
         targetRotationDirection = Vector3.zero;
     }
@@ -144,7 +144,8 @@ public class PlayerMotor : Mover
         
         // wall jump
         Gizmos.color = Color.yellow;
-        Gizmos.DrawCube(wallCheck.position, wallJumpHalfExtents);
+        Gizmos.matrix = Matrix4x4.TRS(wallCheck.position, wallCheck.rotation, Vector3.one);
+        Gizmos.DrawWireCube(Vector3.zero, wallJumpHalfExtents);
 
         // ceiling check
     }
@@ -191,7 +192,11 @@ public class PlayerMotor : Mover
         Used to force a unit to a specific rotation immediately or much more quickly
         Usually to be used by an interaction or a cutscene
     */
-    public override void SetNewRotation(Vector3 targetDir, object source) { }
+    public override void SetNewRotation(Vector3 targetDir, object source)
+    {
+        Quaternion newRotation = Quaternion.LookRotation(targetDir);
+        transform.rotation = newRotation;
+    }
     #endregion
 
     #region Authority Set & Release
@@ -227,7 +232,6 @@ public class PlayerMotor : Mover
             // not attempting to jump, stick to the ground and reset jump counter
             if (yVel.y <= 0.0f) {
                 yVel = gravity.ApplyGroundedGravity();
-                Debug.Log("PlayerMotor::HandleGravity() --> applied grounded gravity");
             }
         }
         else

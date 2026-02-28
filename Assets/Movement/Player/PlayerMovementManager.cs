@@ -85,7 +85,6 @@ public class PlayerMovementManager : MonoBehaviour
     [SerializeField] LayerMask wallLayer;
     [SerializeField] float detectionRange = 10f;
     [SerializeField] float wallJumpSphereRaycastRadius = 0.4f;
-    [SerializeField] Vector3 castPosOffset = new Vector3(0.0f, -0.4f, 0.0f);
 
     #region Monobehavior
     private void Awake()

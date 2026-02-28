@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0f07de65ec0c4068867b655be1ec497, type: 3}
   m_Name: PlayerMovementValues
   m_EditorClassIdentifier: Assembly-CSharp::MovementSettings
-  walkSpeed: 0
-  jumpHeight: 0
-  rotationSpeed: 0
+  walkSpeed: 15
+  jumpHeight: 8
+  rotationSpeed: 25
+  minimumYVelocity: -20

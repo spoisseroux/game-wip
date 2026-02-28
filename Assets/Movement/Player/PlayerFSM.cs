@@ -333,16 +333,16 @@ public class WallJumpState : BasePlayerState
     WallJumpPhase phase;
 
     // configs
-    float checkDistance = 0.5f;
-    float seekSpeed = 5f;
-    float bounceSpeed = 7.5f;
-    float yVelBoost;
+    float checkDistance = 2.0f;
+    float seekSpeed = 10f;
+    float bounceSpeed = 10f;
+    Vector3 yVelBoost = new Vector3(0.0f, 5.0f, 0.0f);
 
     // timers
     private CountdownTimer seekTimer;
-    private float seekLength = 0.3f;
+    private float seekLength = 0.5f;
     private CountdownTimer bounceTimer;
-    private float bounceLength = 0.2f;
+    private float bounceLength = 0.5f;
 
     // directions
     Vector3 seekDir;
@@ -364,8 +364,8 @@ public class WallJumpState : BasePlayerState
     {
         seekDir = manager.GetSeekingDirection();
         phase = WallJumpPhase.Seeking;
-        //motor.WallJumpBoost();
         seekTimer.Start();
+        motor.AddVelocity(yVelBoost, null);
     }
 
     public override void Exit()
@@ -382,18 +382,20 @@ public class WallJumpState : BasePlayerState
         // fix vectors
         seekDir = Vector3.zero;
         bounceDir = Vector3.zero;
+
+        Debug.Log("exited walljump");
     }
 
     public override void Update()
     {
-        if (phase == WallJumpPhase.Seeking)
+        switch (phase)
         {
-            SeekWall();
-        }
-
-        else
-        {
-            BounceOffWall();
+            case WallJumpPhase.Seeking:
+                SeekWall();
+                break;
+            case WallJumpPhase.Bouncing:
+                BounceOffWall();
+                break;
         }
     }
 
@@ -429,14 +431,14 @@ public class WallJumpState : BasePlayerState
             // set bounce dir and change rotation
             bounceDir = manager.GetBounceDirection(seekDir, hitCheck.Item2);
             motor.SetNewRotation(bounceDir, null);
-            //motor.WallJumpBoost();
+            motor.AddVelocity(yVelBoost, null);
             bounceTimer.Start();
         }
         // if no, move
         else
         {
             seekTimer.Tick(Time.deltaTime);
-            motor.AddVelocity(seekSpeed * seekDir, null); // FIX
+            motor.AddVelocity(seekSpeed * seekDir, null);
         }
     }
 
