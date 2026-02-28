@@ -33,26 +33,17 @@ public class MovementSpeedEffect : IStatusEffect
 
     public void ApplyStatus(GameObject t)
     {
-        target = t;
-        PlayerMovementManager motor = target.GetComponent<PlayerMovementManager>();
-        motor.ChangeAdditiveBonus(statusEffect.additiveValue);
-        motor.ChangeMultBonus(statusEffect.multValue);
-        timer.Start();
+        
     }
 
     public void UpdateStatus()
     {
-        timer.Tick(Time.deltaTime);
-        if (timer.progress <= 0)
-            ExitStatus();
+        
     }
 
     public void ExitStatus()
     {
-        PlayerMovementManager motor = target.GetComponent<PlayerMovementManager>();
-        motor.ChangeAdditiveBonus(-1 * statusEffect.additiveValue);
-        motor.ChangeMultBonus(-1 * statusEffect.multValue);
-        timer = null;
+        
     }
 }
 

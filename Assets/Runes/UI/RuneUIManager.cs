@@ -2,7 +2,38 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
-using System.Reflection.Metadata.Ecma335;
+using System.Collections.Generic;
+using System;
+
+public class RuneCarousel
+{
+    public List<UIRuneContainer> runeCarousel;
+    private List<RuneDataSO> availableRunes;
+
+    public void Initialize(List<RuneDataSO> runes, GameObject prefabIn)
+    {
+        availableRunes = runes;
+
+        foreach (var rune in availableRunes)
+        {
+            GameObject.Instantiate(prefabIn); // position
+        }
+    }
+
+    public int Size => availableRunes.Count;
+}
+
+public class UIRuneContainer : MonoBehaviour
+{
+    public GameObject runeContainerPrefab;
+    public RuneDataSO runeData;
+    public Image sprite;
+
+    public void Initialize(RuneDataSO runeInput)
+    {
+        runeData = runeInput;
+    }
+}
 
 /*
     How do I want to enable this?
@@ -14,37 +45,6 @@ using System.Reflection.Metadata.Ecma335;
 */
 public class RuneUIManager : MonoBehaviour
 {
-    private class RuneCarousel
-    {
-        public List<UIRuneContainer> runeCarousel;
-        private List<RuneDataSO> availableRunes;
-
-        public void Initialize(List<RuneDataSO> runes, GameObject prefabIn)
-        {
-            availableRunes = runes;
-
-            foreach (var rune in availableRunes)
-            {
-                Instantiate(prefabIn); // position
-
-            }
-        }
-
-        public int Size => availableRunes.Length;
-    }
-
-    private class UIRuneContainer : MonoBehaviour
-    {
-        public GameObject runeContainerPrefab;
-        public RuneDataSO runeData;
-        public Image sprite;
-
-        public void Initialize(RuneDataSO runeInput)
-        {
-            runeData = runeInput;
-        }
-    }
-
     // owned objects
     /*
         1. think in terms of main frame
@@ -161,7 +161,7 @@ public class RuneUIManager : MonoBehaviour
         OnClose?.Invoke();
 
         // disable
-        this.SetActive(false);
+        this.gameObject.SetActive(false);
     }
 
 
@@ -195,8 +195,8 @@ public class RuneUIManager : MonoBehaviour
             return;
 
         // no rotating carousel, block right move if at highest index
-        if (carouselIndex == runeCarousel.Length - 1)
-            return
+        if (carouselIndex == runeCarousel.Count - 1)
+            return;
 
         carouselIndex++;
         ShiftMenu(carouselIndex);
@@ -214,7 +214,7 @@ public class RuneUIManager : MonoBehaviour
         foreach (var rune in availableRunes)
         {
             Instantiate(runePrefab);
-            runePrefab.Initialize(rune);
+            // runePrefab.Initialize(rune);
         }
         // carouselContainer.Initialize(availableRunes);
     }
@@ -223,7 +223,7 @@ public class RuneUIManager : MonoBehaviour
     {
         availableRunes = null;
         chant = null;
-        this.SetActive(false);
+        this.gameObject.SetActive(false);
     }
 
     private void ShiftMenu(int index)
@@ -240,10 +240,10 @@ public class RuneUIManager : MonoBehaviour
     // remove the latest rune added to the chant
     private void DeselectRune()
     {
-        if (chant.Length == 0)
-            return
+        if (chant.Count == 0)
+            return;
         
-        chant.RemoveAt(chant.Length - 1);
+        chant.RemoveAt(chant.Count - 1);
     }
 
     #endregion

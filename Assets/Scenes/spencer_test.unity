@@ -135,7 +135,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8751091
 Transform:
   m_ObjectHideFlags: 0
@@ -13056,6 +13056,54 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 730362592197030144, guid: d9d529fa8f60a41aeae43bfcde3cc857, type: 3}
+      propertyPath: wallCheck
+      value: 
+      objectReference: {fileID: 1410134120}
+    - target: {fileID: 730362592197030144, guid: d9d529fa8f60a41aeae43bfcde3cc857, type: 3}
+      propertyPath: moveSettings
+      value: 
+      objectReference: {fileID: 11400000, guid: b564e070d620d489ba0d74be60b27150, type: 2}
+    - target: {fileID: 730362592197030144, guid: d9d529fa8f60a41aeae43bfcde3cc857, type: 3}
+      propertyPath: rotationSpeed
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 730362592197030144, guid: d9d529fa8f60a41aeae43bfcde3cc857, type: 3}
+      propertyPath: groundCheckRadius
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 730362592197030144, guid: d9d529fa8f60a41aeae43bfcde3cc857, type: 3}
+      propertyPath: groundMask.m_Bits
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 730362592197030144, guid: d9d529fa8f60a41aeae43bfcde3cc857, type: 3}
+      propertyPath: groundChecker.center
+      value: 
+      objectReference: {fileID: 1410134118}
+    - target: {fileID: 730362592197030144, guid: d9d529fa8f60a41aeae43bfcde3cc857, type: 3}
+      propertyPath: layersToIgnore.m_Bits
+      value: 160
+      objectReference: {fileID: 0}
+    - target: {fileID: 730362592197030144, guid: d9d529fa8f60a41aeae43bfcde3cc857, type: 3}
+      propertyPath: groundChecker.checkRadius
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 730362592197030144, guid: d9d529fa8f60a41aeae43bfcde3cc857, type: 3}
+      propertyPath: groundChecker.groundMask.m_Bits
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 965598544366979375, guid: d9d529fa8f60a41aeae43bfcde3cc857, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.148
+      objectReference: {fileID: 0}
+    - target: {fileID: 965598544366979375, guid: d9d529fa8f60a41aeae43bfcde3cc857, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.332
+      objectReference: {fileID: 0}
+    - target: {fileID: 965598544366979375, guid: d9d529fa8f60a41aeae43bfcde3cc857, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.523
+      objectReference: {fileID: 0}
     - target: {fileID: 2728046430541815553, guid: d9d529fa8f60a41aeae43bfcde3cc857, type: 3}
       propertyPath: player
       value: 
@@ -13205,6 +13253,11 @@ Animator:
   m_CorrespondingSourceObject: {fileID: 2704657668852771238, guid: d9d529fa8f60a41aeae43bfcde3cc857, type: 3}
   m_PrefabInstance: {fileID: 1410134115}
   m_PrefabAsset: {fileID: 0}
+--- !u!4 &1410134118 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 965598544366979375, guid: d9d529fa8f60a41aeae43bfcde3cc857, type: 3}
+  m_PrefabInstance: {fileID: 1410134115}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1410134119 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5097877126487462700, guid: d9d529fa8f60a41aeae43bfcde3cc857, type: 3}
@@ -13216,6 +13269,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e52de21a22b6dd44c9cc19f810c65059, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Timeline::UnityEngine.Timeline.SignalReceiver
+--- !u!4 &1410134120 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8186312191056860296, guid: d9d529fa8f60a41aeae43bfcde3cc857, type: 3}
+  m_PrefabInstance: {fileID: 1410134115}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1419640550 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 97929cc905ad5124bab6cdc204f05bed, type: 3}

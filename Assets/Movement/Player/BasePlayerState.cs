@@ -1,13 +1,15 @@
 public abstract class BasePlayerState : IState
 {
-    protected readonly PlayerMovementManager motor;
+    protected readonly PlayerMotor motor;
     protected readonly AnimationController animator;
+    protected readonly PlayerMovementManager manager; // for camera instance vars
     protected readonly string animBase = "Character_";
 
-    protected BasePlayerState(PlayerMovementManager m , AnimationController a)
+    protected BasePlayerState(PlayerMotor m , AnimationController a, PlayerMovementManager p = null)
     {
         this.motor = m;
         this.animator = a;
+        this.manager = p;
     }
 
     public virtual void Enter() { }

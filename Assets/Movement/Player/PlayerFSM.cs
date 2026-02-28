@@ -1,34 +1,89 @@
 using UnityEngine;
 using System;
 
-// All states have a protected PlayerMovementManager component set in their BaseState predecessor. Use this to call movement logic
-public class NeutralState : BasePlayerState
+/*
+    Some general notes:
+
+    how do we drag info between states potentially? like jump --> rising for example is we wanted to lerp a value and maintain cooldown
+    could trigger a jump coroutine cooldown in manager but eh we'll see
+
+    need to actually come back and edit that MovementSettings variable 
+    maybe make it a scriptableobject and have a specific instance for each generic Actor like usual workflow
+
+    then reference through motor.movementValues.walkSpeed; or something
+
+    uhhhh more soon
+*/
+
+// All states have a protected PlayerMotor component set in their BaseState predecessor. Use this to call movement logic
+public class IdleState : BasePlayerState
 {
-    string walkAnim = "Run_Full";
-    string idleAnim = "Idle";
+    string idle = "Idle";
 
-    // maybe split this into Idle && Walk states?
-    public NeutralState(PlayerMovementManager f, AnimationController a) : base(f, a) { }
+    Coroutine idleAnimRoutine; // silly idle anim re-queue routine
+    float refresh; // regen randomly, val between 20-30seconds
+    string sillyIdle;
 
-    public override void Enter() { return; }
+    public IdleState(PlayerMotor m, AnimationController a) : base(m, a) { }
+    
+    public override void Enter() { animator.Play(animBase + idle); }
     public override void Exit() { return; }
+
     public override void Update()
     {
-        motor.HandleRotation();
-        if (motor.CheckIfMoving())
-        {
-            animator.Play(animBase + walkAnim);
-        }
-        else
-        {
-            animator.Play(animBase + idleAnim);
-        }
-        motor.Walk();
+        // count timer, if done queue silly anim
     }
-
-    public override void Interrupt(BasePlayerState newState) { return; }
 }
 
+public class WalkState : BasePlayerState
+{
+    string walkAnim = "Run_Full";
+
+    AnimationCurve accelCurve;
+    float speedMultiplierStart = 0.5f;
+    float accelerationDuration = 0.5f;
+    float timeElapsed = 0.0f;
+
+
+    // maybe split this into Idle && Walk states?
+    public WalkState(PlayerMotor m, AnimationController a, PlayerMovementManager p) : base(m, a, p) { }
+
+    public override void Enter() 
+    {
+        // animation
+        animator.Play(animBase + walkAnim);
+        // init animation curve
+        accelCurve = AnimationCurve.EaseInOut(0.0f, speedMultiplierStart, accelerationDuration, 1.0f);
+    }
+
+    public override void Exit()
+    {
+        // reset on exit
+        timeElapsed = 0.0f;
+    }
+
+    public override void Update()
+    {
+        if (manager.CheckIfMoving())
+        {
+            // tick animation curve
+            timeElapsed += Time.deltaTime;
+
+            // calc anim curve
+            float curveValue = accelCurve.Evaluate(timeElapsed);
+            float finalAdjustedSpeed = motor.moveSettings.walkSpeed * curveValue;
+
+            // rotation
+            motor.AddRotation(manager.GetTargetRotation(), null);
+
+            // walk logic
+            Vector3 walkDir = manager.GetMovementDirection();
+            motor.AddVelocity(finalAdjustedSpeed * walkDir, null);
+        }
+    }
+}
+
+// HOW DO WE CARRY THIS TIMER ACROSS JUMP STATES
 public class JumpingState : BasePlayerState
 {
     // need to re-tool for proper animations!!! not just transition to neutral immediately
@@ -36,24 +91,38 @@ public class JumpingState : BasePlayerState
     CountdownTimer cooldownTimer;
     float cooldown = 0.5f;
 
+    // stats
+    float moveSpeedMultiplier = 0.75f; // MAKE THIS A MULTIPLIER OF WALKSPEED WHEN PARENT MOVEMENTSETTINGS OBJECT IS COMPLETE
+
+    // gravity
+    float risingGravityForce = -40f; // how can i factor this out... and make it something we only grab from gravity object?
+
     // animations
     string jumpBase = "Jump_";
     string jumpStart = "Start";
-
-    // float 
     float animatorAdjustment = 7.5f;
 
-    public JumpingState(PlayerMovementManager f, AnimationController a) : base(f, a)
+    public JumpingState(PlayerMotor m, AnimationController a, PlayerMovementManager p) : base(m, a, p)
     {
         cooldownTimer = new CountdownTimer(cooldown);
     }
 
     public override void Enter()
-    {
-        motor.ApplyJumpingVelocity();
+    {   
+        // bonus jump check
+        if (!motor.Grounded)
+            manager.bonusJumpTaken = true;
+        
+        // get jump velocity
+        Vector3 jump = new Vector3(0.0f, Mathf.Sqrt(motor.moveSettings.jumpHeight * -2 * risingGravityForce), 0.0f);
+
         cooldownTimer.Start();
         animator.SetAnimatorSpeed(animatorAdjustment);
         animator.Play(animBase + jumpBase + jumpStart);
+
+        // apply movement
+        motor.AddVelocity(motor.moveSettings.walkSpeed * moveSpeedMultiplier * manager.GetMovementDirection(), null);
+        motor.SetVerticalVelocity(jump, null);
         
     }
 
@@ -66,15 +135,9 @@ public class JumpingState : BasePlayerState
 
     public override void Update()
     {
-        motor.Walk();
-        motor.HandleRotation();
+        motor.AddRotation(manager.GetTargetRotation(), null);
+        motor.AddVelocity(motor.moveSettings.walkSpeed * moveSpeedMultiplier * manager.GetMovementDirection(), null);
         cooldownTimer.Tick(Time.deltaTime);
-    }
-
-    public override void Interrupt(BasePlayerState newState)
-    {
-        // pause timers
-        cooldownTimer.Pause();
     }
 
     public float GetProgress()
@@ -85,28 +148,20 @@ public class JumpingState : BasePlayerState
 
 public class RisingState : BasePlayerState
 {
-    public RisingState(PlayerMovementManager m, AnimationController a) : base(m, a) {}
+    // stats
+    float moveSpeedMultiplier = 0.75f;
 
-    public override void Enter()
-    {
-        
-    }
+    public RisingState(PlayerMotor m, AnimationController a, PlayerMovementManager p) : base(m, a, p) {}
+
+    public override void Enter() { }
 
     public override void Update()
     {
-        motor.Walk();
-        motor.HandleRotation();
+        motor.AddVelocity(motor.moveSettings.walkSpeed * moveSpeedMultiplier * manager.GetMovementDirection(), null);
+        motor.AddRotation(manager.GetTargetRotation(), null);
     }
 
-    public override void Exit()
-    {
-        
-    }
-
-    public override void Interrupt(BasePlayerState newState)
-    {
-        
-    }
+    public override void Exit() { }
 }
 
 public class FallingState : BasePlayerState
@@ -114,7 +169,9 @@ public class FallingState : BasePlayerState
     string jumpBase = "Jump_";
     string jumpFalling = "Falling";
 
-    public FallingState(PlayerMovementManager m, AnimationController a) : base(m, a) {}
+    float moveSpeedMultiplier = 0.75f; // again, multiplier of parent movementsettingsSO walkspeed var!
+
+    public FallingState(PlayerMotor m, AnimationController a, PlayerMovementManager p) : base(m, a, p) {}
 
     public override void Enter()
     {
@@ -123,16 +180,11 @@ public class FallingState : BasePlayerState
 
     public override void Update()
     {
-        motor.Walk();
-        motor.HandleRotation();
+        motor.AddVelocity(motor.moveSettings.walkSpeed * moveSpeedMultiplier * manager.GetMovementDirection(), null);
+        motor.AddRotation(manager.GetTargetRotation(), null);
     }
 
     public override void Exit()
-    {
-        
-    }
-
-    public override void Interrupt(BasePlayerState newState)
     {
         
     }
@@ -143,14 +195,17 @@ public class LandingState : BasePlayerState
     string jumpBase = "Jump_";
     string jumpLand = "Landing";
 
+    // stats
+    float moveSpeedMultiplier = 0.5f;
+
     // timer
     CountdownTimer cooldownTimer;
     float cooldown = 0.3f; // change to anim length!
 
-    // adjustment
+    // anim adjustment
     float animatorAdjustment = 7.5f;
 
-    public LandingState(PlayerMovementManager m, AnimationController a) : base(m, a)
+    public LandingState(PlayerMotor m, AnimationController a, PlayerMovementManager p) : base(m, a, p)
     {
         cooldownTimer = new CountdownTimer(cooldown);
     }
@@ -165,7 +220,7 @@ public class LandingState : BasePlayerState
     public override void Update()
     {
         cooldownTimer.Tick(Time.deltaTime);
-        motor.Walk();
+        motor.AddVelocity(motor.moveSettings.walkSpeed * moveSpeedMultiplier * manager.GetMovementDirection(), null);
     }
 
     public override void Exit()
@@ -173,11 +228,6 @@ public class LandingState : BasePlayerState
         cooldownTimer.Pause();
         cooldownTimer.Reset(cooldown);
         animator.SetDefaultAnimatorSpeed();
-    }
-
-    public override void Interrupt(BasePlayerState newState)
-    {
-        
     }
 
     public float GetProgress()
@@ -188,28 +238,50 @@ public class LandingState : BasePlayerState
 
 public class DashingState : BasePlayerState
 {
+    // stats 
+    float dashSpeedMultplier = 2f; // make a multiplier of walkspeed??
+
     // timers
     CountdownTimer cooldownTimer;
     float dashCDTime = 1.0f;
     StopwatchTimer activeTimer;
     float activeTime = 0.5f;
 
+    // constant dash dir
+    Vector3 dashDirection;
+
+    // anim curve for speed up
+    AnimationCurve accelCurve;
+    float elapsed = 0.0f;
+    float initialDashSpeedMultiplier = 0.5f;
+    float dashAccelDuration = 0.1f; 
+
+    // anim curve for slow down
+    AnimationCurve decelCurve;
+    float elapsedDownCurve = 0.0f;
+    float decelDuration = 0.4f;
+
     // animation
     string dashAnim = "Dash_Forward";
     string idleAnim = "Idle";
 
-    public DashingState(PlayerMovementManager f, AnimationController a) : base(f, a)
+    public DashingState(PlayerMotor m, AnimationController a, PlayerMovementManager p) : base(m, a, p)
     {
         // length of state
         cooldownTimer = new CountdownTimer(dashCDTime);
 
         // active modifier of speed
         activeTimer = new StopwatchTimer(activeTime);
+
+        // anim curve
+        accelCurve = AnimationCurve.Linear(0.0f, initialDashSpeedMultiplier, dashAccelDuration, 1.0f);
+        decelCurve = AnimationCurve.EaseInOut(0.0f, motor.moveSettings.walkSpeed * dashSpeedMultplier, decelDuration, motor.moveSettings.walkSpeed);
     }
 
     public override void Enter()
     {
-        motor.SetDashDirection();
+        Debug.Log("enter dash state");
+        dashDirection = manager.GetDashDirection();
         cooldownTimer.Start();
         activeTimer.Start();
         animator.Play(animBase + dashAnim);
@@ -217,6 +289,7 @@ public class DashingState : BasePlayerState
 
     public override void Exit()
     {
+        Debug.Log("exit dash State");
         cooldownTimer.Reset(dashCDTime);
         activeTimer.Reset();
     }
@@ -228,20 +301,19 @@ public class DashingState : BasePlayerState
         // move if active
         if (!activeTimer.lapComplete)
         {
-            motor.Dash();
+            elapsed += Time.deltaTime;
+            float curveVal = accelCurve.Evaluate(elapsed);
+            float dashMult = curveVal * (motor.moveSettings.walkSpeed * dashSpeedMultplier);
+            motor.AddVelocity(dashMult * dashDirection, null);
         }
         else
         {
-            motor.Walk();
+            elapsedDownCurve += Time.deltaTime;
+            float speed = decelCurve.Evaluate(elapsedDownCurve);
+            
+            motor.AddVelocity(speed * manager.GetMovementDirection(), null);
             animator.CrossFade(animBase + idleAnim, 0.1f);
         }
-    }
-
-    public override void Interrupt(BasePlayerState newState)
-    {
-        // pause timers
-        activeTimer.Pause();
-        cooldownTimer.Pause();
     }
 
     public float GetProgress()
@@ -260,14 +332,26 @@ public class WallJumpState : BasePlayerState
     }
     WallJumpPhase phase;
 
+    // configs
+    float checkDistance = 2.0f;
+    float seekSpeed = 10f;
+    float bounceSpeed = 10f;
+    Vector3 yVelBoost = new Vector3(0.0f, 5.0f, 0.0f);
+
     // timers
     private CountdownTimer seekTimer;
-    private float seekLength = 0.3f;
+    private float seekLength = 0.5f;
     private CountdownTimer bounceTimer;
-    private float bounceLength = 0.2f;
+    private float bounceLength = 0.5f;
+
+    // directions
+    Vector3 seekDir;
+    Vector3 bounceDir;
+
+    // Anim curves for seeking and bouncing! ADD LATER!!!
 
 
-    public WallJumpState(PlayerMovementManager f, AnimationController a) : base(f, a)
+    public WallJumpState(PlayerMotor m, AnimationController a, PlayerMovementManager p) : base(m, a, p)
     {
         // timers
         seekTimer = new CountdownTimer(seekLength);
@@ -278,10 +362,10 @@ public class WallJumpState : BasePlayerState
 
     public override void Enter()
     {
-        motor.SetSeekingDirection();
+        seekDir = manager.GetSeekingDirection();
         phase = WallJumpPhase.Seeking;
-        motor.WallJumpBoost();
         seekTimer.Start();
+        motor.AddVelocity(yVelBoost, null);
     }
 
     public override void Exit()
@@ -294,54 +378,25 @@ public class WallJumpState : BasePlayerState
 
         // edit internals
         phase = WallJumpPhase.Seeking;
-    }
 
-    public override void Interrupt(BasePlayerState newState)
-    {
-        throw new System.NotImplementedException();
+        // fix vectors
+        seekDir = Vector3.zero;
+        bounceDir = Vector3.zero;
+
+        Debug.Log("exited walljump");
     }
 
     public override void Update()
     {
-        // seeking phase update
-        if (phase == WallJumpPhase.Seeking)
+        switch (phase)
         {
-            // tick timer
-            seekTimer.Tick(Time.deltaTime);
-            // check for wall contact
-            Tuple<bool, RaycastHit> hitCheck = motor.WallContactCheck();
-            Debug.Log(hitCheck.Item1.ToString() + " " + hitCheck.Item2.ToString());
-
-            // if yes, transition to bouncing
-            if (hitCheck.Item1)
-            {
-                Debug.Log("transition to bounce");
-                phase = WallJumpPhase.Bouncing;
-                motor.WallJumpBoost();
-
-                seekTimer.Pause();
-                seekTimer.Reset(seekLength);
-
-                bounceTimer.Start();
-                motor.SetBounceDirection(hitCheck.Item2);
-            }
-            // if no, move
-            else
-            {
-                Debug.Log("moving");
-                seekTimer.Tick(Time.deltaTime);
-                motor.SeekWall();
-            }
+            case WallJumpPhase.Seeking:
+                SeekWall();
+                break;
+            case WallJumpPhase.Bouncing:
+                BounceOffWall();
+                break;
         }
-
-        // bounce phase update
-        else
-        {
-            Debug.Log("bouncing NOW!");
-            bounceTimer.Tick(Time.deltaTime);
-            motor.BounceOffWall();
-        }
-
     }
 
     public bool IsFinished()
@@ -358,6 +413,40 @@ public class WallJumpState : BasePlayerState
         }
         return inProgress;
     }
+
+    private void SeekWall()
+    {
+        seekTimer.Tick(Time.deltaTime);
+        
+        Tuple<bool, RaycastHit> hitCheck = motor.WallContact(seekDir, checkDistance);
+
+        // if yes, transition to bouncing
+        if (hitCheck.Item1)
+        {
+            phase = WallJumpPhase.Bouncing;
+
+            seekTimer.Pause();
+            seekTimer.Reset(seekLength);
+
+            // set bounce dir and change rotation
+            bounceDir = manager.GetBounceDirection(seekDir, hitCheck.Item2);
+            motor.SetNewRotation(bounceDir, null);
+            motor.AddVelocity(yVelBoost, null);
+            bounceTimer.Start();
+        }
+        // if no, move
+        else
+        {
+            seekTimer.Tick(Time.deltaTime);
+            motor.AddVelocity(seekSpeed * seekDir, null);
+        }
+    }
+
+    private void BounceOffWall()
+    {
+        bounceTimer.Tick(Time.deltaTime);
+        motor.AddVelocity(bounceSpeed * bounceDir, null); // FIX
+    }
 }
 
 public class InteractState : BasePlayerState
@@ -366,7 +455,7 @@ public class InteractState : BasePlayerState
     string interactUse = "";
     string interactGeneral = "Interact_Generic";
 
-    public InteractState(PlayerMovementManager m, AnimationController a) : base(m, a)
+    public InteractState(PlayerMotor m, AnimationController a, PlayerMovementManager p) : base(m, a, p)
     {
         
     }
@@ -383,17 +472,16 @@ public class InteractState : BasePlayerState
 
     public override void Update()
     {
-        
-    }
-
-    public override void Interrupt(BasePlayerState newState)
-    {
-        throw new NotImplementedException();
+        // motor.AddRotation(manager.HandleRotation(), null);
     }
 }
 
+/*
+    THIS SHOULD ONLY NEED MOVEMENT PHASES!!!
+    COMBAT LINK IDEALLY SHOULD NOT BE HERE WHEN REFACTOR IS DONE
+*/
 public class AttackState : BasePlayerState
-{   
+{
     // combat link
     PlayerCombatManager combat;
 
@@ -407,7 +495,7 @@ public class AttackState : BasePlayerState
     // anim adjust
     float animatorAdjustment = 2f;
 
-    public AttackState(PlayerMovementManager m, PlayerCombatManager c, AnimationController a) : base(m, a)
+    public AttackState(PlayerMotor m, PlayerCombatManager c, AnimationController a) : base(m, a)
     {
         combat = c;
         attackAnim = "";
@@ -433,12 +521,7 @@ public class AttackState : BasePlayerState
     public override void Update()
     {
         timer.Tick(Time.deltaTime);
-        motor.Walk();
-    }
-
-    public override void Interrupt(BasePlayerState newState)
-    {
-        throw new NotImplementedException();
+        // motor.Walk();
     }
 
     public void SetAttackInternals(AttackSO attackData)
@@ -478,7 +561,10 @@ public class ChantState : BasePlayerState
     // animation?
     string chantAnim = "";
 
-    public ChantState(PlayerMovementManager m, AnimationController a) : base(m, a)
+    // speed modifier
+
+
+    public ChantState(PlayerMotor m, AnimationController a) : base(m, a)
     {
         timer = new CountdownTimer(duration);
     }
@@ -499,12 +585,7 @@ public class ChantState : BasePlayerState
     public override void Update()
     {
         timer.Tick(Time.deltaTime);
-        motor.Walk();
-    }
-
-    public override void Interrupt(BasePlayerState newState)
-    {
-        throw new NotImplementedException();
+        // motor.Walk();
     }
 
     public float GetProgress()
