@@ -22,7 +22,7 @@ public class SaveGem : MonoBehaviour, IHittable
 
     // hitbox struck this collider with a Hitbox, perform a save.... HAVE TO DO SOURCE RESOLUTION HERE TOO SO NPCs CANNOT SAVE FOR US LOL
     #region IHittable Interface
-    public void Hit()
+    public void Hit(HitboxRecord hit)
     {
         // play
         director.Play();

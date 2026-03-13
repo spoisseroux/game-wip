@@ -12,7 +12,7 @@ public class PlayerData : ISaveData
     public SerializeableQuaternion rotation;
     public List<int> runeIDs;
     public WeaponDataSO weapon;
-    public int health;
+    public float health;
     // stats, deathcount, etc..... anything you want....
 
     // create default values on initialization! replace magic #s soon
@@ -23,7 +23,7 @@ public class PlayerData : ISaveData
         rotation = new SerializeableQuaternion(Quaternion.identity);
         runeIDs = new List<int>();
         //weapon = null;
-        health = 100;
+        health = 100f;
     }
 }
 

@@ -12,7 +12,7 @@ public class PlayerMovementManager : MonoBehaviour
     [SerializeField] PlayerMotor motor;
     [SerializeField] public CharacterController characterController;
     [SerializeField] InputReader input;
-    [SerializeField] PlayerCombatManager combat;
+    [SerializeField] CombatOrchestrator combat;
     [SerializeField] AnimationController animationController;
 
     // fsm & states
@@ -91,7 +91,7 @@ public class PlayerMovementManager : MonoBehaviour
     {
         // unity components
         player = GetComponent<PlayerManager>();
-        combat = GetComponent<PlayerCombatManager>();
+        combat = GetComponent<CombatOrchestrator>();
         characterController = GetComponent<CharacterController>();
         animationController = GetComponent<AnimationController>();
 

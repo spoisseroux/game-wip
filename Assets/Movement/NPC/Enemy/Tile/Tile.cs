@@ -240,21 +240,8 @@ public class Tile : MonoBehaviour, IRuneReactor, IDamageable, IHitboxSource
     #endregion
 
     #region IHitboxSource
-    public void CollisionedWith(Collider col)
-    {
-        return;
-    }
-
-    public void CollisionedWith(IDamageable damageMe)
-    {
-        if (damageMe != this as IDamageable)
-            damageMe?.TakeDamage(damage);
-    }
-
-    public void CollisionedWith(IHittable hitMe)
-    {
-        return;
-    }
+    public void OnHitConfirmed(HitboxRecord hit) {}
+    
     #endregion
 
     #region FSM

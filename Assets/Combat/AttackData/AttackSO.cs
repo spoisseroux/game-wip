@@ -1,4 +1,4 @@
-using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "newAttackDataSO", menuName = "Data/AttackDataSO")]
@@ -21,6 +21,17 @@ public class AttackSO : ScriptableObject
     public float comboWindowEnd;
     // hit number
     public int hitCount;
+
+
+
+    /*
+        Refactor in progress!
+    */
+    [SerializeField] List<CombatPhase> combatPhases;
+    [SerializeField] List<MovementPhase> movementPhases;
+
+    public float combatDuration;
+    public float movementDuration; // maybe we do a foreach and read duration from phases?
 }
 
 /*

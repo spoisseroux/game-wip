@@ -1,7 +1,21 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
+
+
+/*
+    REFACTOR STUFF:
+    - IHittable becomes the single entry point for hitting an object, no more IDamageable
+            - public abstract void Hit() --> Hit(HitRecord )
+
+    - IHitboxSource becomes single entry point for applying a hit
+            - public CollisionedWith(IHittable hittable) --> OnHitConfirmed(HitRecord record)
+
+    - HitboxContext object made upon Hitbox construction with damage, source, etc.
+            - contains DamagePayload (type, amount, etc.), IHitboxSource/CombatOrchestrator, source WeaponDataSO/AbilitSO for metadata
+    - HitRecord object made upon confirmed hit for each confirmed hit
+            - contains original HitboxContext, target's CombatOrchestrator and/or IHittable, contact point, whatever else needed
+
+*/
 
 public enum HitboxState
 {
@@ -10,11 +24,27 @@ public enum HitboxState
     Colliding // iffy
 }
 
+public struct HitboxContext
+{
+    // damagepayload
+    int damage;
+    // combatorch / ihitboxsource
+    IHitboxSource source;
+    // weapondataSO sourceWeapon
+    WeaponDataSO sourceWeapon;
+    // abilitySO sourceAbility
+}
+
+public struct HitboxRecord
+{
+    HitboxContext context;
+    IHittable target;
+    Vector3 contactPoint;
+}
+
 public interface IHitboxSource
 {
-    void CollisionedWith(Collider col);
-    void CollisionedWith(IDamageable damageMe);
-    void CollisionedWith(IHittable hitMe);
+    void OnHitConfirmed(HitboxRecord record);
 }
 
 public struct HitboxGizmo
@@ -31,11 +61,17 @@ public struct HitboxGizmo
     }
 }
 
-// Monobehavior for Gizmos?
-[Serializable]
+
+[System.Serializable]
 public class Hitbox
-{
-    public IHitboxSource source { get; private set; }
+{   
+    // source
+    public IHitboxSource source { get; private set; } // this gets replaced by Context
+
+    // context
+    public HitboxContext context;
+
+    // internal state
     public HitboxState state { get; private set; }
 
     // positioning information
@@ -50,15 +86,11 @@ public class Hitbox
     // max hit counter allowed for this Hitbox
     private Dictionary<IHittable, int> hitHittables;
     private Dictionary<IDamageable, int> hitDamageables;
-    private int hitCount;
     private int damageCount;
 
-    // guid for unique hit
-    private string guid = System.Guid.NewGuid().ToString();
-
-    public Hitbox(float time, Vector3 p, Box b, Quaternion q, IHitboxSource s, int hitsAllowed)
+    public Hitbox(float time, Vector3 p, Box b, Quaternion q, IHitboxSource s, int hitsAllowed = 1)
     {
-        // parent
+        // parent, replace with HitboxContext
         source = s;
 
         // position info 
@@ -77,13 +109,12 @@ public class Hitbox
         hitDamageables = new Dictionary<IDamageable, int>();
         damageCount = hitsAllowed;
 
-        // guid
-        guid = Guid.NewGuid().ToString();
-
         // create the timer
-        active = new CountdownTimer(activeTime);
-        active.OnStart = StartCheckingCollision;
-        active.OnStop = StopCheckingCollision;
+        active = new CountdownTimer(activeTime)
+        {
+            OnStart = StartCheckingCollision,
+            OnStop = StopCheckingCollision
+        };
     }
 
     public void Execute()
@@ -101,27 +132,13 @@ public class Hitbox
         Collider[] cols = Physics.OverlapBox(position, new Vector3(box.length / 2, box.width / 2, box.height / 2), orientation);
         for (int i = 0; i < cols.Length; i++)
         {
-            // damage
-            if (cols[i].TryGetComponent<IDamageable>(out IDamageable damageMe))
-            {
-                if (!hitDamageables.ContainsKey(damageMe))
-                {
-                    source?.CollisionedWith(damageMe);
-                    hitDamageables.Add(damageMe, 1);
-                }
-                else if (hitDamageables[damageMe] < damageCount)
-                {
-                    source?.CollisionedWith(damageMe);
-                    hitDamageables[damageMe]++;
-                }
-            }
-
             // hittables
-            else if (cols[i].TryGetComponent<IHittable>(out IHittable hitMe))
+            if (cols[i].TryGetComponent<IHittable>(out IHittable hitMe))
             {
                 if (!hitHittables.ContainsKey(hitMe))
                 {
-                    source?.CollisionedWith(hitMe);
+                    // construct HitRecord and feed in
+                    source?.OnHitConfirmed(new HitboxRecord());
                     hitHittables.Add(hitMe, 1);
                 }
             }
@@ -135,11 +152,10 @@ public class Hitbox
 
     public void StopCheckingCollision()
     {
-        Debug.Log("hitbox ending");
-        // cleanup function
+        // cleanup
         source = null;
         state = HitboxState.Closed;
-        hitDamageables.Clear();
+        hitDamageables.Clear(); // hmm, object probly gets destroyed afterwards sooo... hmm
     }
 
     public HitboxGizmo GetGizmoData()

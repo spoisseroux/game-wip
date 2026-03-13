@@ -8,9 +8,13 @@ public class WeaponDataSO : ScriptableObject
 {
     // model component
     [JsonIgnore]
-    public GameObject model;
-    // attacks
+    public GameObject modelPrefab;
+    // basic attacks
     public List<AttackSO> basicAttackList;
+
+
+
+
     // offset location for spawning hitboxes ?? usually ends up being a magnitude applied to this.transform.forward anyways....
     // public Vector3 offset;
 }

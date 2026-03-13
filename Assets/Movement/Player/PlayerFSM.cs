@@ -483,7 +483,7 @@ public class InteractState : BasePlayerState
 public class AttackState : BasePlayerState
 {
     // combat link
-    PlayerCombatManager combat;
+    CombatOrchestrator combat;
 
     // timer
     CountdownTimer timer;
@@ -495,7 +495,7 @@ public class AttackState : BasePlayerState
     // anim adjust
     float animatorAdjustment = 2f;
 
-    public AttackState(PlayerMotor m, PlayerCombatManager c, AnimationController a) : base(m, a)
+    public AttackState(PlayerMotor m, CombatOrchestrator c, AnimationController a) : base(m, a)
     {
         combat = c;
         attackAnim = "";
@@ -504,7 +504,7 @@ public class AttackState : BasePlayerState
     public override void Enter()
     {
         timer.Start();
-        combat.BeginAttack(duration);
+
         animator.SetAnimatorSpeed(animatorAdjustment);
         // start anim
         animator.Play(attackAnim);
@@ -513,7 +513,6 @@ public class AttackState : BasePlayerState
     public override void Exit()
     {
         timer = null;
-        combat.ResetWeaponCycle();
         attackAnim = "";
         animator.SetDefaultAnimatorSpeed();
     }
