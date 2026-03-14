@@ -482,8 +482,6 @@ public class InteractState : BasePlayerState
 */
 public class AttackState : BasePlayerState
 {
-    // combat link
-    CombatOrchestrator combat;
 
     // timer
     CountdownTimer timer;
@@ -495,9 +493,8 @@ public class AttackState : BasePlayerState
     // anim adjust
     float animatorAdjustment = 2f;
 
-    public AttackState(PlayerMotor m, CombatOrchestrator c, AnimationController a) : base(m, a)
+    public AttackState(PlayerMotor m, AnimationController a) : base(m, a)
     {
-        combat = c;
         attackAnim = "";
     }
     
@@ -526,13 +523,6 @@ public class AttackState : BasePlayerState
     public void SetAttackInternals(AttackSO attackData)
     {
         bool active = timer != null;
-
-        // timer
-        duration = attackData.attackDuration;
-        timer = new CountdownTimer(duration);
-
-        // anim 
-        attackAnim = animBase + attackData.animName;
         
         // restart check
         if (active)

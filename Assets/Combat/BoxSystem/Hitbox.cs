@@ -16,51 +16,10 @@ using UnityEngine;
             - contains original HitboxContext, target's CombatOrchestrator and/or IHittable, contact point, whatever else needed
 
 */
-
-public enum HitboxState
-{
-    Closed,
-    Open,
-    Colliding // iffy
-}
-
-public struct HitboxContext
-{
-    // damagepayload
-    int damage;
-    // combatorch / ihitboxsource
-    IHitboxSource source;
-    // weapondataSO sourceWeapon
-    WeaponDataSO sourceWeapon;
-    // abilitySO sourceAbility
-}
-
-public struct HitboxRecord
-{
-    HitboxContext context;
-    IHittable target;
-    Vector3 contactPoint;
-}
-
 public interface IHitboxSource
 {
     void OnHitConfirmed(HitboxRecord record);
 }
-
-public struct HitboxGizmo
-{
-    public Vector3 position;
-    public Vector3 extents;
-    public Quaternion rotation;
-
-    public HitboxGizmo(Vector3 p, Vector3 e, Quaternion q)
-    {
-        position = p;
-        extents = e;
-        rotation = q;
-    }
-}
-
 
 [System.Serializable]
 public class Hitbox
@@ -70,9 +29,6 @@ public class Hitbox
 
     // context
     public HitboxContext context;
-
-    // internal state
-    public HitboxState state { get; private set; }
 
     // positioning information
     public Box box;
@@ -85,8 +41,16 @@ public class Hitbox
 
     // max hit counter allowed for this Hitbox
     private Dictionary<IHittable, int> hitHittables;
-    private Dictionary<IDamageable, int> hitDamageables;
-    private int damageCount;
+    private int hitCount;
+
+    // state
+    private enum HitboxState {
+        Closed,
+        Open
+    }
+    // internal state
+    private HitboxState state { get; set; }
+    public bool Active { get { return state == HitboxState.Closed; } }
 
     public Hitbox(float time, Vector3 p, Box b, Quaternion q, IHitboxSource s, int hitsAllowed = 1)
     {
@@ -106,8 +70,7 @@ public class Hitbox
 
         // stored hits
         hitHittables = new Dictionary<IHittable, int>();
-        hitDamageables = new Dictionary<IDamageable, int>();
-        damageCount = hitsAllowed;
+        hitCount = hitsAllowed;
 
         // create the timer
         active = new CountdownTimer(activeTime)
@@ -155,11 +118,43 @@ public class Hitbox
         // cleanup
         source = null;
         state = HitboxState.Closed;
-        hitDamageables.Clear(); // hmm, object probly gets destroyed afterwards sooo... hmm
+        hitHittables.Clear(); // hmm, object probly gets destroyed afterwards sooo... hmm
     }
 
     public HitboxGizmo GetGizmoData()
     {
         return new HitboxGizmo(position, box.GizmoXYZ(), orientation);
+    }
+}
+
+public struct HitboxContext
+{
+    // damagepayload
+    DamagePayload damage;
+    // combatorch / ihitboxsource
+    IHitboxSource source;
+    // weapondataSO sourceWeapon
+    WeaponDataSO sourceWeapon;
+    // abilitySO sourceAbility
+}
+
+public struct HitboxRecord
+{
+    HitboxContext context;
+    IHittable target;
+    Vector3 contactPoint;
+}
+
+public struct HitboxGizmo
+{
+    public Vector3 position;
+    public Vector3 extents;
+    public Quaternion rotation;
+
+    public HitboxGizmo(Vector3 p, Vector3 e, Quaternion q)
+    {
+        position = p;
+        extents = e;
+        rotation = q;
     }
 }

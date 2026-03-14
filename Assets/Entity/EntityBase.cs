@@ -1,17 +1,12 @@
 using UnityEngine;
 
-public class EntityBase : MonoBehaviour, IDamageable
+public class EntityBase : MonoBehaviour, IHittable
 {
     // components
     [SerializeField] protected Animator animator;
 
     #region IDamageable Interface
-    public void TakeDamage(int amount)
-    {
-        return;
-    }
-
-    public void TakeDamage(int amount, IHitboxSource source)
+    public void Hit(HitboxRecord hitboxRecord)
     {
         return;
     }

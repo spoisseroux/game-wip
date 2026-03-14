@@ -113,7 +113,7 @@ public class TileAttackState : TileState
 }
 
 // monobehaviour
-public class Tile : MonoBehaviour, IRuneReactor, IDamageable, IHitboxSource
+public class Tile : MonoBehaviour, IRuneReactor, IHittable, IHitboxSource
 {
     // components
     [SerializeField] Animator animator;
@@ -205,7 +205,7 @@ public class Tile : MonoBehaviour, IRuneReactor, IDamageable, IHitboxSource
         if (activeHitboxes.Count > 0) {
             for (int i = activeHitboxes.Count; i >= 0; i--)
             {
-                if (activeHitboxes[i].state == HitboxState.Closed)
+                if (!activeHitboxes[i].Active)
                 {
                     activeHitboxes.RemoveAt(i);
                 }
@@ -229,12 +229,9 @@ public class Tile : MonoBehaviour, IRuneReactor, IDamageable, IHitboxSource
     }
     #endregion
 
-    #region IDamageable
-    public void TakeDamage(int amount)
+    #region IHittable
+    public void Hit(HitboxRecord hitboxRecord)
     {
-        health -= amount;
-        if (health <= 0)
-            OnTileDeath?.Invoke();
         return;
     }
     #endregion

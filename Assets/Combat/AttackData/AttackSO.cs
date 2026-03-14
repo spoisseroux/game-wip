@@ -1,37 +1,53 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+
+/*
+    So. How do both the Movement and Combat components know to start? Where do they run?
+
+    upon RequestAttack() in MovementManager returning an AttackSO (THATS A WHOLE OTHER ISSUE BTW) we know, ok time to go?
+
+    then say, in AttackState() currentAttack.RunMovementRoutine();
+              in CombatOrchestrator currentAttack.RunCombatRoutine();
+
+    Seems a bit off. Maybe the AttackOrchestrator idea isn't bad?
+
+    Idk, make a basic attack and go from there
+*/
 
 [CreateAssetMenu(fileName = "newAttackDataSO", menuName = "Data/AttackDataSO")]
 public class AttackSO : ScriptableObject
 {
-    // duration for the whole attack --> [windup + active + finishing anim]
-    public float attackDuration;
-    // duration of hitbox
-    public float hitboxDuration;
-    // damage
-    public int damage;
-    // hitbox
-    public Box hitbox; // could make a list!!!!
-    // movespeed modifier
-    public float movespeedModifier;
-    // anim
-    public string animName;
-    // combo window, checked against progress
-    public float comboWindowStart;
-    public float comboWindowEnd;
-    // hit number
-    public int hitCount;
-
-
-
     /*
         Refactor in progress!
     */
-    [SerializeField] List<CombatPhase> combatPhases;
-    [SerializeField] List<MovementPhase> movementPhases;
+    [SerializeField] public List<CombatPhase> combatPhases;
+    [SerializeField] public List<MovementPhase> movementPhases;
+    [SerializeField] public DamagePayload damageObject;
+    [SerializeField] public string attackName;
 
-    public float combatDuration;
-    public float movementDuration; // maybe we do a foreach and read duration from phases?
+    public float duration { 
+        get
+        {
+            float combat = 0.0f;
+            for (int i = 0; i < combatPhases.Count; i++) {
+                combat += combatPhases[i].duration;
+            }
+
+            float move = 0.0f;
+            for (int i = 0; i < movementPhases.Count; i++) {
+                move += movementPhases[i].duration;
+            }
+
+            if (combat == move)
+                return move;
+            
+            return -404f;
+        }
+    }
+
+    public void RunCombatRoutine() { }
+    public void RunMovementRoutine() { }
 }
 
 /*

@@ -1,14 +1,27 @@
 using UnityEngine;
 
+/*  
+    The context object which a movement event executes upon
+*/
+public struct CombatContext
+{
+    public CombatOrchestrator combatOrchestrator;
+    public WeaponDataSO weapon;
+    public float phaseTime;
+}
+
+/*
+    A single unit of combat execution
+*/
 [System.Serializable]
-public abstract class CombatEvent
+public abstract class CombatEvent : ScriptableObject
 {
     [SerializeField] protected float duration;
     [SerializeField] protected bool instant;
 
-    public abstract void Execute();
-    public abstract void Update(float delta);
-    public abstract void CleanUp();
+    public abstract void Execute(CombatContext context);
+    public abstract void Update(CombatContext context, float delta);
+    public abstract void CleanUp(CombatContext context);
 }
 
 // examples
@@ -20,70 +33,51 @@ public abstract class CombatEvent
     // spawn vfx
     // play sfx
 
-/*
-    Maybe we need a generic CombatOrchestrator component?? Sorta like the PlayerCombatManager but just.... better lol
-*/
-
-// need to rethink these events and how they are configured... 
-// hitboxes are owned by combatorchestrator, but this object is fundamentally about the hitbox
-// maybe it just carries data to read and construct a Hitbox
-
-// or maybe it's just an event and the attack provides the correct hitbox??? idk,...
-[System.Serializable]
+[CreateAssetMenu(fileName = "NewDeployHitbox", menuName = "CombatEvent/DeployHitbox", order = 1)]
 public class DeployHitbox : CombatEvent
 {
     [SerializeField] private Box boxInfo;
     [SerializeField] private int hitCount;
+    [SerializeField] private float hitboxDuration;
 
-    public override void Execute() { }
+    public override void Execute(CombatContext context) { }
 
-    public override void Update(float delta) { }
+    // use this to update hitbox position i guess?
+    public override void Update(CombatContext context, float delta) { }
 
-    public override void CleanUp() { }
+    public override void CleanUp(CombatContext context) { }
 }
 
-[System.Serializable]
+[CreateAssetMenu(fileName = "NewPlaySFX", menuName = "CombatEvent/PlaySFX", order = 1)]
 public class PlaySFX : CombatEvent
 {
-    [SerializeField] AudioClip sfx;
+    [SerializeField] AudioClip sfxClip;
 
-    public override void Execute() { }
+    public override void Execute(CombatContext context) { }
 
-    public override void Update(float delta) { }
+    public override void Update(CombatContext context, float delta) { }
 
-    public override void CleanUp() { }
+    public override void CleanUp(CombatContext context) { }
 }
 
-[System.Serializable]
+[CreateAssetMenu(fileName = "NewPlayVFX", menuName = "CombatEvent/PlayVFX", order = 1)]
 public class PlayVFX : CombatEvent
 {
-    [SerializeField] AudioClip vfx;
+    [SerializeField] GameObject vfxPrefab;
 
-    public override void Execute() { }
+    public override void Execute(CombatContext context) { }
 
-    public override void Update(float delta) { }
+    public override void Update(CombatContext context, float delta) { }
 
-    public override void CleanUp() { }
+    public override void CleanUp(CombatContext context) { }
 }
 
-public class AddStatusEffect : CombatEvent
-{
-    // [SerializeField] StatusEffect vfx;
-    // [SerializeField] float duration; // duration of status buff for builder
-    // [SerializeField] float tickTime; // hmm? default arg that overrides if not 0? how to tell if ticking or idk
-
-    public override void Execute() { }
-
-    public override void Update(float delta) { }
-
-    public override void CleanUp() { }
-}
-
+[CreateAssetMenu(fileName = "NewComboInput", menuName = "CombatEvent/ComboInput", order = 1)]
 public class ListenForComboInput : CombatEvent
 {
-    public override void Execute() { }
+    public override void Execute(CombatContext context) { }
 
-    public override void Update(float delta) { }
+    public override void Update(CombatContext context, float delta) { }
 
-    public override void CleanUp() { }
+    public override void CleanUp(CombatContext context) { }
 }

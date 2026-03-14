@@ -22,43 +22,39 @@ using System.Collections.Generic;
 
 */
 
+
 /*
     A single unit of movement commands that execute in tandem
 */
 [System.Serializable]
 public class MovementPhase
 {
-    [SerializeField] List<MovementEvent> movementEvents;
+    [SerializeReference] public List<MovementEvent> movementEvents;
 
     public float duration; // how do we actually measure this?
 
-    public MovementPhase(List<MovementEvent> events)
-    {
-        movementEvents = events;
-    }
-
-    public void Begin(Mover unit)
+    public void Begin(MovementContext ctx)
     {
         for (int i = 0; i < movementEvents.Count; i++)
         {
-            movementEvents[i].Start(unit);
+            movementEvents[i].Start(ctx);
         }
     }
 
-    public void Update(Mover unit, float delta) 
+    public void Update(MovementContext ctx, float delta) 
     {   
         for (int i = 0; i < movementEvents.Count; i++)
         {
             // how to use delta
-            movementEvents[i].Update(unit);
+            movementEvents[i].Update(ctx);
         }
     }
 
-    public void End(Mover unit) 
+    public void End(MovementContext ctx) 
     {
         for (int i = 0; i < movementEvents.Count; i++)
         {
-            movementEvents[i].End(unit);
+            movementEvents[i].End(ctx);
         }
     }
 }

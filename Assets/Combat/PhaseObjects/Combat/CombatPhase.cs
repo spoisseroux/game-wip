@@ -7,20 +7,20 @@ using System.Collections.Generic;
 [System.Serializable]
 public class CombatPhase
 {
-    [SerializeField] List<CombatEvent> combatEvents;
+    [SerializeReference] public List<CombatEvent> combatEvents;
     public float duration;
 
-    public void Begin(CombatOrchestrator unit) 
+    public void Begin(CombatContext ctx) 
     {
 
     }
 
-    public void Update(CombatOrchestrator unit, float delta)
+    public void Update(CombatContext ctx, float delta)
     {
         
     }
 
-    public void End(CombatOrchestrator unit)
+    public void End(CombatContext ctx)
     {
         
     }

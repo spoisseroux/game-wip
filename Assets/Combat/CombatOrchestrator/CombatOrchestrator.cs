@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class CombatOrchestrator : MonoBehaviour, IDamageable, IHitboxSource
+public class CombatOrchestrator : MonoBehaviour, IHittable, IHitboxSource
 {
     // health component
     [SerializeField] float health;
@@ -38,11 +38,10 @@ public class CombatOrchestrator : MonoBehaviour, IDamageable, IHitboxSource
     }
     #endregion
 
-    #region Damage Interface
-    public void TakeDamage(int damage)
+    #region Hittable Interface
+    public void Hit(HitboxRecord hitboxRecord)
     {
-        health -= damage;
-        // hmmm what if i die doe !
+        return;
     }
     #endregion
 
@@ -72,7 +71,7 @@ public class CombatOrchestrator : MonoBehaviour, IDamageable, IHitboxSource
         for (int i = 0; i < activeHitboxes.Count; i++)
         {
             activeHitboxes[i].Tick(Time.deltaTime);
-            if (activeHitboxes[i].state == HitboxState.Closed)
+            if (!activeHitboxes[i].Active)
                 inactive.Add(i);
         }
 
@@ -81,9 +80,10 @@ public class CombatOrchestrator : MonoBehaviour, IDamageable, IHitboxSource
 
     private void CleanDeadHitboxes(List<int> inactiveIndices)
     {
-        foreach (var index in inactiveIndices)
+        for (int index = inactiveIndices.Count - 1; index >= 0; index--)
         {
-            activeHitboxes.RemoveAt(index);
+            int removePosition = inactiveIndices[index];
+            activeHitboxes.RemoveAt(removePosition);
         }
     } 
     #endregion

@@ -108,7 +108,7 @@ public class PlayerMovementManager : MonoBehaviour
         dashState = new DashingState(motor, animationController, this);
         walljumpState = new WallJumpState(motor, animationController, this);
         interactState = new InteractState(motor, animationController, this);
-        attackState = new AttackState(motor, combat, animationController);
+        attackState = new AttackState(motor, animationController);
         chantState = new ChantState(motor, animationController);
 
         // idle state transitions

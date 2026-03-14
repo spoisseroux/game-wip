@@ -1,16 +1,11 @@
 using UnityEngine;
 
-public class Dummy : MonoBehaviour, IDamageable
+public class Dummy : MonoBehaviour, IHittable
 {
     public int health = 100;
 
-    public void TakeDamage(int damage)
+    public void Hit(HitboxRecord hitboxRecord)
     {
-        health -= damage;
-    }
-
-    public void TakeDamage(int damage, IHitboxSource source)
-    {
-        TakeDamage(damage);
+        return;
     }
 }

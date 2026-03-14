@@ -24,3 +24,12 @@ MonoBehaviour:
   comboWindowStart: 0.9
   comboWindowEnd: 0.1
   hitCount: 1
+  combatPhases:
+  - combatEvents: []
+    duration: 0
+  movementPhases: []
+  combatDuration: 0
+  movementDuration: 0
+  references:
+    version: 2
+    RefIds: []
