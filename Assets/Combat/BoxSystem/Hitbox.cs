@@ -28,7 +28,7 @@ public class Hitbox
     public IHitboxSource source { get; private set; } // this gets replaced by Context
 
     // context
-    public HitboxContext context;
+    public HitboxContext hitboxContext;
 
     // positioning information
     public Box box;
@@ -40,7 +40,7 @@ public class Hitbox
     public CountdownTimer active;
 
     // max hit counter allowed for this Hitbox
-    private Dictionary<IHittable, int> hitHittables;
+    private Dictionary<IHittable, int> hitTargets;
     private int hitCount;
 
     // internal state
@@ -57,7 +57,7 @@ public class Hitbox
                   int hitsAllowed = 1)
     {
         // parent context
-        context = new HitboxContext
+        hitboxContext = new HitboxContext
         {
             source = s,
             damage = payload,
@@ -76,7 +76,7 @@ public class Hitbox
         state = HitboxState.Open;
 
         // stored hits
-        hitHittables = new Dictionary<IHittable, int>();
+        hitTargets = new Dictionary<IHittable, int>();
         hitCount = hitsAllowed;
 
         // create and start timer
@@ -100,17 +100,23 @@ public class Hitbox
             // hittables
             if (cols[i].TryGetComponent<IHittable>(out IHittable hitMe))
             {
+                HitboxRecord record = new HitboxRecord()
+                {
+                    context = hitboxContext,
+                    target = hitMe,
+                    contactDir = Vector3.zero
+                };
                 // not hit yet
-                if (!hitHittables.ContainsKey(hitMe))
+                if (!hitTargets.ContainsKey(hitMe))
                 {
                     // construct HitRecord and feed in
-                    context.source?.OnHitConfirmed(new HitboxRecord());
-                    hitHittables.Add(hitMe, 1);
+                    hitboxContext.source?.OnHitConfirmed(record);
+                    hitTargets.Add(hitMe, 1);
                 }
                 // can the object be hit again
-                else if (hitHittables[hitMe] < hitCount)
+                else if (hitTargets[hitMe] < hitCount)
                 {
-                    source?.OnHitConfirmed(new HitboxRecord());
+                    source?.OnHitConfirmed(record);
                 }
             }
         }
@@ -126,7 +132,7 @@ public class Hitbox
         // cleanup
         source = null;
         state = HitboxState.Closed;
-        hitHittables.Clear(); // hmm, object probly gets destroyed afterwards sooo... hmm
+        hitTargets.Clear(); // hmm, object probly gets destroyed afterwards sooo... hmm
     }
 
     public HitboxGizmo GetGizmoData()
@@ -160,7 +166,7 @@ public struct HitboxRecord
 {
     public HitboxContext context;
     public IHittable target;
-    public Vector3 contactPoint;
+    public Vector3 contactDir;
 }
 
 /*

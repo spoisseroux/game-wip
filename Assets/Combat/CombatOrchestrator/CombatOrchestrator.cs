@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public class CombatOrchestrator : MonoBehaviour, IHittable, IHitboxSource
 {
-    // health component
+    // health component eventually
     [SerializeField] float health;
 
     // weapon object.... what actually is this ??
@@ -11,21 +11,6 @@ public class CombatOrchestrator : MonoBehaviour, IHittable, IHitboxSource
 
     // current attack
     AttackSO currentAttack;
-    /*
-
-        CURRENT ISSUE: SETTING THIS TO NULL LITERALLY KILLS THE ATTACK DATA BY REFERENCE,
-        SUBSEQUENT ATTACKS JUST RESOLVE TO NOTHING !!!
-
-        SPECIFICALLY THE COMBAT PHASES!!!
-
-        ALSO LOT OF NULL REFS IN HERE SPECIFICALLY WHEN INIT/RUNNING ATTACKS
-
-        PROBLEMS:
-        AttemptAttack()
-        InitializeAttackRunner()
-        UpdateAttackRunner()
-
-    */
     List<CombatPhase> phases;
     List<CombatPhase> emptyPhaseList = new List<CombatPhase>();
     public int currPhase;
@@ -49,7 +34,6 @@ public class CombatOrchestrator : MonoBehaviour, IHittable, IHitboxSource
 
         // tick active hitboxes & remove dead
         List<int> inactive = TickActiveHitboxes();
-        Debug.Log("Inactive hitboxes to be cleaned up: " + inactive.Count + ". Flagged time: " + Time.time);
         CleanDeadHitboxes(inactive);
     }
     #endregion
@@ -57,15 +41,12 @@ public class CombatOrchestrator : MonoBehaviour, IHittable, IHitboxSource
     #region Gizmos
     public void OnDrawGizmos()
     {
-        Debug.Log($"INSPECTOR VIEWING instance: {GetInstanceID()}");
-        Debug.Log("Active hitboxes: " + activeHitboxes.Count);
         Gizmos.color = Color.purple;
         for (int i = 0; i < activeHitboxes.Count; i++)
         {
             HitboxGizmo drawData = activeHitboxes[i].GetGizmoData();
             Gizmos.matrix = Matrix4x4.TRS(drawData.position, drawData.rotation, Vector3.one);
             Gizmos.DrawCube(Vector3.zero, drawData.extents);
-            Debug.Log("Draw call on Gizmos ran");
         }
     }
     #endregion
@@ -117,7 +98,6 @@ public class CombatOrchestrator : MonoBehaviour, IHittable, IHitboxSource
         phases = emptyPhaseList;
         currPhase = 0;
     }
-
     #endregion
 
     #region Weapon Helpers
@@ -155,10 +135,9 @@ public class CombatOrchestrator : MonoBehaviour, IHittable, IHitboxSource
         */
         Hitbox hitbox = new Hitbox(duration, 
                                    transform.position + transform.forward, 
-                                   box, transform.parent.rotation, this, 
+                                   box, transform.rotation, this, 
                                    equippedWeapon.weaponData, currentAttack.damageObject, hits);
         activeHitboxes.Add(hitbox);
-        Debug.Log($"ADDED on instance: {GetInstanceID()}");
         Debug.Log("Hitbox added at: " + (transform.position + transform.forward) + " with duration " + duration 
                   + ". ActiveHitboxes list is now of size: " + activeHitboxes.Count + ". Time added: " + Time.time);
     }
@@ -166,12 +145,11 @@ public class CombatOrchestrator : MonoBehaviour, IHittable, IHitboxSource
     private List<int> TickActiveHitboxes()
     {
         List<int> inactive = new List<int>();
-        Debug.Log(activeHitboxes.Count + " <-- size of ActiveHitboxes list pre-cleanup");
         for (int i = 0; i < activeHitboxes.Count; i++)
         {
             activeHitboxes[i].Tick(Time.deltaTime);
             if (!activeHitboxes[i].Active) {
-                Debug.Log($"CLEANUP on instance: {GetInstanceID()}");
+                Debug.Log("Flagged hitbox at: " + activeHitboxes[i].GetGizmoData().position + " for removal");
                 inactive.Add(i);
             }
         }
@@ -196,7 +174,8 @@ public class CombatOrchestrator : MonoBehaviour, IHittable, IHitboxSource
 
         // if the attack found a target that is just itself, don't apply damage
         IHittable target = hitMe.target;
-        if (target.GetGameObject() == this.gameObject)
+        Debug.Log("Hit target: " + target);
+        if (target?.GetGameObject() == this.gameObject)
             return;
 
         // something about this feels awkward
@@ -210,7 +189,7 @@ public class CombatOrchestrator : MonoBehaviour, IHittable, IHitboxSource
 
         // maybe could just be its own separate monobehaviour or object 
         // receives hitbox records and performs the "hit" procedure
-        target.Hit(hitMe);
+        target?.Hit(hitMe);
     }
     #endregion
 
