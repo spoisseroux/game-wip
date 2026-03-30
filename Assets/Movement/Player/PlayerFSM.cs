@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 using System;
 
 /*
@@ -71,7 +72,7 @@ public class WalkState : BasePlayerState
 
             // calc anim curve
             float curveValue = accelCurve.Evaluate(timeElapsed);
-            float finalAdjustedSpeed = motor.moveSettings.walkSpeed * curveValue;
+            float finalAdjustedSpeed = motor.movementSettings.walkSpeed * curveValue;
 
             // rotation
             motor.AddRotation(manager.GetTargetRotation(), null);
@@ -92,7 +93,7 @@ public class JumpingState : BasePlayerState
     float cooldown = 0.5f;
 
     // stats
-    float moveSpeedMultiplier = 0.75f; // MAKE THIS A MULTIPLIER OF WALKSPEED WHEN PARENT MOVEMENTSETTINGS OBJECT IS COMPLETE
+    float moveSpeedMultiplier = 0.75f;
 
     // gravity
     float risingGravityForce = -40f; // how can i factor this out... and make it something we only grab from gravity object?
@@ -114,14 +115,14 @@ public class JumpingState : BasePlayerState
             manager.bonusJumpTaken = true;
         
         // get jump velocity
-        Vector3 jump = new Vector3(0.0f, Mathf.Sqrt(motor.moveSettings.jumpHeight * -2 * risingGravityForce), 0.0f);
+        Vector3 jump = new Vector3(0.0f, Mathf.Sqrt(motor.movementSettings.jumpHeight * -2 * risingGravityForce), 0.0f);
 
         cooldownTimer.Start();
         animator.SetAnimatorSpeed(animatorAdjustment);
         animator.Play(animBase + jumpBase + jumpStart);
 
         // apply movement
-        motor.AddVelocity(motor.moveSettings.walkSpeed * moveSpeedMultiplier * manager.GetMovementDirection(), null);
+        motor.AddVelocity(motor.movementSettings.walkSpeed * moveSpeedMultiplier * manager.GetMovementDirection(), null);
         motor.SetVerticalVelocity(jump, null);
         
     }
@@ -136,7 +137,7 @@ public class JumpingState : BasePlayerState
     public override void Update()
     {
         motor.AddRotation(manager.GetTargetRotation(), null);
-        motor.AddVelocity(motor.moveSettings.walkSpeed * moveSpeedMultiplier * manager.GetMovementDirection(), null);
+        motor.AddVelocity(motor.movementSettings.walkSpeed * moveSpeedMultiplier * manager.GetMovementDirection(), null);
         cooldownTimer.Tick(Time.deltaTime);
     }
 
@@ -157,7 +158,7 @@ public class RisingState : BasePlayerState
 
     public override void Update()
     {
-        motor.AddVelocity(motor.moveSettings.walkSpeed * moveSpeedMultiplier * manager.GetMovementDirection(), null);
+        motor.AddVelocity(motor.movementSettings.walkSpeed * moveSpeedMultiplier * manager.GetMovementDirection(), null);
         motor.AddRotation(manager.GetTargetRotation(), null);
     }
 
@@ -180,7 +181,7 @@ public class FallingState : BasePlayerState
 
     public override void Update()
     {
-        motor.AddVelocity(motor.moveSettings.walkSpeed * moveSpeedMultiplier * manager.GetMovementDirection(), null);
+        motor.AddVelocity(motor.movementSettings.walkSpeed * moveSpeedMultiplier * manager.GetMovementDirection(), null);
         motor.AddRotation(manager.GetTargetRotation(), null);
     }
 
@@ -220,7 +221,7 @@ public class LandingState : BasePlayerState
     public override void Update()
     {
         cooldownTimer.Tick(Time.deltaTime);
-        motor.AddVelocity(motor.moveSettings.walkSpeed * moveSpeedMultiplier * manager.GetMovementDirection(), null);
+        motor.AddVelocity(motor.movementSettings.walkSpeed * moveSpeedMultiplier * manager.GetMovementDirection(), null);
     }
 
     public override void Exit()
@@ -275,7 +276,7 @@ public class DashingState : BasePlayerState
 
         // anim curve
         accelCurve = AnimationCurve.Linear(0.0f, initialDashSpeedMultiplier, dashAccelDuration, 1.0f);
-        decelCurve = AnimationCurve.EaseInOut(0.0f, motor.moveSettings.walkSpeed * dashSpeedMultplier, decelDuration, motor.moveSettings.walkSpeed);
+        decelCurve = AnimationCurve.EaseInOut(0.0f, motor.movementSettings.walkSpeed * dashSpeedMultplier, decelDuration, motor.movementSettings.walkSpeed);
     }
 
     public override void Enter()
@@ -303,7 +304,7 @@ public class DashingState : BasePlayerState
         {
             elapsed += Time.deltaTime;
             float curveVal = accelCurve.Evaluate(elapsed);
-            float dashMult = curveVal * (motor.moveSettings.walkSpeed * dashSpeedMultplier);
+            float dashMult = curveVal * (motor.movementSettings.walkSpeed * dashSpeedMultplier);
             motor.AddVelocity(dashMult * dashDirection, null);
         }
         else
@@ -482,49 +483,89 @@ public class InteractState : BasePlayerState
 */
 public class AttackState : BasePlayerState
 {
-
     // timer
     CountdownTimer timer;
     private float duration = 0f;
 
-    // animations
-    private string attackAnim;
-
     // anim adjust
     float animatorAdjustment = 2f;
 
-    public AttackState(PlayerMotor m, AnimationController a) : base(m, a)
+    // phase list
+    List<MovementPhase> phases;
+    int currPhase = 0;
+
+    // context
+    MovementContext context;
+
+    public AttackState(PlayerMotor m, AnimationController a, PlayerMovementManager p) : base(m, a, p)
     {
-        attackAnim = "";
+        
     }
     
     public override void Enter()
     {
+        // construct and set context
+        context = new MovementContext
+        {
+            mover = motor,
+            updatingDirection = manager.GetMovementDirection()
+        };
+
+        // timer
         timer.Start();
 
+        // phase data
+        currPhase = 0;
+        phases[currPhase].Begin(context);
+
+        // animator
         animator.SetAnimatorSpeed(animatorAdjustment);
-        // start anim
-        animator.Play(attackAnim);
     }
 
     public override void Exit()
     {
         timer = null;
-        attackAnim = "";
         animator.SetDefaultAnimatorSpeed();
+        currPhase = 0;
     }
 
     public override void Update()
     {
+        // safety check
+        if (currPhase >= phases.Count)
+            return;
+
+        // tick timer
+        context.phaseTime += Time.deltaTime;
         timer.Tick(Time.deltaTime);
-        // motor.Walk();
+
+        // update direction
+        context.updatingDirection = manager.GetMovementDirection();
+        
+        // tick phase
+        phases[currPhase].Tick(context, Time.deltaTime);
+
+        // check if move to next phase
+        if (context.phaseTime >= phases[currPhase].duration)
+        {
+            phases[currPhase].End(context);
+            currPhase++;
+
+            if (currPhase < phases.Count)
+                phases[currPhase].Begin(context);
+        }
     }
 
-    public void SetAttackInternals(AttackSO attackData)
+    public void SetAttackInternals(AttackSO attack)
     {
         bool active = timer != null;
+
+        // set vars
+        phases = attack.movementPhases;
+        duration = attack.duration;
+        timer = new CountdownTimer(duration);
         
-        // restart check
+        // restart check, only for use in combo'd basic attacks
         if (active)
             Restart();
     }
@@ -539,8 +580,7 @@ public class AttackState : BasePlayerState
         return timer.progress;
     }
 }
-
-// chant state???
+// could be generic "ability" state or something
 public class ChantState : BasePlayerState
 {
     // timing
@@ -550,8 +590,8 @@ public class ChantState : BasePlayerState
     // animation?
     string chantAnim = "";
 
-    // speed modifier
-
+    // speed modifier, idk if this even makes sense if launching from UI
+    float chantSpeedModifier = 0.1f;
 
     public ChantState(PlayerMotor m, AnimationController a) : base(m, a)
     {

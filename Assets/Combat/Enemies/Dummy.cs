@@ -8,4 +8,9 @@ public class Dummy : MonoBehaviour, IHittable
     {
         return;
     }
+
+    public GameObject GetGameObject()
+    {
+        return this.gameObject;
+    }
 }

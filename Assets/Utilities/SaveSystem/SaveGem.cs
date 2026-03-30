@@ -27,8 +27,13 @@ public class SaveGem : MonoBehaviour, IHittable
         // play
         director.Play();
 
-        SaveGameManager yeah = GameObject.Find("SaveManager").GetComponent<SaveGameManager>();
-        yeah.SaveGame();
+        SaveGameManager saveManager = GameObject.Find("SaveManager").GetComponent<SaveGameManager>();
+        saveManager.SaveGame();
+    }
+
+    public GameObject GetGameObject()
+    {
+        return this.gameObject;
     }
     #endregion
 

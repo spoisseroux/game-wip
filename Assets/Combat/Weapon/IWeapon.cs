@@ -1,4 +1,4 @@
 public interface IWeapon
 {
-    public AttackSO AttemptAttack(); // determine next attack
+    public AttackSO AttemptAttack(AttackSO attack, CombatPhase currentPhase); // determine next attack
 }

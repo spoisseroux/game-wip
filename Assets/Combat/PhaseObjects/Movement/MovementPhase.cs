@@ -31,22 +31,27 @@ public class MovementPhase
 {
     [SerializeReference] public List<MovementEvent> movementEvents;
 
-    public float duration; // how do we actually measure this?
+    public float duration { get { return CalculateDuration(); } }
 
     public void Begin(MovementContext ctx)
     {
+        ctx.phaseTime = 0.0f;
         for (int i = 0; i < movementEvents.Count; i++)
         {
-            movementEvents[i].Start(ctx);
+            movementEvents[i].Begin(ctx);
         }
     }
 
-    public void Update(MovementContext ctx, float delta) 
-    {   
+    public void Tick(MovementContext ctx, float delta) 
+    {
         for (int i = 0; i < movementEvents.Count; i++)
         {
-            // how to use delta
-            movementEvents[i].Update(ctx);
+            // check if individual event is done
+            if (ctx.phaseTime >= movementEvents[i].duration)
+                continue;
+            
+            // update 
+            movementEvents[i].Tick(ctx, delta);
         }
     }
 
@@ -56,5 +61,17 @@ public class MovementPhase
         {
             movementEvents[i].End(ctx);
         }
+    }
+
+    public float CalculateDuration()
+    {
+        float longestDuration = float.MinValue;
+        for (int i = 0; i < movementEvents.Count; i++)
+        {
+            if (longestDuration <= movementEvents[i].duration)
+                longestDuration = movementEvents[i].duration;
+        }
+
+        return longestDuration;
     }
 }

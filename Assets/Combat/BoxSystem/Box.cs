@@ -3,6 +3,7 @@ using UnityEngine;
 [System.Serializable]
 public struct Box
 {
+    [Header("Full Extents Measurements")]
     // z-component
     [field: SerializeField] public float length;
     // x-component

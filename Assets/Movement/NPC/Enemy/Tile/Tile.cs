@@ -234,6 +234,11 @@ public class Tile : MonoBehaviour, IRuneReactor, IHittable, IHitboxSource
     {
         return;
     }
+
+    public GameObject GetGameObject()
+    {
+        return this.gameObject;
+    }
     #endregion
 
     #region IHitboxSource
@@ -276,12 +281,7 @@ public class Tile : MonoBehaviour, IRuneReactor, IHittable, IHitboxSource
     // create hitbox for current attack from parent's position & rotation
     private Hitbox CreateHitbox(Vector3 spawnPos, Quaternion spawnRotation)
     {
-        return new Hitbox(0.5f,
-                          spawnPos,
-                          hitboxPos,
-                          spawnRotation,
-                          this, 
-                          1);
+        return null;
     }
     #endregion
 }

@@ -85,6 +85,11 @@ public class Lever : SaveableObject, IHittable
             p.ToggledLever();
         }
     }
+
+    public GameObject GetGameObject()
+    {
+        return this.gameObject;
+    }
     #endregion
 
     #region Saveable Object

@@ -7,23 +7,117 @@ public class CombatOrchestrator : MonoBehaviour, IHittable, IHitboxSource
     [SerializeField] float health;
 
     // weapon object.... what actually is this ??
-    WeaponHolder equippedWeapon;
+    [SerializeField] WeaponHolder equippedWeapon;
+
+    // current attack
+    AttackSO currentAttack;
+    /*
+
+        CURRENT ISSUE: SETTING THIS TO NULL LITERALLY KILLS THE ATTACK DATA BY REFERENCE,
+        SUBSEQUENT ATTACKS JUST RESOLVE TO NOTHING !!!
+
+        SPECIFICALLY THE COMBAT PHASES!!!
+
+        ALSO LOT OF NULL REFS IN HERE SPECIFICALLY WHEN INIT/RUNNING ATTACKS
+
+        PROBLEMS:
+        AttemptAttack()
+        InitializeAttackRunner()
+        UpdateAttackRunner()
+
+    */
+    List<CombatPhase> phases;
+    List<CombatPhase> emptyPhaseList = new List<CombatPhase>();
+    public int currPhase;
+    // AttackOrchestrator attackOrch; ???
+    // SpellOrchestrator spellOrch; ???
+
+    // combat context should just be fixed to this unit
+    CombatContext context; // updates on weapon swaps, etc.
 
     // active hitboxes
-    List<Hitbox> activeHitboxes;
+    [SerializeField] List<Hitbox> activeHitboxes = new List<Hitbox>();
 
     #region MonoBehaviour
     private void Awake() {}
-    private void Start() {}
+    private void Start() { phases = emptyPhaseList; }
 
     private void Update()
     {
-        // tick active hitboxes
-        List<int> inactive = TickActiveHitboxes();
+        // run attack
+        UpdateAttackRunner();
 
-        // remove inactive
+        // tick active hitboxes & remove dead
+        List<int> inactive = TickActiveHitboxes();
+        Debug.Log("Inactive hitboxes to be cleaned up: " + inactive.Count + ". Flagged time: " + Time.time);
         CleanDeadHitboxes(inactive);
     }
+    #endregion
+
+    #region Gizmos
+    public void OnDrawGizmos()
+    {
+        Debug.Log($"INSPECTOR VIEWING instance: {GetInstanceID()}");
+        Debug.Log("Active hitboxes: " + activeHitboxes.Count);
+        Gizmos.color = Color.purple;
+        for (int i = 0; i < activeHitboxes.Count; i++)
+        {
+            HitboxGizmo drawData = activeHitboxes[i].GetGizmoData();
+            Gizmos.matrix = Matrix4x4.TRS(drawData.position, drawData.rotation, Vector3.one);
+            Gizmos.DrawCube(Vector3.zero, drawData.extents);
+            Debug.Log("Draw call on Gizmos ran");
+        }
+    }
+    #endregion
+
+    #region Attack Runner
+    public void InitializeAttackRunner(List<CombatPhase> combatPhases)
+    {
+        currPhase = 0;
+        phases = combatPhases;
+        Debug.Log("Running: " + currentAttack.name + " with phase count of " + combatPhases.Count);
+        context = new CombatContext(this, equippedWeapon.weaponData, 0.0f);
+        // yeah next part here
+        phases[currPhase].Begin(context);
+    }
+
+    public void UpdateAttackRunner()
+    {
+        // safety check
+        if (currentAttack == null)
+            return; 
+
+        // safety check
+        if (currPhase >= phases.Count)
+        {
+            Debug.Log("Clearing: " + currentAttack.name);
+            ClearAttackRunner();
+            return;
+        }
+        
+        // tick phase
+        context.phaseTime += Time.deltaTime;
+        phases[currPhase].Tick(context, Time.deltaTime);
+
+        // check if move to next phase
+        if (context.phaseTime >= phases[currPhase].duration)
+        {
+            Debug.Log("Changing to Phase: " + (currPhase+1).ToString());
+            phases[currPhase].End(context);
+            currPhase++;
+
+            if (currPhase < phases.Count)
+                phases[currPhase].Begin(context);
+        }
+    }
+
+    public void ClearAttackRunner()
+    {
+        currentAttack = null;
+        phases = emptyPhaseList;
+        currPhase = 0;
+    }
+
     #endregion
 
     #region Weapon Helpers
@@ -41,38 +135,45 @@ public class CombatOrchestrator : MonoBehaviour, IHittable, IHitboxSource
     #region Hittable Interface
     public void Hit(HitboxRecord hitboxRecord)
     {
-        return;
+        health -= hitboxRecord.context.damage.baseDamage;
+    }
+
+    public GameObject GetGameObject()
+    {
+        return this.gameObject;
     }
     #endregion
 
     #region Hitbox Ownership
-    public void SpawnHitbox(Hitbox hitbox)
-    {
-        
-    }
-
-    // create hitbox for current attack from parent's position & rotation
-    private Hitbox CreateHitbox(Vector3 spawnPos, Quaternion spawnRotation)
+    public void RegisterHitbox(Box box, int hits, float duration)
     {
         /*
-        return new Hitbox(currentAttack.hitboxDuration,
-                          spawnPos + yDisplace,
-                          currentAttack.hitbox,
-                          spawnRotation,
-                          this,
-                          currentAttack.hitCount);
+            Okay, enhancement ideas
+            1. find a dynamic position to launch hitboxes relative to the weapon AND the attack
+            2. rotations, uhhhh yeah. parenting is an issue we have yet to solve
+            3. what if we want sphere or whatever other shape?? that's a bigger, multi-piece one though
         */
-        return null;
+        Hitbox hitbox = new Hitbox(duration, 
+                                   transform.position + transform.forward, 
+                                   box, transform.parent.rotation, this, 
+                                   equippedWeapon.weaponData, currentAttack.damageObject, hits);
+        activeHitboxes.Add(hitbox);
+        Debug.Log($"ADDED on instance: {GetInstanceID()}");
+        Debug.Log("Hitbox added at: " + (transform.position + transform.forward) + " with duration " + duration 
+                  + ". ActiveHitboxes list is now of size: " + activeHitboxes.Count + ". Time added: " + Time.time);
     }
     
     private List<int> TickActiveHitboxes()
     {
         List<int> inactive = new List<int>();
+        Debug.Log(activeHitboxes.Count + " <-- size of ActiveHitboxes list pre-cleanup");
         for (int i = 0; i < activeHitboxes.Count; i++)
         {
             activeHitboxes[i].Tick(Time.deltaTime);
-            if (!activeHitboxes[i].Active)
+            if (!activeHitboxes[i].Active) {
+                Debug.Log($"CLEANUP on instance: {GetInstanceID()}");
                 inactive.Add(i);
+            }
         }
 
         return inactive;
@@ -91,18 +192,42 @@ public class CombatOrchestrator : MonoBehaviour, IHittable, IHitboxSource
     #region HitboxSource Interface
     public void OnHitConfirmed(HitboxRecord hitMe)
     {
-        // uhhh tbd. get IHittable and do hitMe.hittable?.Hit()
-        // EVERY IHittable implements it in their own way, SaveGem, CombatOrchestrator, Wall idkkkkk
+        // EVERY IHittable implements Hit in their own way, SaveGem, CombatOrchestrator, Wall idkkk
+
+        // if the attack found a target that is just itself, don't apply damage
+        IHittable target = hitMe.target;
+        if (target.GetGameObject() == this.gameObject)
+            return;
+
+        // something about this feels awkward
+        // like, 
+        // get the IHittable target
+        // from the HitboxRecord
+        // then tell it to get Hit
+        // by this HitboxRecord
+        // feel like it should just be, tell the target to be hit by the hitbox record
+        // or idk maybe there's a simpler way to design this
+
+        // maybe could just be its own separate monobehaviour or object 
+        // receives hitbox records and performs the "hit" procedure
+        target.Hit(hitMe);
     }
     #endregion
 
     #region Attack Request
     public AttackSO AttemptAttack()
     {
-        // uhhhh fill this is with whatever way to check this you want
-        if (true) 
-            return null;
-        return equippedWeapon.AttemptAttack();
+        // build context for decision
+        CombatPhase phase = null;
+        if (phases.Count != 0 && currPhase < phases.Count)
+            phase = phases[currPhase];
+
+        // try attack
+        currentAttack = equippedWeapon.AttemptAttack(currentAttack, phase);
+        if (currentAttack != null)
+            InitializeAttackRunner(currentAttack.combatPhases);
+
+        return currentAttack;
     }
     #endregion
 

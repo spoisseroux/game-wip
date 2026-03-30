@@ -5,11 +5,13 @@ using UnityEngine;
 public struct MovementContext
 {
     public Mover mover;
-    public Vector3 direction;
-    public float phaseTime;
+    public Vector3 startDirection;
+    public Vector3 updatingDirection;
+    public float phaseTime; // count up from 0.0f in phase, then if 
 
     // attack added for weighted walking multiplier, other things??
-    public AttackSO attack;
+    public float walkSpeedModifier;
+    public float jumpModifier;
 }
 
 /*
@@ -18,11 +20,29 @@ public struct MovementContext
 [System.Serializable]
 public abstract class MovementEvent : ScriptableObject
 {
-    [SerializeField] protected float duration;
+    [SerializeField] public float duration;
     
-    public abstract void Start(MovementContext context);
-    public abstract void Update(MovementContext context);
+    /*
+        Take in any additional context or information needed at the start
+        If this event is instant, i.e. duration <= 0.0f, nothing happens in Update()
+        Does not mean nothing happens in End(), but that's an issue to be sorted out because of how End() is called in Phase
+    */
+    public abstract void Begin(MovementContext context);
+
+    /*
+        Logical update for the event
+    */
+    public abstract void Tick(MovementContext context, float delta);
+
+    /*
+        Clean up, mostly
+    */
     public abstract void End(MovementContext context);
+
+    public override string ToString()
+    {
+        return GetType().ToString();
+    }
 }
 
 // examples
@@ -42,64 +62,3 @@ public abstract class MovementEvent : ScriptableObject
 
     Maybe we just make definitions programmatically?
 */
-[CreateAssetMenu(fileName = "NewPlayAnim", menuName = "MovementEvent/PlayAnimation", order = 1)]
-public class PlayAnimation : MovementEvent
-{
-    [SerializeField] string animName;
-
-    public override void Start(MovementContext context) { }
-
-    public override void Update(MovementContext context) { }
-
-    public override void End(MovementContext context) { }
-}
-
-[CreateAssetMenu(fileName = "NewDash", menuName = "MovementEvent/Dash", order = 1)]
-public class Dash : MovementEvent
-{
-    [SerializeField] AnimationCurve curve;
-    [SerializeField] float speed;
-
-    public override void Start(MovementContext context)
-    {
-        context.direction = context.mover.transform.forward;
-    }
-
-    public override void Update(MovementContext context)
-    {
-        float t = context.phaseTime / duration;
-        context.mover.SetVelocity(curve.Evaluate(t) * speed * context.direction, null);
-    }
-
-    public override void End(MovementContext context)
-    {
-        context.mover.SetVelocity(Vector3.zero, null);
-    }
-}
-
-[CreateAssetMenu(fileName = "NewTeleport", menuName = "MovementEvent/Teleport", order = 1)]
-public class Teleport : MovementEvent
-{
-    [SerializeField] public float distance;
-
-    public override void Start(MovementContext context) { }
-
-    public override void Update(MovementContext context) { }
-
-    public override void End(MovementContext context) { }
-
-    public void SetDirection(Vector3 direction) { }
-}
-
-[CreateAssetMenu(fileName = "NewRotate", menuName = "MovementEvent/Rotate", order = 1)]
-public class Rotate : MovementEvent
-{
-    [SerializeField] public float revolutions; // ???
-    [SerializeField] public float rotationSpeed;
-
-    public override void Start(MovementContext context) { }
-
-    public override void Update(MovementContext context) { }
-
-    public override void End(MovementContext context) { }
-}

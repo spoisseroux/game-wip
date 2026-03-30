@@ -36,15 +36,9 @@ public class WeaponHolder : MonoBehaviour, IWeapon
     // parent
     public CombatOrchestrator parent;
 
-    // EVENTUALLY, we're going to need some way of saying "hey, my weapon's hitbox spawns here"
-    // whether that's a static point, or a move routine, or... yeah
-
     // weapon data
     public WeaponDataSO weaponData; // meant to be exchanged at runtime but need more services set up for this....
     public WeaponDataSO defaultWeapon; // so we make a default weapon that's separate from the save system for this
-    
-    // current attack, used to resolve next attack?? HOW? needs timing window and correct phase window?
-    public AttackSO currentAttack;
 
     // model and placement --> attach script to root player object, drag transform of hand to here, set prefab.transform.parent as this
     [SerializeField] Transform anchorLocation;
@@ -66,15 +60,43 @@ public class WeaponHolder : MonoBehaviour, IWeapon
     #endregion
 
     #region Weapon Interface & Helpers
-    public AttackSO AttemptAttack()
+    /*
+        Upon receiving a request to queue an Attack 
+        Compare the current Attack and the phase its currently in
+        Return the next attack to queue based on results
+    */
+    public AttackSO AttemptAttack(AttackSO attack, CombatPhase currentPhase)
     {   
-        // hmmm... i mean I guess this depends and maybe should be refactored!!
-        return null;
-    }
+        AttackSO resolved = null;
+        /*Debug.Log("Attempt attack from inputs:/nAttack: " 
+                  + attack.ToString() + 
+                  "/nPhase: " + currentPhase.ToString());*/
 
-    private AttackSO ResolveAttack()
-    {
-        return null;
+        // if null, start at root attack
+        if (attack == null)
+        {
+            resolved = weaponData.basicAttackList[0];
+            Debug.Log("WeaponHolder()::Resolved to --> Attack: " + resolved + "Combo Index: " + 0);
+        }
+
+        // if mid-attack, check all combat events in this phase for combo window
+        else
+        {
+            for (int i = 0; i < currentPhase.combatEvents.Count; i++)
+            {
+                // assume that combo-ending attacks DO NOT have a ListenForComboInput object 
+                // so +1'ing the index shouldn't go out of range of weapon's attack list
+                if (currentPhase.combatEvents[i].ToString() == "ListenForComboInput")
+                {
+                    resolved = weaponData.basicAttackList[attack.comboIndex + 1];
+                    Debug.Log("WeaponHolder()::Resolved to --> Attack: " + resolved + "Combo Index: " + (attack.comboIndex + 1));
+                    break;
+                }
+            }
+        }
+
+        // null if no new attack, AttackSO object if yes successful attack queue
+        return resolved;
     }
     #endregion
 

@@ -4,10 +4,10 @@
 [System.Serializable]
 public class DamagePayload
 {
-    float baseDamage;
-    DamageType type;
+    public float baseDamage;
+    public DamageType type;
 
-    // status effect
+    // have to redo this when considering status effects and allied/neutral attacks but start here and expand igs
 
     // etc?
 }

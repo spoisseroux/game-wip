@@ -25,6 +25,7 @@ public class AttackSO : ScriptableObject
     [SerializeField] public List<MovementPhase> movementPhases;
     [SerializeField] public DamagePayload damageObject;
     [SerializeField] public string attackName;
+    [SerializeField] public int comboIndex;
 
     public float duration { 
         get
@@ -45,9 +46,6 @@ public class AttackSO : ScriptableObject
             return -404f;
         }
     }
-
-    public void RunCombatRoutine() { }
-    public void RunMovementRoutine() { }
 }
 
 /*
@@ -106,63 +104,4 @@ public class AttackData : ScriptableObject {
     public virtual void OnAttackStart(CombatManager combat) { }
     public virtual void OnAttackEnd(CombatManager combat) { }
 }
-*/
-
-/*
-[CreateAssetMenu]
-public class VaultSlamAttackData : AttackData {
-    // Movement phases
-    public PhaseData[] phases = new PhaseData[] {
-        new PhaseData { 
-            duration = 0.2f, 
-            motionType = MotionType.Pause,
-            controlledAxes = AxisMask.All 
-        },
-        new PhaseData { 
-            duration = 0.5f, 
-            motionType = MotionType.LaunchAngled,
-            launchSpeed = 15f,
-            launchAngle = 45f,
-            controlledAxes = AxisMask.XZ | AxisMask.Y 
-        },
-        new PhaseData { 
-            duration = 0.3f, 
-            motionType = MotionType.Hover,
-            controlledAxes = AxisMask.Y 
-        },
-        new PhaseData { 
-            duration = 0.4f, 
-            motionType = MotionType.DashToGround,
-            dashSpeed = 20f,
-            controlledAxes = AxisMask.All 
-        }
-    };
-    
-    // Combat events (frame-based or time-based, your choice)
-    public CombatEvent[] combatEvents = new CombatEvent[] {
-        new CombatEvent { 
-            triggerTime = 1.0f, // or frame 60 at 60fps
-            eventType = CombatEventType.ActivateHitbox,
-            hitboxID = "slamAOE" 
-        },
-        new CombatEvent { 
-            triggerTime = 1.4f,
-            eventType = CombatEventType.SpawnVFX,
-            vfxPrefab = "ImpactCrater" 
-        }
-    };
-}
-
-[System.Serializable]
-public class PhaseData {
-    public float duration;
-    public MotionType motionType;
-    public AxisMask controlledAxes;
-    // Type-specific params
-    public float launchSpeed;
-    public float launchAngle;
-    public AnimationCurve velocityCurve;
-    // etc.
-}
-
 */

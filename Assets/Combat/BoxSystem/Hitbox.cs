@@ -43,19 +43,26 @@ public class Hitbox
     private Dictionary<IHittable, int> hitHittables;
     private int hitCount;
 
-    // state
+    // internal state
     private enum HitboxState {
         Closed,
         Open
     }
-    // internal state
     private HitboxState state { get; set; }
-    public bool Active { get { return state == HitboxState.Closed; } }
+    public bool Active { get { return state == HitboxState.Open; } }
 
-    public Hitbox(float time, Vector3 p, Box b, Quaternion q, IHitboxSource s, int hitsAllowed = 1)
+    // constructor
+    public Hitbox(float time, Vector3 p, Box b, Quaternion q, IHitboxSource s, WeaponDataSO weapon, 
+                  DamagePayload payload = null, 
+                  int hitsAllowed = 1)
     {
-        // parent, replace with HitboxContext
-        source = s;
+        // parent context
+        context = new HitboxContext
+        {
+            source = s,
+            damage = payload,
+            sourceWeapon = weapon
+        };
 
         // position info 
         position = p;
@@ -66,23 +73,18 @@ public class Hitbox
         activeTime = time;
 
         // state
-        state = HitboxState.Closed;
+        state = HitboxState.Open;
 
         // stored hits
         hitHittables = new Dictionary<IHittable, int>();
         hitCount = hitsAllowed;
 
-        // create the timer
+        // create and start timer
         active = new CountdownTimer(activeTime)
         {
             OnStart = StartCheckingCollision,
             OnStop = StopCheckingCollision
         };
-    }
-
-    public void Execute()
-    {
-        // start --> open collider and begin countdown
         active.Start();
     }
 
@@ -98,11 +100,17 @@ public class Hitbox
             // hittables
             if (cols[i].TryGetComponent<IHittable>(out IHittable hitMe))
             {
+                // not hit yet
                 if (!hitHittables.ContainsKey(hitMe))
                 {
                     // construct HitRecord and feed in
-                    source?.OnHitConfirmed(new HitboxRecord());
+                    context.source?.OnHitConfirmed(new HitboxRecord());
                     hitHittables.Add(hitMe, 1);
+                }
+                // can the object be hit again
+                else if (hitHittables[hitMe] < hitCount)
+                {
+                    source?.OnHitConfirmed(new HitboxRecord());
                 }
             }
         }
@@ -125,26 +133,40 @@ public class Hitbox
     {
         return new HitboxGizmo(position, box.GizmoXYZ(), orientation);
     }
+
+    public void RepositionHitbox(Vector3 delta)
+    {
+        position += delta;
+    }
+
+    public void RotateHitbox(Quaternion qIn)
+    {
+        // ???
+    }
 }
 
 public struct HitboxContext
 {
-    // damagepayload
-    DamagePayload damage;
+    // damagepayload, edit into status effect appliers at some points
+    public DamagePayload damage; // IF THIS CAN CHANGE, WE NEED TO MAKE IT A CLASS!
     // combatorch / ihitboxsource
-    IHitboxSource source;
+    public IHitboxSource source;
     // weapondataSO sourceWeapon
-    WeaponDataSO sourceWeapon;
+    public WeaponDataSO sourceWeapon;
     // abilitySO sourceAbility
 }
 
 public struct HitboxRecord
 {
-    HitboxContext context;
-    IHittable target;
-    Vector3 contactPoint;
+    public HitboxContext context;
+    public IHittable target;
+    public Vector3 contactPoint;
 }
 
+/*
+    Used for Gizmos.matrix = Matrix4x4.TRS()
+    as well as Extents data
+*/
 public struct HitboxGizmo
 {
     public Vector3 position;

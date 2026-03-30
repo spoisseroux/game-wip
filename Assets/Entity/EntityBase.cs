@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class EntityBase : MonoBehaviour, IHittable
@@ -9,6 +10,11 @@ public class EntityBase : MonoBehaviour, IHittable
     public void Hit(HitboxRecord hitboxRecord)
     {
         return;
+    }
+
+    public GameObject GetGameObject()
+    {
+        return this.gameObject;
     }
     #endregion
 }
