@@ -1,6 +1,32 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+/*
+    OK, next steps:
+        1. Null handling less awkward. Passing around all these nulled scriptable objects is going to crash the game inevitably
+           There needs to be a NoneType object equivalent, have the game fail a bit more gracefully
+        
+        2. Using ScriptableObjects as stored objects for data retrieval and passing around instances of them feels a bit off
+           Might be a good idea to confirm whether that's the best way to make use of storing/reading/deciding data flows
+
+        3. AttackRunner object would be good to have. I can see it being a useful component if made unit-agnostic 
+        
+        4. CombatOrchestrator being unit-agnostic as well would be nice. Or split apart into only necessary components 
+           Ideal world any unit performing combat just has one, but there's probably some nuance here. 
+                What if it's a turret or a neutral/undamageable entity?
+                What if we want an object that just overlays a hitbox for infinity/until destroyed?
+
+        5. More robust architecture, requirements checking, and phase delineation in AttackSO
+                1.  VFX routines
+                    SFX routines
+                    Trajectory routines for hitboxes
+                    More complicated things... yey!
+               
+                2.  It's so easy to get the phase lengths wrong manually
+                    It's also a bit tedious to conceptualize, define concrete building blocks, and compose phases
+        
+
+*/
 public class CombatOrchestrator : MonoBehaviour, IHittable, IHitboxSource
 {
     // health component eventually
@@ -170,15 +196,18 @@ public class CombatOrchestrator : MonoBehaviour, IHittable, IHitboxSource
     #region HitboxSource Interface
     public void OnHitConfirmed(HitboxRecord hitMe)
     {
-        // EVERY IHittable implements Hit in their own way, SaveGem, CombatOrchestrator, Wall idkkk
+        // EVERY IHittable implements Hit in their own way, SaveGem, CombatOrchestrator, Wall, etc.
 
-        // if the attack found a target that is just itself, don't apply damage
+        // if the hit target is just ourselves, don't apply damage
         IHittable target = hitMe.target;
         Debug.Log("Hit target: " + target);
         if (target?.GetGameObject() == this.gameObject)
             return;
 
-        // something about this feels awkward
+        target?.Hit(hitMe);
+    }
+
+    // something about this feels awkward
         // like, 
         // get the IHittable target
         // from the HitboxRecord
@@ -189,8 +218,6 @@ public class CombatOrchestrator : MonoBehaviour, IHittable, IHitboxSource
 
         // maybe could just be its own separate monobehaviour or object 
         // receives hitbox records and performs the "hit" procedure
-        target?.Hit(hitMe);
-    }
     #endregion
 
     #region Attack Request

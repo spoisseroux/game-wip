@@ -14,9 +14,7 @@ public class SerializeableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, I
         foreach (KeyValuePair<TKey, TValue> pair in this)
         {
             keys.Add(pair.Key);
-            Debug.Log(pair.Key);
             values.Add(pair.Value);
-            Debug.Log(pair.Value);
         }
     }
 
