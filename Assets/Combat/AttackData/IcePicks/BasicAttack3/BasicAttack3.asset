@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8bb6699acbc94fae82a599386f2079b, type: 3}
+  m_Name: BasicAttack3
+  m_EditorClassIdentifier: Assembly-CSharp::AttackSO
+  combatPhases:
+  - combatEvents:
+    - {fileID: 11400000, guid: 9255760d9c6764c13b9e6d1476855bd7, type: 2}
+  - combatEvents:
+    - {fileID: 11400000, guid: 8cab639847b5446aaa55592d57514bc1, type: 2}
+  - combatEvents:
+    - {fileID: 11400000, guid: 903fdaaf13db142b29a52ecad3d0fd7f, type: 2}
+  movementPhases:
+  - movementEvents:
+    - {fileID: 11400000, guid: 7bcbf3fe53dd14f1d87fd1d494902115, type: 2}
+  damageObject:
+    baseDamage: 0
+    type: 0
+  attackName: IcePickAttack2
+  comboIndex: 2

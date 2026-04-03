@@ -172,8 +172,6 @@ public class SaveGameManager : MonoBehaviour
 
         // read from file
         save = fileHandler.Load(1);
-
-        // debug mode and null data
         if (save == null)
         {
             Debug.Log("SaveGameManager::LoadData() --> no saved data from file, creating new file");

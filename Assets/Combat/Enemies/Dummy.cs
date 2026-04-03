@@ -1,16 +1,18 @@
 using UnityEngine;
 
-public class Dummy : MonoBehaviour, IDamageable
+public class Dummy : MonoBehaviour, IHittable
 {
-    public int health = 100;
+    public float health = 100;
 
-    public void TakeDamage(int damage)
+    public void Hit(HitboxRecord hitboxRecord)
     {
-        health -= damage;
+        Debug.Log("Ow my health! I lost: " + hitboxRecord.context.damage.baseDamage + " health!");
+        health -= hitboxRecord.context.damage.baseDamage;
+        return;
     }
 
-    public void TakeDamage(int damage, IHitboxSource source)
+    public GameObject GetGameObject()
     {
-        TakeDamage(damage);
+        return this.gameObject;
     }
 }

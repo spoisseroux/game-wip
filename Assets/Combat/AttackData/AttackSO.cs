@@ -1,26 +1,51 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
+
+/*
+    So. How do both the Movement and Combat components know to start? Where do they run?
+
+    upon RequestAttack() in MovementManager returning an AttackSO (THATS A WHOLE OTHER ISSUE BTW) we know, ok time to go?
+
+    then say, in AttackState() currentAttack.RunMovementRoutine();
+              in CombatOrchestrator currentAttack.RunCombatRoutine();
+
+    Seems a bit off. Maybe the AttackOrchestrator idea isn't bad?
+
+    Idk, make a basic attack and go from there
+*/
 
 [CreateAssetMenu(fileName = "newAttackDataSO", menuName = "Data/AttackDataSO")]
 public class AttackSO : ScriptableObject
 {
-    // duration for the whole attack --> [windup + active + finishing anim]
-    public float attackDuration;
-    // duration of hitbox
-    public float hitboxDuration;
-    // damage
-    public int damage;
-    // hitbox
-    public Box hitbox; // could make a list!!!!
-    // movespeed modifier
-    public float movespeedModifier;
-    // anim
-    public string animName;
-    // combo window, checked against progress
-    public float comboWindowStart;
-    public float comboWindowEnd;
-    // hit number
-    public int hitCount;
+    /*
+        Refactor in progress!
+    */
+    [SerializeField] public List<CombatPhase> combatPhases;
+    [SerializeField] public List<MovementPhase> movementPhases;
+    [SerializeField] public DamagePayload damageObject;
+    [SerializeField] public string attackName;
+    [SerializeField] public int comboIndex;
+
+    public float duration { 
+        get
+        {
+            float combat = 0.0f;
+            for (int i = 0; i < combatPhases.Count; i++) {
+                combat += combatPhases[i].duration;
+            }
+
+            float move = 0.0f;
+            for (int i = 0; i < movementPhases.Count; i++) {
+                move += movementPhases[i].duration;
+            }
+
+            if (combat == move)
+                return move;
+            
+            return -404f;
+        }
+    }
 }
 
 /*
@@ -79,63 +104,4 @@ public class AttackData : ScriptableObject {
     public virtual void OnAttackStart(CombatManager combat) { }
     public virtual void OnAttackEnd(CombatManager combat) { }
 }
-*/
-
-/*
-[CreateAssetMenu]
-public class VaultSlamAttackData : AttackData {
-    // Movement phases
-    public PhaseData[] phases = new PhaseData[] {
-        new PhaseData { 
-            duration = 0.2f, 
-            motionType = MotionType.Pause,
-            controlledAxes = AxisMask.All 
-        },
-        new PhaseData { 
-            duration = 0.5f, 
-            motionType = MotionType.LaunchAngled,
-            launchSpeed = 15f,
-            launchAngle = 45f,
-            controlledAxes = AxisMask.XZ | AxisMask.Y 
-        },
-        new PhaseData { 
-            duration = 0.3f, 
-            motionType = MotionType.Hover,
-            controlledAxes = AxisMask.Y 
-        },
-        new PhaseData { 
-            duration = 0.4f, 
-            motionType = MotionType.DashToGround,
-            dashSpeed = 20f,
-            controlledAxes = AxisMask.All 
-        }
-    };
-    
-    // Combat events (frame-based or time-based, your choice)
-    public CombatEvent[] combatEvents = new CombatEvent[] {
-        new CombatEvent { 
-            triggerTime = 1.0f, // or frame 60 at 60fps
-            eventType = CombatEventType.ActivateHitbox,
-            hitboxID = "slamAOE" 
-        },
-        new CombatEvent { 
-            triggerTime = 1.4f,
-            eventType = CombatEventType.SpawnVFX,
-            vfxPrefab = "ImpactCrater" 
-        }
-    };
-}
-
-[System.Serializable]
-public class PhaseData {
-    public float duration;
-    public MotionType motionType;
-    public AxisMask controlledAxes;
-    // Type-specific params
-    public float launchSpeed;
-    public float launchAngle;
-    public AnimationCurve velocityCurve;
-    // etc.
-}
-
 */

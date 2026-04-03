@@ -73,10 +73,12 @@ public class PlayerMotor : Mover
     #endregion
 
     // fix l8r :3
+    /*
     #region Constant Base Values
     [Header("Base Movement Values")]
-    public MovementSettings moveSettings;
+    public MovementSettings movementSettings;
     #endregion
+    */
 
     // gravity component
     [SerializeField] Gravity gravity;
@@ -120,7 +122,7 @@ public class PlayerMotor : Mover
 
         // rotation
         Quaternion newRotation = Quaternion.LookRotation(targetRotationDirection);
-        Quaternion targetRotation = Quaternion.Slerp(transform.rotation, newRotation, Time.deltaTime * moveSettings.rotationSpeed);
+        Quaternion targetRotation = Quaternion.Slerp(transform.rotation, newRotation, Time.deltaTime * movementSettings.rotationSpeed);
         transform.rotation = targetRotation; // have to set the transform directly
 
         // combine XZ and Y dirs, then move
@@ -238,7 +240,7 @@ public class PlayerMotor : Mover
             yVel += gravity.ApplyAirborneGravity(yVel.y);
         
         // clamp
-        yVel.y = Mathf.Max(yVel.y, moveSettings.minimumYVelocity);
+        yVel.y = Mathf.Max(yVel.y, movementSettings.minimumYVelocity);
     }
 
     private Vector3 ResolveVerticalMovement()

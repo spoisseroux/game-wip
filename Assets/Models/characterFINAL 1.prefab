@@ -691,16 +691,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6bd7efa6f3e9c40e6b8124bf0d65a4bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Weapon
-  parent: {fileID: 6494552986643004073}
-  parentTransform: {fileID: 5802613055510859818}
-  yDisplace: {x: 0, y: 2, z: 0}
+  parent: {fileID: 0}
   weaponData: {fileID: 11400000, guid: 242d18e5e98be4d90929792b624e903a, type: 2}
-  defaultWeapon: {fileID: 0}
+  defaultWeapon: {fileID: 11400000, guid: 242d18e5e98be4d90929792b624e903a, type: 2}
   currentAttack: {fileID: 0}
-  currentComboIndex: -1
+  anchorLocation: {fileID: 0}
+  weaponPrefab: {fileID: 425526701769200726}
   activeHitboxes: []
-  inactiveColor: {r: 0, g: 1, b: 0, a: 1}
-  collisionOpenColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!1 &1567479901413379322
 GameObject:
   m_ObjectHideFlags: 0
@@ -3631,13 +3628,13 @@ GameObject:
   - component: {fileID: 4038718262244649591}
   - component: {fileID: 4230000272080931834}
   - component: {fileID: 7238453413278229850}
-  - component: {fileID: 6494552986643004073}
   - component: {fileID: 4183517276607411500}
   - component: {fileID: 8059638282921325233}
   - component: {fileID: 5466873238209166844}
   - component: {fileID: 7829103123481902128}
   - component: {fileID: 4268060037736681831}
   - component: {fileID: 7338028409787163331}
+  - component: {fileID: 2910921834593134943}
   m_Layer: 7
   m_Name: characterFINAL 1
   m_TagString: Player
@@ -3710,7 +3707,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerManager
   movementManager: {fileID: 4230000272080931834}
-  combatManager: {fileID: 6494552986643004073}
+  combatOrchestrator: {fileID: 0}
   runeHolder: {fileID: 0}
 --- !u!114 &4230000272080931834
 MonoBehaviour:
@@ -3727,7 +3724,7 @@ MonoBehaviour:
   motor: {fileID: 7238453413278229850}
   characterController: {fileID: 3958805940879060660}
   input: {fileID: 11400000, guid: 9e11a5ba4c4484a3c85199a6afe3bc90, type: 2}
-  combat: {fileID: 6494552986643004073}
+  combat: {fileID: 0}
   animationController: {fileID: 8059638282921325233}
   horizontalMovement: 0
   verticalMovement: 0
@@ -3737,11 +3734,6 @@ MonoBehaviour:
   interactCheckTranslationOffset: {x: 0, y: 1, z: 0}
   interactDistance: 5
   bonusJumpTaken: 0
-  wallLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  detectionRange: 1
-  wallJumpSphereRaycastRadius: 0.4
 --- !u!114 &7238453413278229850
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3754,6 +3746,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4941199b582d845bc881aee7ddbb5cbf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMotor
+  movementSettings: {fileID: 11400000, guid: b564e070d620d489ba0d74be60b27150, type: 2}
   cc: {fileID: 3958805940879060660}
   owner: {fileID: 5802613055510859818}
   yVel: {x: 0, y: 0, z: 0}
@@ -3768,22 +3761,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 160
   ceilingCheck: {fileID: 0}
-  moveSettings: {fileID: 11400000, guid: b564e070d620d489ba0d74be60b27150, type: 2}
   gravity: {fileID: 11400000, guid: ef6d52913418a46199ec19b5a9b71ed9, type: 2}
---- !u!114 &6494552986643004073
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5669406454974335711}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 888452a0fea5a408e9eb505fcee66fb6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerCombatManager
-  health: 100
-  equippedWeapon: {fileID: 466383437584534948}
 --- !u!114 &4183517276607411500
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3935,6 +3913,20 @@ MonoBehaviour:
   footstepEmitter: {fileID: 1892091987823570829}
   jumpEmitter: {fileID: 1231511968604122612}
   attackEmitter: {fileID: 7711093186065678237}
+--- !u!114 &2910921834593134943
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5669406454974335711}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11b06d875f3944cb09979865a17e3464, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CombatOrchestrator
+  health: 100
+  equippedWeapon: {fileID: 466383437584534948}
 --- !u!1 &5756215108153476574
 GameObject:
   m_ObjectHideFlags: 0
@@ -6645,6 +6637,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 257162972044495392}
   m_SourcePrefab: {fileID: 100100000, guid: 73001f988d3ad96439344cd73d622a47, type: 3}
+--- !u!1 &425526701769200726 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9099168886776315459, guid: 73001f988d3ad96439344cd73d622a47, type: 3}
+  m_PrefabInstance: {fileID: 8908537479048669717}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2606191373468592098 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6884445400204004855, guid: 73001f988d3ad96439344cd73d622a47, type: 3}

@@ -22,13 +22,18 @@ public class SaveGem : MonoBehaviour, IHittable
 
     // hitbox struck this collider with a Hitbox, perform a save.... HAVE TO DO SOURCE RESOLUTION HERE TOO SO NPCs CANNOT SAVE FOR US LOL
     #region IHittable Interface
-    public void Hit()
+    public void Hit(HitboxRecord hit)
     {
         // play
         director.Play();
 
-        SaveGameManager yeah = GameObject.Find("SaveManager").GetComponent<SaveGameManager>();
-        yeah.SaveGame();
+        SaveGameManager saveManager = GameObject.Find("SaveManager").GetComponent<SaveGameManager>();
+        saveManager.SaveGame();
+    }
+
+    public GameObject GetGameObject()
+    {
+        return this.gameObject;
     }
     #endregion
 

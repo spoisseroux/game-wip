@@ -4,15 +4,12 @@ using UnityEngine;
 
 public class PlayerMovementManager : MonoBehaviour
 {
-    // parent... is this even gunna be necessary?
-    PlayerManager player;
-
     [Header("Script Components")]
     // components
     [SerializeField] PlayerMotor motor;
     [SerializeField] public CharacterController characterController;
     [SerializeField] InputReader input;
-    [SerializeField] PlayerCombatManager combat;
+    [SerializeField] CombatOrchestrator combat;
     [SerializeField] AnimationController animationController;
 
     // fsm & states
@@ -79,19 +76,13 @@ public class PlayerMovementManager : MonoBehaviour
 
     [Header("Jump")]
     // TODO: grace periods, coyote time (after leaving platform) && jump buffer (input buffering sorta deal)
-    public bool bonusJumpTaken = false;
-
-    [Header("Wall Jump")]
-    [SerializeField] LayerMask wallLayer;
-    [SerializeField] float detectionRange = 10f;
-    [SerializeField] float wallJumpSphereRaycastRadius = 0.4f;
+    public bool bonusJumpTaken = false; // THIS NEEDS A FIX AS WELL, DOESN'T APPEAR TO BE RESET UPON USE!! MOVE TO MOTOR?
 
     #region Monobehavior
     private void Awake()
     {
         // unity components
-        player = GetComponent<PlayerManager>();
-        combat = GetComponent<PlayerCombatManager>();
+        combat = GetComponent<CombatOrchestrator>();
         characterController = GetComponent<CharacterController>();
         animationController = GetComponent<AnimationController>();
 
@@ -108,7 +99,7 @@ public class PlayerMovementManager : MonoBehaviour
         dashState = new DashingState(motor, animationController, this);
         walljumpState = new WallJumpState(motor, animationController, this);
         interactState = new InteractState(motor, animationController, this);
-        attackState = new AttackState(motor, combat, animationController);
+        attackState = new AttackState(motor, animationController, this);
         chantState = new ChantState(motor, animationController);
 
         // idle state transitions
@@ -311,7 +302,7 @@ public class PlayerMovementManager : MonoBehaviour
     {
         RaycastHit hit;
         // basic sphere cast for now
-        bool cast = Physics.SphereCast(player.transform.position + interactCheckTranslationOffset, // THIS IS WRONG IN SPACE!! FORWARD * OFFSET
+        bool cast = Physics.SphereCast(transform.position + interactCheckTranslationOffset, // THIS IS WRONG IN SPACE!! FORWARD * OFFSET
                                        interactSphereRadius,
                                        transform.forward, // could be camera forward too!
                                        out hit,
@@ -406,7 +397,7 @@ public class PlayerMovementManager : MonoBehaviour
 
     // ATTACK
     #region Attack
-    
+    // move this over to combatOrch only, then call back out here
     public bool RequestAttack()
     {
         AttackSO queuedAttack = combat.AttemptAttack();

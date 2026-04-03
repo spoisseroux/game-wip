@@ -74,7 +74,7 @@ public class Lever : SaveableObject, IHittable
     #endregion
 
     #region IHittable Interface
-    public void Hit()
+    public void Hit(HitboxRecord hit)
     {
         // director
         director.Play();
@@ -84,6 +84,11 @@ public class Lever : SaveableObject, IHittable
         {
             p.ToggledLever();
         }
+    }
+
+    public GameObject GetGameObject()
+    {
+        return this.gameObject;
     }
     #endregion
 

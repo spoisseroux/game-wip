@@ -113,7 +113,7 @@ public class TileAttackState : TileState
 }
 
 // monobehaviour
-public class Tile : MonoBehaviour, IRuneReactor, IDamageable, IHitboxSource
+public class Tile : MonoBehaviour, IRuneReactor, IHittable, IHitboxSource
 {
     // components
     [SerializeField] Animator animator;
@@ -205,7 +205,7 @@ public class Tile : MonoBehaviour, IRuneReactor, IDamageable, IHitboxSource
         if (activeHitboxes.Count > 0) {
             for (int i = activeHitboxes.Count; i >= 0; i--)
             {
-                if (activeHitboxes[i].state == HitboxState.Closed)
+                if (!activeHitboxes[i].Active)
                 {
                     activeHitboxes.RemoveAt(i);
                 }
@@ -229,32 +229,21 @@ public class Tile : MonoBehaviour, IRuneReactor, IDamageable, IHitboxSource
     }
     #endregion
 
-    #region IDamageable
-    public void TakeDamage(int amount)
+    #region IHittable
+    public void Hit(HitboxRecord hitboxRecord)
     {
-        health -= amount;
-        if (health <= 0)
-            OnTileDeath?.Invoke();
         return;
+    }
+
+    public GameObject GetGameObject()
+    {
+        return this.gameObject;
     }
     #endregion
 
     #region IHitboxSource
-    public void CollisionedWith(Collider col)
-    {
-        return;
-    }
-
-    public void CollisionedWith(IDamageable damageMe)
-    {
-        if (damageMe != this as IDamageable)
-            damageMe?.TakeDamage(damage);
-    }
-
-    public void CollisionedWith(IHittable hitMe)
-    {
-        return;
-    }
+    public void OnHitConfirmed(HitboxRecord hit) {}
+    
     #endregion
 
     #region FSM
@@ -292,12 +281,7 @@ public class Tile : MonoBehaviour, IRuneReactor, IDamageable, IHitboxSource
     // create hitbox for current attack from parent's position & rotation
     private Hitbox CreateHitbox(Vector3 spawnPos, Quaternion spawnRotation)
     {
-        return new Hitbox(0.5f,
-                          spawnPos,
-                          hitboxPos,
-                          spawnRotation,
-                          this, 
-                          1);
+        return null;
     }
     #endregion
 }

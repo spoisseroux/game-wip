@@ -4,14 +4,14 @@ public class PlayerManager : MonoBehaviour
 {
     // various system components
     public PlayerMovementManager movementManager; 
-    public PlayerCombatManager combatManager;
+    public CombatOrchestrator combatOrchestrator;
     public RuneHolder runeHolder;
 
     #region Monobehavior
     private void Awake()
     {
         movementManager = GetComponent<PlayerMovementManager>();
-        combatManager = GetComponent<PlayerCombatManager>();
+        combatOrchestrator = GetComponent<CombatOrchestrator>();
         runeHolder = GetComponent<RuneHolder>();
     }
 
@@ -37,7 +37,7 @@ public class PlayerManager : MonoBehaviour
         // movement manager saved objects
 
         // combat saved objects
-        combatManager.SetHealth(data.health); // hacky for now
+        combatOrchestrator.SetHealth(data.health); // hacky for now
         // combatManager.SetEquippedWeapon(data.weapon); // leaving alone for a moment
 
         // rune holder
@@ -54,7 +54,7 @@ public class PlayerManager : MonoBehaviour
         saveOverwrite.rotation = new SerializeableQuaternion(this.transform.rotation);
 
         // combat manager
-        saveOverwrite.health = combatManager.GetHealth();
+        saveOverwrite.health = combatOrchestrator.GetHealth();
         // leave til fixed saveOverwrite.weapon = ...
 
         // rune holder

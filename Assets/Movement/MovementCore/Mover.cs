@@ -17,6 +17,7 @@ public abstract class Mover : MonoBehaviour
 {
     // buff system
     // [SerializeableField] BuffSystem buffStore;
+    public MovementSettings movementSettings;
 
     protected Dictionary<MovementAxis, object> movementAxisOwners = new Dictionary<MovementAxis, object> {
         {MovementAxis.None, null},
