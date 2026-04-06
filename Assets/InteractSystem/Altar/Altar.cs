@@ -2,6 +2,14 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Playables;
+/*
+    CURRENTLY:
+        Have to determine the best way to "apply" data to the objects in concrete terms
+        Yes, the PlayerManager has a way to load it, and the SaveModule has an abstract ApplyData() function
+        But how do we propagate it down into the individual objects properly, with low code duplication?
+
+        It feels a bit awkward right now, whereas before at least accessing data was simple and consistent
+*/
 
 // for saving
 [System.Serializable]
@@ -15,7 +23,27 @@ public class AltarSaveData : ISaveData
     }
 }
 
-public class Altar : SaveableObject, IInteractable
+public class AltarSaveModule : SaveModule<AltarSaveData>
+{
+    private Altar altar;
+
+    public AltarSaveModule(Altar altarIn)
+    {
+        altar = altarIn;
+    }
+    
+    protected override void ApplyTypedData(AltarSaveData data)
+    {
+        throw new NotImplementedException();
+    }
+
+    protected override AltarSaveData CollectTypedData()
+    {
+        throw new NotImplementedException();
+    }
+}
+
+public class Altar : MonoBehaviour, IInteractable
 {
     // player we're interacting with
     [Header("Player References")]
@@ -24,8 +52,8 @@ public class Altar : SaveableObject, IInteractable
     // state internals
     bool interacting = false;
 
-    // data
-    AltarSaveData saveData;
+    // save module
+    AltarSaveModule save;
 
     // rune
     [SerializeField] private RuneDataSO storedRune; // don't think we need to 'save' serialized data like runes...
@@ -36,20 +64,16 @@ public class Altar : SaveableObject, IInteractable
     public Material after;
 
     #region MonoBehaviour
-    private void Awake() {
-        // assign a GUID in the Awake of every SaveableObject inheritor
-        if (string.IsNullOrEmpty(guid))
-        {
-            AssignID();
-        }
-
-        interacting = false;
+    private void Awake() 
+    {
+        save = new AltarSaveModule(this);
+        save.Initialize();
     }
 
     private void Start() {
-        saveData = new AltarSaveData();
+        /*
         // check if instantiated
-        if (guid != null && guid != String.Empty)
+        if (save. != null && guid != String.Empty)
         {
             // check if save data exists
             if (SaveGameManager.HasData(guid))
@@ -71,11 +95,14 @@ public class Altar : SaveableObject, IInteractable
         }
 
         SaveGameManager.OnSave += SaveData;
+        */
     }
 
     private void OnDestroy()
     {
+        /*
         SaveGameManager.OnSave -= SaveData;
+        */
     }
     #endregion
 
@@ -83,7 +110,7 @@ public class Altar : SaveableObject, IInteractable
     public bool CanInteract()
     {
         // if we have interacted before, want to return false!
-        return !saveData.interactedBefore;
+        return false; // read save data
     }
 
     public void Interact(PlayerMovementManager p) {
@@ -119,24 +146,10 @@ public class Altar : SaveableObject, IInteractable
         yield return new WaitForSeconds(1.0f);
         // visuals & data
         player.GetComponent<RuneHolder>().BestowRune(storedRune);
-        saveData.interactedBefore = true;
+        // saveData.interactedBefore = true;
         yield return new WaitForSeconds(2.0f);
         // free player
         FreePlayer();
-    }
-    #endregion
-
-    #region Saveable Object
-    public override void SaveData()
-    {
-        Debug.Log("Altar::SaveData() --> writing Altar data to SaveGameManager");
-        SaveGameManager.SaveDataAtGUID(this.guid, saveData);
-    }
-
-    public override void LoadData(ISaveData data)
-    {
-        Debug.Log("Altar::LoadData() --> Loading save data.... ");
-        saveData = data as AltarSaveData; 
     }
     #endregion
 }

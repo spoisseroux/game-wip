@@ -55,7 +55,8 @@ public class PlayerManager : MonoBehaviour
 
         // combat manager
         saveOverwrite.health = combatOrchestrator.GetHealth();
-        // leave til fixed saveOverwrite.weapon = ...
+        
+        // weapon
 
         // rune holder
         saveOverwrite.runeIDs = runeHolder.SetSavedRunes();
