@@ -14,11 +14,9 @@ public class SaveGem : MonoBehaviour, IHittable
     #region IHittable Interface
     public void Hit(HitboxRecord hit)
     {
-        // return if not player
-        if (hit.context.source != null)
-        {
-            // yeah, more
-        }
+        // return if not an object that can hit the save gem
+        if (hit.context.source.GetHitboxSourceGameObject() != saveInitiator)
+            return;
         
         director.Play();
         

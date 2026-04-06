@@ -21,26 +21,24 @@ public class AltarSaveData : ISaveData
     {
         interactedBefore = false;
     }
+
+    public AltarSaveData(bool interacted)
+    {
+        interactedBefore = interacted;
+    } 
 }
 
 public class AltarSaveModule : SaveModule<AltarSaveData>
 {
-    private Altar altar;
+    private readonly Altar altar;
 
     public AltarSaveModule(Altar altarIn)
     {
         altar = altarIn;
     }
     
-    protected override void ApplyTypedData(AltarSaveData data)
-    {
-        throw new NotImplementedException();
-    }
-
-    protected override AltarSaveData CollectTypedData()
-    {
-        throw new NotImplementedException();
-    }
+    protected override void ApplyTypedData(AltarSaveData data) => altar.ApplySaveData(data);
+    protected override AltarSaveData CollectTypedData() => altar.CollectSaveData();
 }
 
 public class Altar : MonoBehaviour, IInteractable
@@ -54,6 +52,7 @@ public class Altar : MonoBehaviour, IInteractable
 
     // save module
     AltarSaveModule save;
+    bool canInteract = false;
 
     // rune
     [SerializeField] private RuneDataSO storedRune; // don't think we need to 'save' serialized data like runes...
@@ -66,43 +65,25 @@ public class Altar : MonoBehaviour, IInteractable
     #region MonoBehaviour
     private void Awake() 
     {
+        // load in save
         save = new AltarSaveModule(this);
-        save.Initialize();
+        save.Initialize(); // abstract base call, takes care of GUID assignment/resolution
     }
 
     private void Start() {
-        /*
-        // check if instantiated
-        if (save. != null && guid != String.Empty)
-        {
-            // check if save data exists
-            if (SaveGameManager.HasData(guid))
-            {
-                saveData = SaveGameManager.GetObjectData(guid) as AltarSaveData;
-            }
-            else
-            {
-                SaveGameManager.AddObject(guid, saveData);
-            }
-        }
-
-        if (saveData.interactedBefore)
+        // value read and set from save module
+        if (!canInteract)
         {
             PlayableDirector dir = GetComponent<PlayableDirector>();
             dir.time = dir.duration;
             dir.Evaluate();
             dir.Stop();
         }
-
-        SaveGameManager.OnSave += SaveData;
-        */
     }
 
     private void OnDestroy()
     {
-        /*
-        SaveGameManager.OnSave -= SaveData;
-        */
+        save.DetachFromSaveManager();
     }
     #endregion
 
@@ -144,12 +125,26 @@ public class Altar : MonoBehaviour, IInteractable
         // flag to busy
         interacting = true;
         yield return new WaitForSeconds(1.0f);
-        // visuals & data
+
+        // visuals, data transfer, writing internal save data
         player.GetComponent<RuneHolder>().BestowRune(storedRune);
-        // saveData.interactedBefore = true;
+        canInteract = false;
         yield return new WaitForSeconds(2.0f);
+
         // free player
         FreePlayer();
+    }
+    #endregion
+
+    #region Load Save
+    public void ApplySaveData(AltarSaveData data)
+    {
+        canInteract = data.interactedBefore;
+    }
+
+    public AltarSaveData CollectSaveData()
+    {
+        return new AltarSaveData(canInteract);
     }
     #endregion
 }

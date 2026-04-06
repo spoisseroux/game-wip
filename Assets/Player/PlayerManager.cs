@@ -6,6 +6,7 @@ public class PlayerManager : MonoBehaviour
     public PlayerMovementManager movementManager; 
     public CombatOrchestrator combatOrchestrator;
     public RuneHolder runeHolder;
+    public PlayerSaveModule saveModule;
 
     #region Monobehavior
     private void Awake()
@@ -13,6 +14,10 @@ public class PlayerManager : MonoBehaviour
         movementManager = GetComponent<PlayerMovementManager>();
         combatOrchestrator = GetComponent<CombatOrchestrator>();
         runeHolder = GetComponent<RuneHolder>();
+
+        // initialize save
+        saveModule = new PlayerSaveModule(this);
+        saveModule.Initialize();
     }
 
     private void Start()

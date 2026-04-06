@@ -1,28 +1,10 @@
 using System;
 using UnityEngine;
 
-public abstract class SaveableObject : MonoBehaviour
-{
-    protected ISaveData data; // hmm....
-    public string guid;
-
-    /*
-        This function is called within the Awake() of every SaveableObject existing in the game world
-    */
-    [ContextMenu("Generate guid for id")]
-    protected void AssignID()
-    {
-        guid = Guid.NewGuid().ToString();
-        Debug.Log("New Call to Assign a GUID");
-    }
-
-    public abstract void SaveData();
-    public abstract void LoadData(ISaveData data);
-}
-
+// Parent class for pure C# class dedicated to providing objects with functionality to load, apply, and write to save
 public abstract class SaveModule
 {
-    public ISaveData data;
+    public ISaveData data { get; private set; }
     public string ID;
 
     [ContextMenu("Generate guid for id")]
@@ -63,7 +45,7 @@ public abstract class SaveModule
 }
 
 
-// Generic template for save data
+// Generic template for save data, gives concrete objects their own flexiblity in implementing their save, load, write routines
 public abstract class SaveModule<T> : SaveModule where T : ISaveData, new()
 {
     public override ISaveData CollectData() => CollectTypedData();
