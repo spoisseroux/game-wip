@@ -2,7 +2,7 @@
 # Sets up Unity Smart Merge (YAMLMerge) with fallback
 
 # --- CONFIGURE THIS ---
-$unityVersion = "6000.2.1f1"
+$unityVersion = "6000.4.4f1"
 $unityYamlMerge = "C:/Program Files/Unity/Hub/Editor/$unityVersion/Editor/Data/Tools/UnityYAMLMerge.exe"
 # ----------------------
 
