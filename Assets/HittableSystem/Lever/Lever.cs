@@ -36,7 +36,7 @@ public class Lever : MonoBehaviour, IHittable
 
     // save data
     LeverSaveModule save;
-    bool switched;
+    bool switched = false;
 
     // list of gameobjects we want to affect upon hit
     [SerializeField] Platform[] platforms;

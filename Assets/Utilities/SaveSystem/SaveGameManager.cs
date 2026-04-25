@@ -53,6 +53,7 @@ public class SaveGameManager : MonoBehaviour
         else
             Destroy(gameObject);
 
+        Debug.Log("Initialized SaveManager");
         
         save = new();
         this.fileHandler = new FileSaveHandler(debugMode);
