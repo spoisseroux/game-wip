@@ -18,7 +18,9 @@ using UnityEngine;
 */
 public interface IHitboxSource
 {
+    // maybe good to add a GetGameObject function here too
     void OnHitConfirmed(HitboxRecord record);
+    public GameObject GetHitboxSourceGameObject();
 }
 
 [System.Serializable]

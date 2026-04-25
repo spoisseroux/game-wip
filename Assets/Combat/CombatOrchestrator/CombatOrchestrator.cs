@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 
 /*
     OK, next steps:
@@ -199,12 +200,11 @@ public class CombatOrchestrator : MonoBehaviour, IHittable, IHitboxSource
         // EVERY IHittable implements Hit in their own way, SaveGem, CombatOrchestrator, Wall, etc.
 
         // if the hit target is just ourselves, don't apply damage
-        IHittable target = hitMe.target;
-        Debug.Log("Hit target: " + target);
-        if (target?.GetGameObject() == this.gameObject)
+        Debug.Log("Hit target: " + hitMe.target);
+        if (hitMe.target?.GetGameObject() == GetHitboxSourceGameObject())
             return;
 
-        target?.Hit(hitMe);
+        hitMe.target?.Hit(hitMe);
     }
 
     // something about this feels awkward
@@ -218,6 +218,12 @@ public class CombatOrchestrator : MonoBehaviour, IHittable, IHitboxSource
 
         // maybe could just be its own separate monobehaviour or object 
         // receives hitbox records and performs the "hit" procedure
+
+    
+    public GameObject GetHitboxSourceGameObject()
+    {
+        return this.gameObject;
+    }
     #endregion
 
     #region Attack Request

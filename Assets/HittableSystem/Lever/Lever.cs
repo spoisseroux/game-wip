@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.Playables;
 
@@ -10,15 +9,34 @@ public class LeverSaveData : ISaveData
     {
         switched = false;
     }
+
+    public LeverSaveData(bool toggled)
+    {
+        switched = toggled;
+    }
 }
 
-public class Lever : SaveableObject, IHittable
+public class LeverSaveModule : SaveModule<LeverSaveData>
+{
+    protected readonly Lever lever;
+
+    public LeverSaveModule(Lever leverIn)
+    {
+        lever = leverIn;
+    }
+
+    protected override void ApplyTypedData(LeverSaveData data) => lever.LoadSave(data);
+    protected override LeverSaveData CollectTypedData() => lever.CollectSaveData();
+}
+
+public class Lever : MonoBehaviour, IHittable
 {
     // components
     [SerializeField] PlayableDirector director;
 
     // save data
-    LeverSaveData saveData;
+    LeverSaveModule save;
+    bool switched;
 
     // list of gameobjects we want to affect upon hit
     [SerializeField] Platform[] platforms;
@@ -26,31 +44,14 @@ public class Lever : SaveableObject, IHittable
     #region MonoBehaviour
     void Awake()
     {
-        if (string.IsNullOrEmpty(guid))
-        {
-            AssignID();
-        }
-
-        // set up stuff
+        save = new LeverSaveModule(this);
+        save.Initialize();
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        // check save
-        saveData = new LeverSaveData();
-        if (guid != null && guid != String.Empty)
-        {
-            if (SaveGameManager.HasData(guid))
-            {
-                saveData = SaveGameManager.GetObjectData(guid) as LeverSaveData;
-            }
-
-            else
-                SaveGameManager.AddObject(guid, saveData);
-        }
-
-        if (saveData.switched)
+        if (switched)
         {
             // move lever down
             director.time = director.duration;
@@ -63,13 +64,11 @@ public class Lever : SaveableObject, IHittable
                 p.ToggledLever();
             }
         }
-
-        SaveGameManager.OnSave += SaveData;
     }
 
     void OnDestroy()
     {
-        SaveGameManager.OnSave -= SaveData;
+        save.DetachFromSaveManager();
     }
     #endregion
 
@@ -93,15 +92,14 @@ public class Lever : SaveableObject, IHittable
     #endregion
 
     #region Saveable Object
-    public override void SaveData()
+    public void LoadSave(LeverSaveData data)
     {
-        Debug.Log("Lever::SaveData() --> saving lever to json");
-        SaveGameManager.SaveDataAtGUID(guid, saveData);
+        switched = data.switched;
     }
 
-    public override void LoadData(ISaveData data)
+    public LeverSaveData CollectSaveData()
     {
-        saveData = data as LeverSaveData;
+        return new LeverSaveData(switched);
     }
     #endregion
 }

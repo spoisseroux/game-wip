@@ -243,7 +243,7 @@ public class Tile : MonoBehaviour, IRuneReactor, IHittable, IHitboxSource
 
     #region IHitboxSource
     public void OnHitConfirmed(HitboxRecord hit) {}
-    
+    public GameObject GetHitboxSourceGameObject() { return this.gameObject; }
     #endregion
 
     #region FSM
