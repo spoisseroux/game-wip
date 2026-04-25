@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -46,32 +43,20 @@ public class SaveGameManager : MonoBehaviour
         Hooked up to every SaveableObject within its Start() function
         Removed from every SaveableObject within its OnDestroy() function
     */
-    // public static Action OnLoad; // hmmm.... not sure if we even need this
 
     #region MonoBehaviour
     private void Awake()
     {
         // singleton call
         if (instance == null)
-        {
             instance = this;
-        }
         else
-        {
             Destroy(gameObject);
-        }
 
+        Debug.Log("Initialized SaveManager");
         
         save = new();
-        //newGame = true;
-        
-        // set up file handler
         this.fileHandler = new FileSaveHandler(debugMode);
-    }
-
-    private void Start()
-    {
-        
     }
 
     // CALLED BEFORE START
@@ -115,19 +100,15 @@ public class SaveGameManager : MonoBehaviour
         if (debugMode) 
             return;
 
-        Debug.Log("SaveGameManager::SaveGame() --> called");
         if (save == null)
         {
             Debug.Log("SaveGameManager::SaveGame() --> no save data found, need a new save file");
             return;
         }
 
-        Debug.Log("SaveGameManager::SaveGame() --> Invoking OnSave Action method");
-        // ask all items to save their info
-        OnSave?.Invoke();
-
-        // save to file
         Debug.Log("SaveGameManager::SaveGame() --> Attempting to save to file...");
+        // ask all saveable objects to record their info, then save to file
+        OnSave?.Invoke();
         fileHandler.Save(1, save);
     }
 
