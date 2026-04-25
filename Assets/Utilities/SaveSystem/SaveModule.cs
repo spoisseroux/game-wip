@@ -17,6 +17,10 @@ public abstract class SaveModule
     // called once 
     public void Initialize()
     {
+        // pass this function if saving debug is enabled
+        if (SaveGameManager.GetSaveDebugMode())
+            return;
+
         if (SaveGameManager.HasData(ID))
         {
             var existing = SaveGameManager.GetObjectData(ID);

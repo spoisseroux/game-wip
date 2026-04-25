@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Playables;
@@ -52,7 +51,7 @@ public class Altar : MonoBehaviour, IInteractable
 
     // save module
     AltarSaveModule save;
-    bool canInteract = false;
+    bool canInteract = true;
 
     // rune
     [SerializeField] private RuneDataSO storedRune; // don't think we need to 'save' serialized data like runes...
