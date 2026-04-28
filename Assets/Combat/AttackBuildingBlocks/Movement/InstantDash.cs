@@ -16,6 +16,7 @@ public class InstantDash : MovementEvent
     public override void Tick(MovementContext context, float delta)
     {
         float t = context.phaseTime / duration;
+        Debug.Log(curve.Evaluate(t) + " " + speed + " " + context.startDirection);
         context.mover.SetVelocity(curve.Evaluate(t) * speed * context.startDirection, null);
     }
 

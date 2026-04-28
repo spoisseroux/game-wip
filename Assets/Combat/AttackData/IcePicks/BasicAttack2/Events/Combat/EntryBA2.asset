@@ -9,13 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b45543e9563f0417ebfc38235594e8f3, type: 3}
-  m_Name: HitboxBA1
-  m_EditorClassIdentifier: Assembly-CSharp::DeployHitbox
-  duration: 0
-  boxInfo:
-    length: 2
-    width: 2
-    height: 2
-  hitCount: 1
-  hitboxDuration: 0.5
+  m_Script: {fileID: 11500000, guid: c4b95c6129d42476aac528f437552302, type: 3}
+  m_Name: EntryBA2
+  m_EditorClassIdentifier: Assembly-CSharp::Pause
+  duration: 0.25

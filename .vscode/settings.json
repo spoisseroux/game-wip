@@ -66,5 +66,6 @@
     "explorer.fileNesting.patterns": {
         "*.sln": "*.csproj"
     },
-    "dotnet.defaultSolution": "game-wip.slnx"
+    "dotnet.defaultSolution": "game-wip.slnx",
+    "files.eol": "\n"
 }

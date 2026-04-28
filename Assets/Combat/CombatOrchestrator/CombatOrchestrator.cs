@@ -110,7 +110,6 @@ public class CombatOrchestrator : MonoBehaviour, IHittable, IHitboxSource
         // check if move to next phase
         if (context.phaseTime >= phases[currPhase].duration)
         {
-            Debug.Log("Changing to Phase: " + (currPhase+1).ToString());
             phases[currPhase].End(context);
             currPhase++;
 
@@ -200,10 +199,10 @@ public class CombatOrchestrator : MonoBehaviour, IHittable, IHitboxSource
         // EVERY IHittable implements Hit in their own way, SaveGem, CombatOrchestrator, Wall, etc.
 
         // if the hit target is just ourselves, don't apply damage
-        Debug.Log("Hit target: " + hitMe.target);
         if (hitMe.target?.GetGameObject() == GetHitboxSourceGameObject())
             return;
 
+        Debug.Log("Hit target: " + hitMe.target);
         hitMe.target?.Hit(hitMe);
     }
 

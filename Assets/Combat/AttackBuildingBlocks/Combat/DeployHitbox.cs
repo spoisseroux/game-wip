@@ -13,7 +13,6 @@ public class DeployHitbox : CombatEvent
 
     public override void Execute(CombatContext context)
     {
-        Debug.Log("Deploying hitbox");
         context.orch.RegisterHitbox(boxInfo, hitCount, hitboxDuration);
     }
 

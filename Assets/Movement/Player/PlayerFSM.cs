@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
+using Unity.Mathematics;
 
 /*
     Some general notes:
@@ -112,7 +113,7 @@ public class JumpingState : BasePlayerState
     {   
         // bonus jump check
         if (!motor.Grounded)
-            manager.bonusJumpTaken = true;
+            motor.bonusJumpTaken = true;
         
         // get jump velocity
         Vector3 jump = new Vector3(0.0f, Mathf.Sqrt(motor.movementSettings.jumpHeight * -2 * risingGravityForce), 0.0f);
@@ -170,7 +171,7 @@ public class FallingState : BasePlayerState
     string jumpBase = "Jump_";
     string jumpFalling = "Falling";
 
-    float moveSpeedMultiplier = 0.75f; // again, multiplier of parent movementsettingsSO walkspeed var!
+    float moveSpeedMultiplier = 0.75f;
 
     public FallingState(PlayerMotor m, AnimationController a, PlayerMovementManager p) : base(m, a, p) {}
 
@@ -240,7 +241,7 @@ public class LandingState : BasePlayerState
 public class DashingState : BasePlayerState
 {
     // stats 
-    float dashSpeedMultplier = 2f; // make a multiplier of walkspeed??
+    float dashSpeedMultplier = 2f;
 
     // timers
     CountdownTimer cooldownTimer;
@@ -329,27 +330,42 @@ public class WallJumpState : BasePlayerState
     public enum WallJumpPhase
     {
         Seeking,
-        Bouncing
+        Bouncing,
+        Touching
     }
     WallJumpPhase phase;
 
     // configs
     float checkDistance = 2.0f;
-    float seekSpeed = 10f;
-    float bounceSpeed = 10f;
+    float seekSpeed = 15f;
+    float bounceSpeed = 15f;
     Vector3 yVelBoost = new Vector3(0.0f, 5.0f, 0.0f);
 
     // timers
     private CountdownTimer seekTimer;
-    private float seekLength = 0.5f;
+    private float seekLength = 0.65f;
     private CountdownTimer bounceTimer;
     private float bounceLength = 0.5f;
+    private CountdownTimer holdTimer;
+    private float holdLength = 0.1f;
 
     // directions
     Vector3 seekDir;
     Vector3 bounceDir;
 
-    // Anim curves for seeking and bouncing! ADD LATER!!!
+    // anim curve for seeking
+    AnimationCurve seekCurve;
+    float seekElapsed = 0.0f;
+    float initialSeekSpeedMultiplier = 1.5f;
+    float finalSeekSpeedMultiplier = 0.75f;
+    float seekCurveDuration = 0.65f;
+
+    // anim curve bouncing off wall
+    AnimationCurve bounceCurve;
+    float bounceElapsed = 0.0f;
+    float initialBounceSpeedMultiplier = 1.5f;
+    float finalBounceSpeedMultiplier = 0.75f;
+    float bounceCurveDuration = 0.5f; 
 
 
     public WallJumpState(PlayerMotor m, AnimationController a, PlayerMovementManager p) : base(m, a, p)
@@ -357,8 +373,12 @@ public class WallJumpState : BasePlayerState
         // timers
         seekTimer = new CountdownTimer(seekLength);
         bounceTimer = new CountdownTimer(bounceLength);
+        holdTimer = new CountdownTimer(holdLength);
         // phase
         phase = WallJumpPhase.Seeking;
+        // anim curves
+        seekCurve = AnimationCurve.EaseInOut(0.0f, initialSeekSpeedMultiplier, seekCurveDuration, finalSeekSpeedMultiplier);
+        bounceCurve = AnimationCurve.EaseInOut(0.0f, initialBounceSpeedMultiplier, bounceCurveDuration, finalBounceSpeedMultiplier);
     }
 
     public override void Enter()
@@ -366,7 +386,9 @@ public class WallJumpState : BasePlayerState
         seekDir = manager.GetSeekingDirection();
         phase = WallJumpPhase.Seeking;
         seekTimer.Start();
-        motor.AddVelocity(yVelBoost, null);
+
+        // eventually, make this react to current yVel and scale the added value
+        motor.AddVerticalVelocity(yVelBoost, null);
     }
 
     public override void Exit()
@@ -376,15 +398,19 @@ public class WallJumpState : BasePlayerState
         seekTimer.Reset(seekLength);
         bounceTimer.Pause();
         bounceTimer.Reset(bounceLength);
+        holdTimer.Pause();
+        holdTimer.Reset(holdLength);
 
-        // edit internals
+        // reset phase
         phase = WallJumpPhase.Seeking;
 
         // fix vectors
         seekDir = Vector3.zero;
         bounceDir = Vector3.zero;
 
-        Debug.Log("exited walljump");
+        // fix curves
+        seekElapsed = 0.0f;
+        bounceElapsed = 0.0f;
     }
 
     public override void Update()
@@ -397,22 +423,28 @@ public class WallJumpState : BasePlayerState
             case WallJumpPhase.Bouncing:
                 BounceOffWall();
                 break;
+            case WallJumpPhase.Touching:
+                HoldWall();
+                break;
         }
     }
 
     public bool IsFinished()
     {
-        bool inProgress = false;
+        bool finished = false;
         switch (phase)
         {
             case WallJumpPhase.Seeking:
-                inProgress = seekTimer.progress <= 0;
+                finished = seekTimer.progress <= 0;
                 break;
             case WallJumpPhase.Bouncing:
-                inProgress = bounceTimer.progress <= 0;
+                finished = bounceTimer.progress <= 0;
+                break;
+            case WallJumpPhase.Touching:
+                finished = false;
                 break;
         }
-        return inProgress;
+        return finished;
     }
 
     private void SeekWall()
@@ -421,10 +453,10 @@ public class WallJumpState : BasePlayerState
         
         Tuple<bool, RaycastHit> hitCheck = motor.WallContact(seekDir, checkDistance);
 
-        // if yes, transition to bouncing
+        // if yes, transition to holding
         if (hitCheck.Item1)
         {
-            phase = WallJumpPhase.Bouncing;
+            phase = WallJumpPhase.Touching;
 
             seekTimer.Pause();
             seekTimer.Reset(seekLength);
@@ -432,21 +464,45 @@ public class WallJumpState : BasePlayerState
             // set bounce dir and change rotation
             bounceDir = manager.GetBounceDirection(seekDir, hitCheck.Item2);
             motor.SetNewRotation(bounceDir, null);
-            motor.AddVelocity(yVelBoost, null);
-            bounceTimer.Start();
+
+            // begin wall hold
+            holdTimer.Start();
         }
         // if no, move
         else
         {
             seekTimer.Tick(Time.deltaTime);
-            motor.AddVelocity(seekSpeed * seekDir, null);
+            seekElapsed += Time.deltaTime;
+            float seekMult = seekCurve.Evaluate(seekElapsed);
+            motor.AddVelocity(seekSpeed * seekMult * seekDir, null);
+        }
+    }
+
+    private void HoldWall()
+    {
+        holdTimer.Tick(Time.deltaTime);
+        // if timer is done, move to bouncing
+        if (holdTimer.progress <= 0.0f)
+        {
+            motor.AddVerticalVelocity(yVelBoost, null);
+            phase = WallJumpPhase.Bouncing;
+            holdTimer.Reset(holdLength);
+            bounceTimer.Start();
+        }
+        // ... otherwise, do nothing but hold that wall!
+        else
+        {
+            motor.SetVelocity(Vector3.zero, null);
+            motor.SetVerticalVelocity(Vector3.zero, null);
         }
     }
 
     private void BounceOffWall()
     {
         bounceTimer.Tick(Time.deltaTime);
-        motor.AddVelocity(bounceSpeed * bounceDir, null); // FIX
+        bounceElapsed += Time.deltaTime;
+        float bounceMult = bounceCurve.Evaluate(bounceElapsed);
+        motor.AddVelocity(bounceSpeed * bounceMult * bounceDir, null);
     }
 }
 
@@ -508,6 +564,7 @@ public class AttackState : BasePlayerState
         context = new MovementContext
         {
             mover = motor,
+            startDirection = manager.GetMovementDirection(),
             updatingDirection = manager.GetMovementDirection()
         };
 

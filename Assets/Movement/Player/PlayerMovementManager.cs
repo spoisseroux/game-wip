@@ -7,7 +7,6 @@ public class PlayerMovementManager : MonoBehaviour
     [Header("Script Components")]
     // components
     [SerializeField] PlayerMotor motor;
-    [SerializeField] public CharacterController characterController;
     [SerializeField] InputReader input;
     [SerializeField] CombatOrchestrator combat;
     [SerializeField] AnimationController animationController;
@@ -62,9 +61,6 @@ public class PlayerMovementManager : MonoBehaviour
     }
     ActionRequests inputRequests;
 
-    [Header("Movement Settings")]
-    public Vector3 moveDirection;
-
     // probably a good idea to separate this out into a separate script, maybe even a monobehavior 
     // then it could store the InteractTrigger it is involved with and reset itself
     // other scripts read it for state changes and logic flows
@@ -74,20 +70,18 @@ public class PlayerMovementManager : MonoBehaviour
     [SerializeField] float interactDistance = 5f;
     [SerializeField] IInteractable currentInteraction;
 
-    [Header("Jump")]
-    // TODO: grace periods, coyote time (after leaving platform) && jump buffer (input buffering sorta deal)
-    public bool bonusJumpTaken = false; // THIS NEEDS A FIX AS WELL, DOESN'T APPEAR TO BE RESET UPON USE!! MOVE TO MOTOR?
-
     #region Monobehavior
     private void Awake()
     {
         // unity components
         combat = GetComponent<CombatOrchestrator>();
-        characterController = GetComponent<CharacterController>();
         animationController = GetComponent<AnimationController>();
+        motor = GetComponent<PlayerMotor>();
 
         // state machine
         fsm = new StateMachine();
+
+        // maybe we create animation curves as serializeable objects in movement settings, then pass through to state objects as needed?
 
         // states, this for rotation handling or other direct transform manipulation
         idleState = new IdleState(motor, animationController);
@@ -131,7 +125,7 @@ public class PlayerMovementManager : MonoBehaviour
         // rising state transitions
         At(risingState, jumpingState, new FuncPredicate(() =>
                                         inputRequests.Check(ActionRequest.Jump)
-                                        && !bonusJumpTaken));
+                                        && !motor.bonusJumpTaken));
         At(risingState, fallingState, new FuncPredicate(() => !motor.Grounded && motor.currVelocity.y <= 0.0f));
         At(risingState, dashState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Dash)));
         At(risingState, attackState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Attack) && RequestAttack()));
@@ -140,7 +134,7 @@ public class PlayerMovementManager : MonoBehaviour
         // falling state transitions
         At(fallingState, jumpingState, new FuncPredicate(() =>
                                         inputRequests.Check(ActionRequest.Jump)
-                                        && !bonusJumpTaken));
+                                        && !motor.bonusJumpTaken));
         At(fallingState, landingState, new FuncPredicate(() => motor.Grounded));
         At(fallingState, dashState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Dash)));
         At(fallingState, attackState, new FuncPredicate(() => inputRequests.Check(ActionRequest.Attack) && RequestAttack()));
@@ -219,13 +213,6 @@ public class PlayerMovementManager : MonoBehaviour
     }
     #endregion
 
-    #region Gizmos
-    private void OnDrawGizmosSelected()
-    {
-        
-    }
-    #endregion
-
     #region Input Handling
     private void SetMovementInputValues()
     {
@@ -243,7 +230,7 @@ public class PlayerMovementManager : MonoBehaviour
             RequestInteract();
         }
         // hard-coded meep
-        if (action == ActionRequest.Attack && fsm.GetCurrentState() == attackState)
+        else if (action == ActionRequest.Attack && fsm.GetCurrentState() == attackState)
         {
             inputRequests.Check(ActionRequest.Attack);
             RequestAttack();
