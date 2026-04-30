@@ -561,12 +561,10 @@ public class AttackState : BasePlayerState
     public override void Enter()
     {
         // construct and set context
-        context = new MovementContext
-        {
-            mover = motor,
-            startDirection = manager.GetMovementDirection(),
-            updatingDirection = manager.GetMovementDirection()
-        };
+        context = new MovementContext(motor,
+            manager.GetMovementDirection(),
+            manager.GetMovementDirection()
+        );
 
         // timer
         timer.Start();
@@ -588,10 +586,6 @@ public class AttackState : BasePlayerState
 
     public override void Update()
     {
-        // safety check
-        if (currPhase >= phases.Count)
-            return;
-
         // tick timer
         context.phaseTime += Time.deltaTime;
         timer.Tick(Time.deltaTime);
@@ -599,7 +593,9 @@ public class AttackState : BasePlayerState
         // update direction
         context.updatingDirection = manager.GetMovementDirection();
         
-        // tick phase
+        // safety check then tick phase
+        if (currPhase >= phases.Count)
+            return;
         phases[currPhase].Tick(context, Time.deltaTime);
 
         // check if move to next phase

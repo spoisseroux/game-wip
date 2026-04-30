@@ -2,7 +2,7 @@ using UnityEngine;
 /*  
     The context object which a movement event executes upon
 */
-public struct MovementContext
+public class MovementContext
 {
     public Mover mover;
     public Vector3 startDirection;
@@ -12,6 +12,13 @@ public struct MovementContext
     // attack added for weighted walking multiplier, other things??
     public float walkSpeedModifier;
     public float jumpModifier;
+
+    public MovementContext(Mover moverIn) { mover = moverIn; }
+    public MovementContext(Mover moverIn, Vector3 startDir, Vector3 updatingDir) {
+        mover = moverIn;
+        startDirection = startDir;
+        updatingDirection = updatingDir;
+    }
 }
 
 /*

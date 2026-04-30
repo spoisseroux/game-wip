@@ -17,7 +17,6 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 9255760d9c6764c13b9e6d1476855bd7, type: 2}
   - combatEvents:
     - {fileID: 11400000, guid: 8cab639847b5446aaa55592d57514bc1, type: 2}
-  - combatEvents:
     - {fileID: 11400000, guid: 903fdaaf13db142b29a52ecad3d0fd7f, type: 2}
   movementPhases:
   - movementEvents:

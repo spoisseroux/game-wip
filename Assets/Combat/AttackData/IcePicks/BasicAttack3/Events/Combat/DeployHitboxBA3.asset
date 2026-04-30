@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DeployHitbox
   duration: 0
   boxInfo:
-    length: 0
-    width: 0
-    height: 0
-  hitCount: 0
-  hitboxDuration: 0
+    length: 2
+    width: 3
+    height: 2
+  hitCount: 1
+  hitboxDuration: 0.5

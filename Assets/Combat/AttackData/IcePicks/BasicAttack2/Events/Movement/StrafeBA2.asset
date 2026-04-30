@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa21aac0c8cc14a0ca9aa3d30359bda5, type: 3}
   m_Name: StrafeBA2
   m_EditorClassIdentifier: Assembly-CSharp::Strafe
-  duration: 0.75
-  speedModifier: 0.35
+  duration: 1
+  speedModifier: 0.65

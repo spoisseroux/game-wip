@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4b95c6129d42476aac528f437552302, type: 3}
   m_Name: EndPauseBA3
   m_EditorClassIdentifier: Assembly-CSharp::Pause
-  duration: 0.7
+  duration: 0.05

@@ -168,8 +168,8 @@ public class PlayerMovementManager : MonoBehaviour
                                         walljumpState.IsFinished()));
 
         // interaction state transitions
-        At(interactState, idleState, new FuncPredicate(() => currentInteraction == null && !CheckIfMoving())); // need to figure out how to do this!!!
-        At(interactState, walkState, new FuncPredicate(() => currentInteraction == null && CheckIfMoving())); // need to figure out how to do this!!!
+        At(interactState, idleState, new FuncPredicate(() => currentInteraction == null && !CheckIfMoving())); 
+        At(interactState, walkState, new FuncPredicate(() => currentInteraction == null && CheckIfMoving())); // hmmm
 
         // attack state transitions
         At(attackState, idleState, new FuncPredicate(() => motor.Grounded && attackState.GetProgress() <= 0 && !CheckIfMoving()));
@@ -414,6 +414,11 @@ public class PlayerMovementManager : MonoBehaviour
                 fsm.SetState(walkState);
                 break;
         }
+    }
+
+    public string GetState()
+    {
+        return fsm.GetCurrentState().ToString();
     }
     #endregion
 }

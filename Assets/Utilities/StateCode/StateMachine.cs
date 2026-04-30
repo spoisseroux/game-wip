@@ -45,9 +45,7 @@ public class StateMachine
         var prevState = current.state;
         var nextState = nodes[newState.GetType()].state;
 
-        //Debug.Log("exiting: " + prevState.ToString());
         prevState?.Exit();
-        //Debug.Log("entering: " + nextState.ToString());
         nextState?.Enter();
 
         current = nodes[newState.GetType()];
