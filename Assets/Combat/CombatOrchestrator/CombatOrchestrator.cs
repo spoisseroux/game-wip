@@ -158,11 +158,16 @@ public class CombatOrchestrator : MonoBehaviour, IHittable, IHitboxSource
             1. find a dynamic position to launch hitboxes relative to the weapon AND the attack
             2. rotations, uhhhh yeah. parenting is an issue we have yet to solve
             3. what if we want sphere or whatever other shape?? that's a bigger, multi-piece one though
+            4. hitbox movement routines (i.e. animation curve, tether to player, tether to object, etc.)
         */
         Hitbox hitbox = new Hitbox(duration, 
-                                   transform.position + transform.forward, 
-                                   box, transform.rotation, this, 
-                                   equippedWeapon.weaponData, currentAttack.damageObject, hits);
+                                   transform.position + (Vector3.up * 1.5f) + (transform.forward * equippedWeapon.weaponData.attackRange), 
+                                   box, 
+                                   transform.rotation, 
+                                   this, 
+                                   equippedWeapon.weaponData, 
+                                   currentAttack.damageObject, 
+                                   hits);
         activeHitboxes.Add(hitbox);
         Debug.Log("Hitbox added at: " + (transform.position + transform.forward) + " with duration " + duration 
                   + ". ActiveHitboxes list is now of size: " + activeHitboxes.Count + ". Time added: " + Time.time);

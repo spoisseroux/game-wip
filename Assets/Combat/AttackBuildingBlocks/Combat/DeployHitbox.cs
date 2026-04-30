@@ -16,7 +16,6 @@ public class DeployHitbox : CombatEvent
         context.orch.RegisterHitbox(boxInfo, hitCount, hitboxDuration);
     }
 
-    // use this to update hitbox position i guess?
     public override void Tick(CombatContext context, float delta) { }
 
     public override void CleanUp(CombatContext context) { }

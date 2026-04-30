@@ -101,6 +101,8 @@ public class PlayerMotor : Mover
     private void Update()
     {
         // check logic stuff? which authority values run out? which routines are ending?
+        if (Grounded)
+            bonusJumpTaken = false;
 
         // add gravity
         HandleGravity(); // directly edit yVal
@@ -109,9 +111,7 @@ public class PlayerMotor : Mover
 
         // adjust rotation
         if (targetRotationDirection.sqrMagnitude <= 0.001f)
-        {
             targetRotationDirection = transform.forward;
-        }
     } 
 
     private void LateUpdate()
@@ -244,7 +244,7 @@ public class PlayerMotor : Mover
         // gravity
         if (Grounded)
         {
-            bonusJumpTaken = true;
+            bonusJumpTaken = false;
             // not attempting to jump, stick to the ground and reset jump counter
             if (yVel.y <= 0.0f) {
                 yVel = gravity.ApplyGroundedGravity();

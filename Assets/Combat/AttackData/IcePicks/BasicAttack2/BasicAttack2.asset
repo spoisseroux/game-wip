@@ -23,6 +23,7 @@ MonoBehaviour:
   movementPhases:
   - movementEvents:
     - {fileID: 11400000, guid: cf0d7e32bd9124460966d8728deb4e24, type: 2}
+    - {fileID: 11400000, guid: 9a85b509f7628a849b79b19fe89695a3, type: 2}
   damageObject:
     baseDamage: 10
     type: 0

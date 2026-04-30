@@ -533,10 +533,6 @@ public class InteractState : BasePlayerState
     }
 }
 
-/*
-    THIS SHOULD ONLY NEED MOVEMENT PHASES!!!
-    COMBAT LINK IDEALLY SHOULD NOT BE HERE WHEN REFACTOR IS DONE
-*/
 public class AttackState : BasePlayerState
 {
     // timer
@@ -553,10 +549,7 @@ public class AttackState : BasePlayerState
     // context
     MovementContext context;
 
-    public AttackState(PlayerMotor m, AnimationController a, PlayerMovementManager p) : base(m, a, p)
-    {
-        
-    }
+    public AttackState(PlayerMotor m, AnimationController a, PlayerMovementManager p) : base(m, a, p) { }
     
     public override void Enter()
     {

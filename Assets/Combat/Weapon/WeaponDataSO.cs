@@ -11,7 +11,6 @@ public class WeaponDataSO : ScriptableObject
     public GameObject modelPrefab;
     // basic attacks
     public List<AttackSO> basicAttackList;
-
-    // offset location for spawning hitboxes ?? usually ends up being a magnitude applied to this.transform.forward anyways....
-    // public Vector3 offset;
+    // attack range --> for now this is a standard magnitude applied to transform.forward, one for all attacks on the weapon
+    public float attackRange;
 }
