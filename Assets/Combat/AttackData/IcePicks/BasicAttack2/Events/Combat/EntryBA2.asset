@@ -10,6 +10,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c4b95c6129d42476aac528f437552302, type: 3}
-  m_Name: Pause2BA3
+  m_Name: EntryBA2
   m_EditorClassIdentifier: Assembly-CSharp::Pause
-  duration: 0.7
+  duration: 0.3

@@ -9,7 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c4b95c6129d42476aac528f437552302, type: 3}
-  m_Name: Pause1BA2
-  m_EditorClassIdentifier: Assembly-CSharp::Pause
-  duration: 0.25
+  m_Script: {fileID: 11500000, guid: 539b9394f2e014f948dc05cca6fab300, type: 3}
+  m_Name: VaultBA2
+  m_EditorClassIdentifier: Assembly-CSharp::Vault
+  duration: 0
+  height: 5

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 /*
@@ -46,6 +45,8 @@ public class PlayerMotor : Mover
     // current vals
     public Vector3 currVelocity => accumulatedHorizontalMovement + yVel;
 
+    public bool bonusJumpTaken = false;
+
     #region Physics Check Transforms
     [Header("Ground Check")]
     // want the widest portion of sphere shown in DrawGizmosSelected to reach the edge of either foot
@@ -57,12 +58,11 @@ public class PlayerMotor : Mover
     // wall jump check, boxcast 
     [Header("Wall Jump Check")]
     [SerializeField] private Transform wallCheck; // position, rotation
-    [SerializeField] private Vector3 wallJumpHalfExtents; // width, height, length
+    [SerializeField] private Vector3 wallJumpBoxMult; // width, height, length
     [SerializeField] private LayerMask layersToIgnore;
     public Tuple<bool, RaycastHit> WallContact(Vector3 direction, float dist) { 
         RaycastHit hit;
-        bool foundHit = Physics.BoxCast(wallCheck.position, wallJumpHalfExtents, direction, out hit, wallCheck.rotation, dist, ~layersToIgnore);
-        Debug.Log("hit val: " + foundHit);
+        bool foundHit = Physics.BoxCast(wallCheck.position, Vector3.Scale(transform.localScale, wallJumpBoxMult), direction, out hit, transform.rotation, dist, ~layersToIgnore);
         return new Tuple<bool, RaycastHit>(foundHit, hit);
     }
 
@@ -101,6 +101,8 @@ public class PlayerMotor : Mover
     private void Update()
     {
         // check logic stuff? which authority values run out? which routines are ending?
+        if (Grounded)
+            bonusJumpTaken = false;
 
         // add gravity
         HandleGravity(); // directly edit yVal
@@ -109,9 +111,7 @@ public class PlayerMotor : Mover
 
         // adjust rotation
         if (targetRotationDirection.sqrMagnitude <= 0.001f)
-        {
             targetRotationDirection = transform.forward;
-        }
     } 
 
     private void LateUpdate()
@@ -126,8 +126,6 @@ public class PlayerMotor : Mover
         transform.rotation = targetRotation; // have to set the transform directly
 
         // combine XZ and Y dirs, then move
-        //Debug.Log(yVel);
-        //Debug.Log(accumulatedHorizontalMovement);
         cc.Move(Time.deltaTime * currVelocity);
 
         // clear rotational & horizontal ONLY
@@ -145,9 +143,20 @@ public class PlayerMotor : Mover
                             groundCheckRadius);
         
         // wall jump
-        Gizmos.color = Color.yellow;
-        Gizmos.matrix = Matrix4x4.TRS(wallCheck.position, wallCheck.rotation, Vector3.one);
-        Gizmos.DrawWireCube(Vector3.zero, wallJumpHalfExtents);
+        RaycastHit hit;
+        float hitDist = 2f;
+        bool wallCheckHit = Physics.BoxCast(wallCheck.position, Vector3.Scale(transform.localScale, wallJumpBoxMult), transform.forward, out hit, transform.rotation, hitDist);
+        if (wallCheckHit)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawRay(wallCheck.position, transform.forward * hit.distance);
+            Gizmos.DrawWireCube(wallCheck.position + transform.forward * hit.distance, Vector3.Scale(transform.localScale, wallJumpBoxMult) * 2); // need to re-expand from half-extents
+        }
+        else
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawRay(wallCheck.transform.position, transform.forward * hitDist);
+        }
 
         // ceiling check
     }
@@ -224,13 +233,18 @@ public class PlayerMotor : Mover
         yVel = newYVel;
     }
 
+    public override void AddVerticalVelocity(Vector3 addYVel, object affector)
+    {
+        yVel += addYVel;
+    }
+
     // directly edits yVel value
     private void HandleGravity()
     {
-        Vector3 addedGravity = Vector3.zero;
         // gravity
         if (Grounded)
         {
+            bonusJumpTaken = false;
             // not attempting to jump, stick to the ground and reset jump counter
             if (yVel.y <= 0.0f) {
                 yVel = gravity.ApplyGroundedGravity();

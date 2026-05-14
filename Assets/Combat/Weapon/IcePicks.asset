@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 14dbbb77617734c63bbaf503d31b59a3, type: 3}
   m_Name: IcePicks
   m_EditorClassIdentifier: Assembly-CSharp::WeaponDataSO
-  model: {fileID: 0}
+  modelPrefab: {fileID: 0}
   basicAttackList:
   - {fileID: 11400000, guid: 6b10547bda2af41f7bbee7317f1ad849, type: 2}
   - {fileID: 11400000, guid: 5d5b5ed47761d4658b661d6788177569, type: 2}
   - {fileID: 11400000, guid: 69e55d5d711214799b7cf71a2e38d7ba, type: 2}
+  attackRange: 2

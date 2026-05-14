@@ -68,9 +68,6 @@ public class WeaponHolder : MonoBehaviour, IWeapon
     public AttackSO AttemptAttack(AttackSO attack, CombatPhase currentPhase)
     {   
         AttackSO resolved = null;
-        /*Debug.Log("Attempt attack from inputs:/nAttack: " 
-                  + attack.ToString() + 
-                  "/nPhase: " + currentPhase.ToString());*/
 
         // if null, start at root attack
         if (attack == null)

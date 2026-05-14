@@ -37,9 +37,8 @@ public class MovementPhase
     {
         ctx.phaseTime = 0.0f;
         for (int i = 0; i < movementEvents.Count; i++)
-        {
             movementEvents[i].Begin(ctx);
-        }
+
     }
 
     public void Tick(MovementContext ctx, float delta) 
@@ -58,9 +57,7 @@ public class MovementPhase
     public void End(MovementContext ctx) 
     {
         for (int i = 0; i < movementEvents.Count; i++)
-        {
             movementEvents[i].End(ctx);
-        }
     }
 
     public float CalculateDuration()

@@ -45,5 +45,6 @@ public abstract class Mover : MonoBehaviour
 
     #region Vertical Movement
     public abstract void SetVerticalVelocity(Vector3 newYVel, object affector);
+    public abstract void AddVerticalVelocity(Vector3 addYVel, object affector);
     #endregion
 }

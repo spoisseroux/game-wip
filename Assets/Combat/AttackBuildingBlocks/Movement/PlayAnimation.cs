@@ -4,6 +4,7 @@ using UnityEngine;
 public class PlayAnimation : MovementEvent
 {
     [SerializeField] string animName;
+    [SerializeField] float speedAdjustment;
 
     public override void Begin(MovementContext context) { }
 

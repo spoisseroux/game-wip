@@ -4,12 +4,11 @@ using UnityEngine;
 public class Teleport : MovementEvent
 {
     [SerializeField] public float distance;
+    [SerializeField] public float pauseTime;
 
     public override void Begin(MovementContext context) { }
-
+ 
     public override void Tick(MovementContext context, float delta) { }
 
     public override void End(MovementContext context) { }
-
-    public void SetDirection(Vector3 direction) { }
 }

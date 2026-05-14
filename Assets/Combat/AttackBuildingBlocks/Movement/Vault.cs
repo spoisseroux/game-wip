@@ -8,7 +8,7 @@ public class Vault : MovementEvent
     public override void Begin(MovementContext context)
     {
         Vector3 addVel = new Vector3(0.0f, Mathf.Sqrt(height * -2 * -40.0f /* NEED TO REFACTOR TO GRAB CONTEXT GRAVITY*/), 0.0f);
-        context.mover.AddVelocity(addVel, null);
+        context.mover.SetVerticalVelocity(addVel, null);
     }
 
     public override void Tick(MovementContext context, float delta) { }
