@@ -5,7 +5,7 @@ public class PlayerManager : MonoBehaviour
     // various system components
     public PlayerMovementManager movementManager; 
     public CombatOrchestrator combatOrchestrator;
-    public RuneHolder runeHolder;
+    //public GlyphHolder glpyhHolder;
     public PlayerSaveModule saveModule;
 
     #region Monobehavior
@@ -13,7 +13,7 @@ public class PlayerManager : MonoBehaviour
     {
         movementManager = GetComponent<PlayerMovementManager>();
         combatOrchestrator = GetComponent<CombatOrchestrator>();
-        runeHolder = GetComponent<RuneHolder>();
+        //glyphHolder = GetComponent<GlyphHolder>();
 
         // initialize save
         saveModule = new PlayerSaveModule(this);
@@ -46,7 +46,7 @@ public class PlayerManager : MonoBehaviour
         // combatManager.SetEquippedWeapon(data.weapon); // leaving alone for a moment
 
         // rune holder
-        runeHolder.LoadRunes(data.runeIDs);
+        //glpyhHolder.LoadRunes(data.runeIDs);
     }
 
     public PlayerData GatherSaveData()
@@ -64,7 +64,7 @@ public class PlayerManager : MonoBehaviour
         // weapon
 
         // rune holder
-        saveOverwrite.runeIDs = runeHolder.SetSavedRunes();
+        //saveOverwrite.glyphIDs = glyphHolder.SetSavedRunes();
         
         
         return saveOverwrite;

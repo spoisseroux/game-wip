@@ -53,8 +53,8 @@ public class Altar : MonoBehaviour, IInteractable
     AltarSaveModule save;
     bool canInteract = true;
 
-    // rune
-    [SerializeField] private RuneDataSO storedRune; // don't think we need to 'save' serialized data like runes...
+    // glyph
+    // [SerializeField] private RuneDataSO storedRune; // don't think we need to 'save' serialized data like runes...
 
     // materials
     [Header("Debug")]
@@ -126,7 +126,7 @@ public class Altar : MonoBehaviour, IInteractable
         yield return new WaitForSeconds(1.0f);
 
         // visuals, data transfer, writing internal save data
-        player.GetComponent<RuneHolder>().BestowRune(storedRune);
+        //player.GetComponent<GlyphHolder>().BestowGlpyh();
         canInteract = false;
         yield return new WaitForSeconds(2.0f);
 

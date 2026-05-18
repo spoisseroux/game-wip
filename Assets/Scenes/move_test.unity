@@ -6584,7 +6584,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9000947623682742025}
-  - component: {fileID: 3029103643937997428}
   m_Layer: 0
   m_Name: DatabaseService
   m_TagString: Untagged
@@ -8652,23 +8651,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 9206645250437468270}
   m_LocalEulerAnglesHint: {x: 45.137424, y: -148.71721, z: -169.10043}
---- !u!114 &3029103643937997428
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1747663078636137056}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f8398ddd8935c44aa8fc52ccc617cbf0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RuneDatabase
-  runesList:
-  - {fileID: 11400000, guid: b730412e4fa90442bb3a1eed0e4045e7, type: 2}
-  - {fileID: 11400000, guid: 02c30f8087075428282a7057a4d5517b, type: 2}
-  - {fileID: 11400000, guid: 3cf31e534cf9f492e8e39e8bef525c7e, type: 2}
-  - {fileID: 11400000, guid: 8d977b52010db4f0791d353dd96116b0, type: 2}
 --- !u!1 &3035219998303489864
 GameObject:
   m_ObjectHideFlags: 0
@@ -11895,11 +11877,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a91d40a939cba4570bfb066a865308ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RuneHolder
-  runes: []
-  chantRadius: 5
-  reactRadius: 0
-  Yadjustment: {x: 0, y: 0, z: 0}
-  storedChant: []
 --- !u!114 &6117323402387607411
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12141,7 +12118,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerManager
   movementManager: {fileID: 6117323402387607411}
   combatOrchestrator: {fileID: 0}
-  runeHolder: {fileID: 0}
 --- !u!1 &6222756113536729793
 GameObject:
   m_ObjectHideFlags: 0

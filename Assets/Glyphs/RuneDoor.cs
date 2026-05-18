@@ -21,11 +21,9 @@ public class RuneDoorSaveModule : SaveModule<RuneDoorSaveData>
     protected override RuneDoorSaveData CollectTypedData() => door.CollectSaveData();
 }
 
-public class RuneDoor : MonoBehaviour, IChantReactor
+public class RuneDoor : MonoBehaviour
 {
     // code for chanting door open
-    [SerializeField]
-    public List<RuneType> code;
 
     // save data
     RuneDoorSaveModule saveData;
@@ -58,10 +56,10 @@ public class RuneDoor : MonoBehaviour, IChantReactor
     #endregion
 
     #region IChantReactor
-    public void React(List<RuneType> runes)
+    public void React()
     {
         Debug.Log("Woah someone wanted something from me the humble RoonDoar...");
-        if (IsValidChant(runes))
+        if (false)
         {
             OpenRoutine();
         }
@@ -69,19 +67,6 @@ public class RuneDoor : MonoBehaviour, IChantReactor
     #endregion
 
     #region Helpers
-    public bool IsValidChant(List<RuneType> runes)
-    {
-        if (code.Count != runes.Count) 
-            return false;
-
-        for (int i = 0; i < code.Count; i++)
-        {
-            if (runes[i] != code[i])
-                return false;
-        }
-
-        return true;
-    }
 
     public void OpenRoutine()
     {

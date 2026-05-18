@@ -113,12 +113,11 @@ public class TileAttackState : TileState
 }
 
 // monobehaviour
-public class Tile : MonoBehaviour, IRuneReactor, IHittable, IHitboxSource
+public class Tile : MonoBehaviour, IHittable, IHitboxSource
 {
     // components
     [SerializeField] Animator animator;
     [SerializeField] private NavMeshAgent agent;
-    [SerializeField] RuneDataSO rune;
     [SerializeField] Material runeReactionTexture;
     [SerializeField] private Transform player;
 
@@ -155,7 +154,7 @@ public class Tile : MonoBehaviour, IRuneReactor, IHittable, IHitboxSource
         health = 20;
 
         // get player
-        player = FindFirstObjectByType<PlayerManager>().transform.Find("Eyes").transform;
+        player = FindAnyObjectByType<PlayerManager>().transform.Find("Eyes").transform;
 
         // fsm
         fsm = new StateMachine();
@@ -214,18 +213,6 @@ public class Tile : MonoBehaviour, IRuneReactor, IHittable, IHitboxSource
 
         // tick fsm
         fsm.Update();
-    }
-    #endregion
-
-    #region IRuneReactor Interface
-    public void React(RuneType rune)
-    {
-        return;
-    }
-
-    public void RegisterRune(RuneType rune)
-    {
-        return;
     }
     #endregion
 
