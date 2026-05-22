@@ -33,17 +33,6 @@ public class GlpyhHolder : MonoBehaviour
         */
     }
 
-    // subscribe and unsubscribe to rune UI events
-    private void OnEnable()
-    {
-        // ui.OnChantSelected += ExecuteChant;
-    }
-
-    private void OnDisable()
-    {
-        // ui.OnChantSelected -= ExecuteChant;
-    }
-
     private void OnDrawGizmosSelected()
     {
         
@@ -56,27 +45,6 @@ public class GlpyhHolder : MonoBehaviour
     {
         // add to list
     }
-
-    // load runes from save
-    public void LoadRunes(List<int> save)
-    {
-        for (int i = 0; i < save.Count; i++)
-        {
-            
-        }
-    }
-
-    public List<int> SetSavedRunes()
-    {
-        List<int> ids = new List<int>();
-        /*
-        for (int i = 0; i < runes.Count; i++)
-        {
-            ids.Add(runes[i].databaseID);
-        }
-        */
-
-        return ids;
-    }
     #endregion
+
 }

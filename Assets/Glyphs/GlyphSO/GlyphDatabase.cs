@@ -38,7 +38,7 @@ public class GlyphDatabase : MonoBehaviour
         }
     }
 
-    public static GlyphDataSO GetRune(int id)
+    public static GlyphDataSO GetGlyph(int id)
     {
         return instance.database[id];
     }

@@ -11,7 +11,8 @@ public class GlyphDataSO : ScriptableObject {
     public Sprite uiImage;
 
     // audio
-    public FMODUnity.EventReference fmodEvent;
+    public string audioFileName; // or audio clip or byte[]
+    // public AudioClip baseAudio;
     public float pitch;
     public float resonance;
     // etc, etc. research fmod

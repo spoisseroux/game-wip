@@ -15,11 +15,14 @@ public class AudioManager : MonoBehaviour
     public float ambienceVolume = 1;
     [Range(0, 1)]
     public float SFXVolume = 1;
+    [Range(0, 1)]
+    public float chantVolume = 1;
 
     private Bus masterBus;
     private Bus musicBus;
     private Bus ambienceBus;
     private Bus sfxBus;
+    private Bus chantBus;
 
     private List<EventInstance> eventInstances;
     private List<StudioEventEmitter> eventEmitters;
@@ -44,6 +47,7 @@ public class AudioManager : MonoBehaviour
         musicBus = RuntimeManager.GetBus("bus:/Music");
         ambienceBus = RuntimeManager.GetBus("bus:/Ambience");
         sfxBus = RuntimeManager.GetBus("bus:/SFX");
+        chantBus = RuntimeManager.GetBus("bus:/Chant");
     }
 
     private void Start()
@@ -60,6 +64,7 @@ public class AudioManager : MonoBehaviour
         musicBus.setVolume(musicVolume);
         ambienceBus.setVolume(ambienceVolume);
         sfxBus.setVolume(SFXVolume);
+        chantBus.setVolume(chantVolume);
     }
 
     private void InitializeAmbience(EventReference ambienceEventReference)
@@ -104,6 +109,32 @@ public class AudioManager : MonoBehaviour
         emitter.EventReference = eventReference;
         eventEmitters.Add(emitter);
         return emitter;
+    }
+
+    public void PlayChant()
+    {
+        /*
+        // Dim down other audio sources
+
+        // Get the current DSP clock from the master channel group
+        RuntimeManager.CoreSystem.getMasterChannelGroup(out var masterGroup);
+        masterGroup.getDSPClock(out ulong dspClock, out ulong parentClock);
+
+        // Calculate samples-until-next-beat
+        ulong samplesPerBeat = (ulong)(sampleRate * (60.0 / bpm));
+        ulong nextBeat = dspClock + (samplesPerBeat - (dspClock % samplesPerBeat));
+
+        // Schedule each instance to that exact DSP position
+        foreach (var handle in _activeRows) {
+            handle.Instance.start();
+            handle.Channel.setDelay(nextBeat, 0, false);
+        }
+        */
+    }
+
+    public void EndChant()
+    {
+        
     }
 
     private void CleanUp()
