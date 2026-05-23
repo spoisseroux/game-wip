@@ -15,5 +15,8 @@ public class DamagePayload
 [System.Serializable]
 public enum DamageType
 {
-    Normal
+    Normal,
+    Ambient,
+    Treble,
+    Bass
 }
