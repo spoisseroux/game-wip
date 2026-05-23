@@ -126,7 +126,6 @@ public class ChantBuilder : MonoBehaviour
         glyphTracks.Clear();
     }
 
-    #region Timing
     private ulong GetBeatAtSubdivision(int startBeatIndex)
     {
         RuntimeManager.CoreSystem.getMasterChannelGroup(out var master);
@@ -135,5 +134,5 @@ public class ChantBuilder : MonoBehaviour
         ulong samplesPerBeat = (ulong)(sampleRate * (60.0 / bpm));
         return clock + (samplesPerBeat * (ulong)startBeatIndex) + (samplesPerBeat - (clock % samplesPerBeat));
     }
-    #endregion
+    
 }
