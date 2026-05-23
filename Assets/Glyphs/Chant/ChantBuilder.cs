@@ -83,16 +83,7 @@ public class ChantBuilder : MonoBehaviour
 
     private void Update()
     {
-        while (pending.TryDequeue(out GlyphEventHandler track))
-        {
-            track.Dispose();
-            glyphTracks.Remove(track);
-            if (glyphTracks.Count == 0)
-            {
-                // something goin on yo!
-                OnChantOver?.Invoke();
-            }
-        }
+        TryClearTracks();
     }
     #endregion
 
@@ -114,6 +105,20 @@ public class ChantBuilder : MonoBehaviour
     private void OnTrackStopped(GlyphEventHandler track)
     {
         pending.Enqueue(track);
+    }
+
+    private void TryClearTracks()
+    {
+        while (pending.TryDequeue(out GlyphEventHandler track))
+        {
+            track.Dispose();
+            glyphTracks.Remove(track);
+            if (glyphTracks.Count == 0)
+            {
+                // something goin on yo!
+                OnChantOver?.Invoke();
+            }
+        }
     }
 
     private void ClearSession()
