@@ -36,6 +36,7 @@ public class GlyphMetre
     public static bool VerifyInput(int track, int ID, int start, int end) { return true; }
 
     public int ID {get => glyphID; }
+    public int start { get => startIndex; }
 }
 
 /*
@@ -57,12 +58,15 @@ public class ChantBuilder : MonoBehaviour
     [SerializeField] public int sampleRate;
 
     [SerializeField] public EventReference fmodEventReference;
-    public EventReference ChantEventReference { get => fmodEventReference; }
 
     List<GlyphEventHandler> glyphTracks;
 
     // thread-safety
     private ConcurrentQueue<GlyphEventHandler> pending;
+
+    // event
+    public delegate void ChantEndedEvent();
+    public event ChantEndedEvent OnChantOver;
 
     #region MonoBehaviour
     private void Awake()
@@ -86,6 +90,7 @@ public class ChantBuilder : MonoBehaviour
             if (glyphTracks.Count == 0)
             {
                 // something goin on yo!
+                OnChantOver?.Invoke();
             }
         }
     }
@@ -94,13 +99,13 @@ public class ChantBuilder : MonoBehaviour
     public void BuildChant(List<GlyphMetre> chant)
     {
         ClearSession();
-        ulong nextBeat = GetNextBeatDSPClock();
-
         for (int i = 0; i < glyphTracks.Count; i++)
         {
             // need to check row->row match and other stuff
             GlyphEventHandler track = new GlyphEventHandler(GlyphDatabase.GetGlyph(chant[i].ID), fmodEventReference);
             track.OnStopped += OnTrackStopped;
+            // create start point
+            ulong nextBeat = GetBeatAtSubdivision(chant[i].start);
             track.ScheduleOnBeat(nextBeat);
             glyphTracks.Add(track);
         }
@@ -116,6 +121,8 @@ public class ChantBuilder : MonoBehaviour
         glyphTracks.Clear();
     }
 
+    #region Timing
+    /*
     private ulong GetNextBeatDSPClock()
     {
         RuntimeManager.CoreSystem.getMasterChannelGroup(out var master);
@@ -124,4 +131,15 @@ public class ChantBuilder : MonoBehaviour
         ulong samplesPerBeat = (ulong)(sampleRate * (60.0 / bpm));
         return clock + (samplesPerBeat - (clock % samplesPerBeat));
     }
+    */
+
+    private ulong GetBeatAtSubdivision(int startIndex)
+    {
+        RuntimeManager.CoreSystem.getMasterChannelGroup(out var master);
+        master.getDSPClock(out ulong clock, out _);
+
+        ulong samplesPerBeat = (ulong)(sampleRate * (60.0 / bpm));
+        return clock + (samplesPerBeat * (ulong)startIndex) + (samplesPerBeat - (clock % samplesPerBeat));
+    }
+    #endregion
 }
