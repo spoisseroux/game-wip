@@ -122,24 +122,13 @@ public class ChantBuilder : MonoBehaviour
     }
 
     #region Timing
-    /*
-    private ulong GetNextBeatDSPClock()
+    private ulong GetBeatAtSubdivision(int startBeatIndex)
     {
         RuntimeManager.CoreSystem.getMasterChannelGroup(out var master);
         master.getDSPClock(out ulong clock, out _);
 
         ulong samplesPerBeat = (ulong)(sampleRate * (60.0 / bpm));
-        return clock + (samplesPerBeat - (clock % samplesPerBeat));
-    }
-    */
-
-    private ulong GetBeatAtSubdivision(int startIndex)
-    {
-        RuntimeManager.CoreSystem.getMasterChannelGroup(out var master);
-        master.getDSPClock(out ulong clock, out _);
-
-        ulong samplesPerBeat = (ulong)(sampleRate * (60.0 / bpm));
-        return clock + (samplesPerBeat * (ulong)startIndex) + (samplesPerBeat - (clock % samplesPerBeat));
+        return clock + (samplesPerBeat * (ulong)startBeatIndex) + (samplesPerBeat - (clock % samplesPerBeat));
     }
     #endregion
 }
