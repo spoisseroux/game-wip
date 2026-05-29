@@ -545,6 +545,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7b930280db1a4a408ecc36b48746b05, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Dummy
+  damagePopUp: {fileID: 8118774065205742759, guid: ce5dff911d17818419a934e7aa333b60, type: 3}
+  worldSpaceGUIAdjustment: {x: 0, y: 1, z: 0}
   health: 100
 --- !u!65 &283133576
 BoxCollider:

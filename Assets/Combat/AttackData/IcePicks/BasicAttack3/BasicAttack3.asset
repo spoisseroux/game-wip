@@ -22,7 +22,7 @@ MonoBehaviour:
   - movementEvents:
     - {fileID: 11400000, guid: 7bcbf3fe53dd14f1d87fd1d494902115, type: 2}
   damageObject:
-    baseDamage: 0
+    baseDamage: 30
     type: 0
   attackName: IcePickAttack2
   comboIndex: 2
