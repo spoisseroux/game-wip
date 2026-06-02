@@ -2,23 +2,19 @@ using System.Collections.Generic;
 using UnityEngine;
 
 #region Save Module
-// save module
 [System.Serializable]
 public class StatBookSaveData : ISaveData
 {
-    public List<StatEntry> stats;
-
-    [System.Serializable]
-    public struct StatEntry
-    {
-        public StatID id;
-        public StatData values;
-    }
+    public SerializeableDictionary<StatID, StatData> stats;
 
     // load
-    public StatBookSaveData(List<StatEntry> entries) { stats = entries; }
+    public StatBookSaveData(Dictionary<StatID, Stat> entries)
+    {
+        foreach (var key in entries.Keys)
+            stats.Add(key, entries[key].statData);
+    }
     // new
-    public StatBookSaveData() { stats = new List<StatEntry>(); }
+    public StatBookSaveData() { stats = new SerializeableDictionary<StatID, StatData>(); }
 }
 
 public class StatBookSaveModule : SaveModule<StatBookSaveData>
@@ -32,19 +28,12 @@ public class StatBookSaveModule : SaveModule<StatBookSaveData>
 }
 #endregion
 
-// interface for stat books
-public interface IStatBook
-{
-    IStat Get(StatID id);
-    bool TryGet(StatID id, out IStat stat);
-}
-
 public class StatBook : MonoBehaviour, IStatBook
 {
     // data store
     private Dictionary<StatID, Stat> stats;
 
-    // default store
+    // default store, one SO per Unit
     private StatDefaultAssetSO defaultData;
 
     // save data
@@ -56,8 +45,11 @@ public class StatBook : MonoBehaviour, IStatBook
         stats = new Dictionary<StatID, Stat>();
         save = new StatBookSaveModule(this);
         save.Initialize();
+    }
 
-        InitializeDefault();
+    private void OnDestroy()
+    {
+        // save.DetachFromSaveManager();
     }
     #endregion
 
@@ -75,35 +67,28 @@ public class StatBook : MonoBehaviour, IStatBook
     #region Save/Load
     public void ApplySaveData(StatBookSaveData data)
     {
-        foreach (StatBookSaveData.StatEntry entry in data.stats)
+        foreach (var (id, statData) in data.stats)
         {
-            if (stats.TryGetValue(entry.id, out var stat))
+            if (stats.TryGetValue(id, out var stat))
             {
-                stat.Set(entry.values.baseValue);
+                // more complicated stat initialization can go here, but for now just baseValue is fine
+                stat.Set(statData.baseValue);
             }
         }
     }
 
     public StatBookSaveData CollectSaveData()
     {
-        return new StatBookSaveData(DictToSaveList(stats));
+        return new StatBookSaveData(stats);
     }
     #endregion
 
     #region Helpers
-    private void InitializeDefault()
+    private void ResetToDefault()
     {
+        // Loop through each defaultSO StatDefault objects, apply their data to Dictionary
         foreach (var def in defaultData.defaults)
-            stats[def.ID] = new Stat(def.baseValue);
-    }
-
-    private List<StatBookSaveData.StatEntry> DictToSaveList(Dictionary<StatID, Stat> statsIn)
-    {
-        List<StatBookSaveData.StatEntry> outList = new List<StatBookSaveData.StatEntry>();
-        foreach ( var (id, stat) in statsIn)
-            outList.Add(new StatBookSaveData.StatEntry {id = id, values = stat.statData});
-
-        return outList;
+            stats[def.ID].Set(def.baseValue);
     }
     #endregion
 }

@@ -1,6 +1,6 @@
 using System;
 
-// registry of all stats
+// registry of all stats, could i rename these to audio stuff? :3
 public enum StatID { Health, Agility, Power, Magic, Defense }
 
 // data object
@@ -17,18 +17,6 @@ public struct StatData
         flatBonus = 0, 
         multBonus = 1
     };
-}
-
-// interface
-public interface IStat
-{
-    float finalValue { get; }
-
-    public void Increase(float add);
-    public void Set(float val);
-    public void Reset();
-
-    event Action<float> OnValueChanged;
 }
 
 public class Stat : IStat
@@ -57,9 +45,9 @@ public class Stat : IStat
         OnValueChanged?.Invoke(data.baseValue);
     }
 
-    public void Reset()
+    public void Reset(float defaultBaseValue)
     {
-        // data.baseValue =
+        data.baseValue = defaultBaseValue;
         // what do we do for storing a default? 
     }
     #endregion
