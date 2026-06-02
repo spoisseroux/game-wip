@@ -31,7 +31,7 @@ public class StatBookSaveModule : SaveModule<StatBookSaveData>
 public class StatBook : MonoBehaviour, IStatBook
 {
     // data store
-    private Dictionary<StatID, Stat> stats;
+    private Dictionary<StatID, Stat> stats; // need UI to verify...
 
     // default store, one SO per Unit
     private StatDefaultAssetSO defaultData;

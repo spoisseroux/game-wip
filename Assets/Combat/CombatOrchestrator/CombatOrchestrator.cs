@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using Unity.VisualScripting.Antlr3.Runtime.Misc;
 
 /*
     OK, next steps:
@@ -33,6 +34,9 @@ public class CombatOrchestrator : MonoBehaviour, IHittable, IHitboxSource
     // health component eventually
     [SerializeField] float health;
 
+    // stat book, health ^ hmmm?
+    [SerializeField] StatBook unitStats;
+
     // weapon object.... what actually is this ??
     [SerializeField] WeaponHolder equippedWeapon;
 
@@ -44,15 +48,14 @@ public class CombatOrchestrator : MonoBehaviour, IHittable, IHitboxSource
     // AttackOrchestrator attackOrch; ???
     // SpellOrchestrator spellOrch; ???
 
-    // combat context should just be fixed to this unit
-    CombatContext context; // updates on weapon swaps, etc.
+    CombatContext context; // updates on weapon swaps, etc... combat context should just be fixed to this unit
 
     // active hitboxes
     [SerializeField] List<Hitbox> activeHitboxes = new List<Hitbox>();
 
     #region MonoBehaviour
-    private void Awake() {}
-    private void Start() { phases = emptyPhaseList; }
+    private void Awake() { }
+    private void Start() { phases = new List<CombatPhase>(); }
 
     private void Update()
     {
@@ -121,7 +124,8 @@ public class CombatOrchestrator : MonoBehaviour, IHittable, IHitboxSource
     public void ClearAttackRunner()
     {
         currentAttack = null;
-        phases = emptyPhaseList;
+        // phases = emptyPhaseList;
+        phases = new List<CombatPhase>(); // will this crash it?
         currPhase = 0;
     }
     #endregion
@@ -141,7 +145,7 @@ public class CombatOrchestrator : MonoBehaviour, IHittable, IHitboxSource
     #region Hittable Interface
     public void Hit(HitboxRecord hitboxRecord)
     {
-        health -= hitboxRecord.context.damage.baseDamage;
+        health -= hitboxRecord.context.damage.damageValue;
     }
 
     public GameObject GetGameObject()
@@ -160,13 +164,38 @@ public class CombatOrchestrator : MonoBehaviour, IHittable, IHitboxSource
             3. what if we want sphere or whatever other shape?? that's a bigger, multi-piece one though
             4. hitbox movement routines (i.e. animation curve, tether to player, tether to object, etc.)
         */
+
+        /*
+            RAW DAMAGE SCALE CALCULATION DONE:
+                For each indicated StatID to have scaling properties
+                Get the StatID value of Unit
+                Multiply this data value against the respective scaling factor
+                Add this final number as a flat damage bonus to the DamagePayload
+        */
+
+        // calculate raw scaling along StatID field of weapon damage with user's StatID value
+        List<float> addedStatDamage = new List<float>();
+        float weaponFlatScale = unitStats.Get(equippedWeapon.weaponData.scalingStat).finalValue * equippedWeapon.weaponData.damageScalingFactor;
+        addedStatDamage.Add(weaponFlatScale);
+        // per indicated scaling StatID in attack, multiply level of user's StatID field with AttackSO's scaling factor for it 
+        foreach (var (id, scale) in currentAttack.scalingFactors)
+        {
+            // final scale = userStatValue * statAttackScale
+            float addedScale = unitStats.Get(id).finalValue * scale;
+            addedStatDamage.Add(addedScale);
+        }
+        // calc final damage value by adding the scaled values
+        float finalDamage = currentAttack.damageObject;
+        for (int i = 0; i < addedStatDamage.Count; i++)
+            finalDamage += addedStatDamage[i];
+
         Hitbox hitbox = new Hitbox(duration, 
                                    transform.position + (Vector3.up * 1.5f) + (transform.forward * equippedWeapon.weaponData.attackRange), 
                                    box, 
                                    transform.rotation, 
                                    this, 
                                    equippedWeapon.weaponData, 
-                                   currentAttack.damageObject, 
+                                   new DamagePayload(finalDamage, currentAttack.damageType),
                                    hits);
         activeHitboxes.Add(hitbox);
         Debug.Log("Hitbox added at: " + (transform.position + transform.forward) + " with duration " + duration 

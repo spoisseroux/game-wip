@@ -35,7 +35,7 @@ public class DamagePopUp : MonoBehaviour
     public void Setup(DamagePayload damage)
     {
         // set up text
-        int dmg = (int)damage.baseDamage;
+        int dmg = (int)damage.damageValue;
         text.SetText(dmg.ToString());
         // color
 

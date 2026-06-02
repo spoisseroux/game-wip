@@ -10,12 +10,12 @@ public class Dummy : MonoBehaviour, IHittable
     public void Hit(HitboxRecord hitboxRecord)
     {
         DamagePayload dmg = hitboxRecord.context.damage;
-        health -= dmg.baseDamage;
+        health -= dmg.damageValue;
         
         GameObject popup = Instantiate(damagePopUp, this.transform.position + worldSpaceGUIAdjustment, Quaternion.identity);
         popup.GetComponent<DamagePopUp>().Setup(dmg);
 
-        Debug.Log("Ow my health! I lost: " + dmg.baseDamage + " health!");
+        Debug.Log("Ow my health! I lost: " + dmg.damageValue + " health!");
         return;
     }
 

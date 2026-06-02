@@ -21,9 +21,14 @@ public class AttackSO : ScriptableObject
     /*
         Refactor in progress!
     */
+    // phases
     [SerializeField] public List<CombatPhase> combatPhases;
     [SerializeField] public List<MovementPhase> movementPhases;
-    [SerializeField] public DamagePayload damageObject;
+    // damage data
+    [SerializeField] public float damageObject;
+    [SerializeField] public DamageType damageType;
+    [SerializeField] public ScriptableObjectDictionary<StatID, float> scalingFactors; // need to make sure this isn't buggo'd butttt looks good?
+    // metadata
     [SerializeField] public string attackName;
     [SerializeField] public int comboIndex;
 

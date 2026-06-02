@@ -23,8 +23,13 @@ MonoBehaviour:
   movementPhases:
   - movementEvents:
     - {fileID: 11400000, guid: 2501edbfbe286421b97b3d989465fb54, type: 2}
-  damageObject:
-    baseDamage: 10
-    type: 0
+  damageObject: 5
+  damageType: 0
+  scalingFactors:
+    keys: 030000000200000001000000
+    values:
+    - 0.5
+    - 0.1
+    - 0.1
   attackName: IcePickAttack0
   comboIndex: 0

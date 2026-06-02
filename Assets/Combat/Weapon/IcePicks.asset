@@ -18,3 +18,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 5d5b5ed47761d4658b661d6788177569, type: 2}
   - {fileID: 11400000, guid: 69e55d5d711214799b7cf71a2e38d7ba, type: 2}
   attackRange: 2
+  scalingStat: 3
+  damageScalingFactor: 0.5
