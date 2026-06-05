@@ -26,9 +26,6 @@ public interface IHitboxSource
 [System.Serializable]
 public class Hitbox
 {   
-    // source
-    public IHitboxSource source { get; private set; } // this gets replaced by Context
-
     // context
     public HitboxContext hitboxContext;
 
@@ -118,7 +115,7 @@ public class Hitbox
                 // can the object be hit again
                 else if (hitTargets[hitMe] < hitCount)
                 {
-                    source?.OnHitConfirmed(record);
+                    hitboxContext.source?.OnHitConfirmed(record);
                 }
             }
         }
@@ -132,7 +129,6 @@ public class Hitbox
     public void StopCheckingCollision()
     {
         // cleanup
-        source = null;
         state = HitboxState.Closed;
         hitTargets.Clear(); // hmm, object probly gets destroyed afterwards sooo... hmm
     }
